@@ -1,7 +1,8 @@
 #include <Rinternals.h>
 #include <R_ext/Rdynload.h>
 
-
+#ifndef PREPROCESSCORE_NORMALIZATION_STUBS_H
+#define PREPROCESSCORE_NORMALIZATION_STUBS_H 1
 
 /*! \brief Quantile normalize the columns of a matrix
  *
@@ -23,3 +24,20 @@ int qnorm_c(double *data, int *rows, int *cols){
   return fun(data,rows,cols);
 
 }
+
+
+
+int qnorm_robust_c(double *data,double *weights, int *rows, int *cols, int *use_median, int *use_log2, int *weight_scheme){
+
+  
+  static int(*fun)(double*, double *, int*, int*, int *, int *, int *) = NULL;
+  
+  if (fun == NULL)
+    fun =  (int(*)(double*, double *, int*, int*, int *, int *, int *))R_GetCCallable("preprocessCore","qnorm_robust_c");
+  
+  return fun(data,weights,rows,cols,use_median,use_log2,weight_scheme);
+  
+} 
+
+
+#endif
