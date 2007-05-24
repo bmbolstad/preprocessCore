@@ -38,4 +38,7 @@ void R_init_preprocessCore(DllInfo *info){
   
   R_RegisterCCallable("preprocessCore", "qnorm_c", (DL_FUNC)&qnorm_c);
   R_RegisterCCallable("preprocessCore", "qnorm_robust_c", (DL_FUNC)&qnorm_robust_c);
+  R_RegisterCCallable("preprocessCore", "qnorm_c_using_target", (DL_FUNC)&qnorm_c_using_target);
+  R_RegisterCCallable("preprocessCore", "qnorm_c_determine_target", (DL_FUNC)&qnorm_c_determine_target);
+  R_RegisterCCallable("preprocessCore", "qnorm_c_within_blocks", (DL_FUNC)&qnorm_c_within_blocks);
 }

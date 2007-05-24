@@ -40,4 +40,49 @@ int qnorm_robust_c(double *data,double *weights, int *rows, int *cols, int *use_
 } 
 
 
+
+int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int *targetrows){
+
+  static int(*fun)(double *, int *, int *, double *, int *) = NULL;
+
+  
+  if (fun == NULL)
+    fun =  (int(*)(double *, int *, int *, double *, int *))R_GetCCallable("preprocessCore","qnorm_c_using_target");
+
+  return fun(data,rows,cols,target,targetrows);
+
+}
+
+
+int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target, int *targetrows){
+
+
+  static int(*fun)(double *, int *, int *, double *, int *) = NULL;
+
+  if (fun == NULL)
+    fun = (int(*)(double *, int *, int *, double *, int *))R_GetCCallable("preprocessCore","qnorm_c_determine_target");
+
+  return fun(data, rows, cols, target, targetrows);
+
+}
+
+
+int qnorm_c_within_blocks(double *x, int *rows, int *cols, int *blocks){
+
+  
+  static int(*fun)(double *, int *, int *, int *) = NULL;
+
+  if (fun == NULL)
+    fun = (int(*)(double *, int *, int *, int *))R_GetCCallable("preprocessCore","qnorm_c_within_blocks");
+
+
+  return fun(x, rows, cols, blocks);
+  
+}
+
+
+
+
+
+
 #endif
