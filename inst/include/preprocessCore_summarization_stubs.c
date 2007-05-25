@@ -1,5 +1,8 @@
+#include <Rinternals.h>
+#include <R_ext/Rdynload.h>
 
 
+#ifdef AVG_LOG
 
 /*! \brief log2 transform and then compute the mean and SE of the mean
  * 
@@ -143,13 +146,16 @@ void LogAverage(double *data, int rows, int cols, int *cur_rows, double *results
 }
 
 
-void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, double *c, double t){
+#endif
 
 
-  static void(*fun)(double *, int, int, double *, double *, double) = NULL;
+void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, double *c, double *t){
+
+
+  static void(*fun)(double *, int, int, double *, double *, double*) = NULL;
 
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, double *, double *, double))R_GetCCallable("preprocessCore","median_polish_fit_no_copy");
+    fun = (void(*)(double *, int, int, double *, double *, double*))R_GetCCallable("preprocessCore","median_polish_fit_no_copy");
 
 
   return fun(data, rows, cols, r, c, t);

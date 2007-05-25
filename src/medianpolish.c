@@ -213,7 +213,7 @@ static void cmod(double *c, double *cdelta, int cols){
 }
 
 
-void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, double *c, double t){
+void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, double *c, double *t){
  
 
   int i,j,iter;
@@ -226,7 +226,7 @@ void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, doub
 
   double *z = data; /* This is just to keep consistent with other code here. No actual copying of the data is done here */
 
-  t = 0.0;
+  *t = 0.0;
 
   for (iter = 1; iter <= maxiter; iter++){
     get_row_median(z,rdelta,rows,cols);
@@ -236,7 +236,7 @@ void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, doub
     for (j = 0; j < cols; j++){
       c[j] = c[j] - delta;
     }
-    t = t + delta;
+    *t = *t + delta;
     get_col_median(z,cdelta,rows,cols);
     subtract_by_col(z,cdelta,cols,cols);
     cmod(c,cdelta,cols);
@@ -244,7 +244,7 @@ void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, doub
     for (i =0; i < rows; i ++){
       r[i] = r[i] - delta;
     }
-    t = t+delta;
+    *t = *t+delta;
     newsum = sum_abs(z,rows,cols);
     if (newsum == 0.0 || fabs(1.0 - oldsum/newsum) < eps)
       break;
@@ -269,7 +269,7 @@ void median_polish_no_copy(double *data, int rows, int cols, double *results, do
 
   double *z = data;  /* This is just to keep consistent with other code here. No actual copying of the data is done here */
   
-  median_polish_fit_no_copy(z, rows, cols, r, c, t);
+  median_polish_fit_no_copy(z, rows, cols, r, c, &t);
   
   for (j=0; j < cols; j++){
     results[j] =  t + c[j]; 
