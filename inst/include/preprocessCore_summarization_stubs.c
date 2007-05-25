@@ -141,3 +141,37 @@ void LogAverage(double *data, int rows, int cols, int *cur_rows, double *results
   
   return fun(data,rows,cols,cur_rows,results,nprobes,resultsSE);
 }
+
+
+
+
+/*! \brief Compute medianpolish  
+ *
+ *
+ *      Given a data matrix of probe intensities, and a list of rows in the matrix 
+ *      corresponding to a single probeset, compute median polish expression measure. 
+ *      Note that data is a probes by chips matrix. Also compute SE estimates
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows a vector containing row indices to use
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param nprobes number of probes in current set
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols. Note that this is just NA values
+ *
+ *  
+ */
+
+void MedianPolish(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+
+
+  static void(*fun)(double *, int, int, int *, double *, int double *) = NULL;
+
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, int *, double *, int double *))R_GetCCallable("preprocessCore","MedianPolish");
+
+
+  return fun(data,rows,cols,cur_rows,results,nprobes,resultsSE);
+
+}

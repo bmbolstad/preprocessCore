@@ -2,9 +2,9 @@
  **
  ** file: medianpolish.c
  **
- ** Copyright (C) 2002-2003 Ben Bolstad
+ ** Copyright (C) 2002-2007 Ben Bolstad
  **
- ** created by: B. M. Bolstad   <bolstad@stat.berkeley.edu>
+ ** created by: B. M. Bolstad   <bmb@bmbolstad.com>
  ** created on: Jan 7, 2003 (but based on code dating back as far as June 2002)
  **
  ** last modified: Jan 7, 2003
@@ -12,6 +12,7 @@
  ** License: GPL V2 or later (same as the rest of the Affy package)
  **
  ** Median polish summary measure (used in the RMA expression measure)
+ ** and just general medianpolish model fitting
  **
  **
  ** History
@@ -27,6 +28,7 @@
  ** Apr 5, 2004 - change malloc/free to Calloc/Free
  ** Nov 13, 2006 - make median calls to median_nocopy
  ** May 19, 2007 - branch out of affyPLM into a new package preprocessCore, then restructure the code. Add doxygen style documentation
+ ** May 24, 2007 - break median polish functionality down into even smaller component parts.
  **
  ************************************************************************/
 
@@ -211,9 +213,122 @@ static void cmod(double *c, double *cdelta, int cols){
 }
 
 
+void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, double *c, double t){
+ 
+
+  int i,j,iter;
+  int maxiter = 10;
+  double eps=0.01;
+  double oldsum = 0.0,newsum = 0.0;
+  double delta;
+  double *rdelta = Calloc(rows,double);
+  double *cdelta = Calloc(cols,double);
+
+  double *z = data; /* This is just to keep consistent with other code here. No actual copying of the data is done here */
+
+  t = 0.0;
+
+  for (iter = 1; iter <= maxiter; iter++){
+    get_row_median(z,rdelta,rows,cols);
+    subtract_by_row(z,rdelta,rows,cols);
+    rmod(r,rdelta,rows);
+    delta = median(c,cols);
+    for (j = 0; j < cols; j++){
+      c[j] = c[j] - delta;
+    }
+    t = t + delta;
+    get_col_median(z,cdelta,rows,cols);
+    subtract_by_col(z,cdelta,cols,cols);
+    cmod(c,cdelta,cols);
+    delta = median(r,rows);
+    for (i =0; i < rows; i ++){
+      r[i] = r[i] - delta;
+    }
+    t = t+delta;
+    newsum = sum_abs(z,rows,cols);
+    if (newsum == 0.0 || fabs(1.0 - oldsum/newsum) < eps)
+      break;
+    oldsum = newsum;
+  }
+  
+  Free(rdelta);
+  Free(cdelta);
+
+}
+
+
+
+
+void median_polish_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+
+  int i,j;
+  
+  double *r = Calloc(rows,double);
+  double *c = Calloc(cols,double);
+  double t;
+
+  double *z = data;  /* This is just to keep consistent with other code here. No actual copying of the data is done here */
+  
+  median_polish_fit_no_copy(z, rows, cols, r, c, t);
+  
+  for (j=0; j < cols; j++){
+    results[j] =  t + c[j]; 
+    resultsSE[j] = R_NaReal;
+  }
+  
+  Free(r);
+  Free(c);
+}
+
+
+void median_polish_log2_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+
+  
+  int i, j;
+
+  for (j = 0; j < cols; j++){
+    for (i =0; i < rows; i++){
+      data[j*rows + i] = log(data[j*rows + i])/log(2.0);  
+    }
+  } 
+
+  median_polish_no_copy(data,rows,cols,results,resultsSE);
+
+}
+
+
+void median_polish_log2(double *data, int rows, int cols, double *results, double *resultsSE, double *residuals){
+  int i, j;
+
+  for (j = 0; j < cols; j++){
+    for (i =0; i < rows; i++){
+      residuals[j*rows + i] = log(data[j*rows + i])/log(2.0);  
+    }
+  } 
+  median_polish_no_copy(residuals,rows,cols,results,resultsSE);
+
+}
+
+
+void median_polish(double *data, int rows, int cols, double *results, double *resultsSE, double *residuals){
+
+  int i, j;
+
+  for (j = 0; j < cols; j++){
+    for (i =0; i < rows; i++){
+      residuals[j*rows + i] = data[j*rows + i];  
+    }
+  } 
+  median_polish_no_copy(residuals,rows,cols,results,resultsSE);
+}
+
+
+
+
+
 /*************************************************************************************
  **
- ** void median_polish(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes)
+ ** void MedianPolish(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes)
  **
  ** double *data - a data matrix of dimension rows by cols (the entire PM matrix)
  ** int rows, cols - rows and columns dimensions of matrix
@@ -244,19 +359,10 @@ static void cmod(double *c, double *cdelta, int cols){
  *  
  */
 
-void median_polish(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+void MedianPolish(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
 
-  int i,j,iter;
-  int maxiter = 10;
-  double eps=0.01;
-  double oldsum = 0.0,newsum = 0.0;
-  double t = 0.0;
-  double delta;
-  double *rdelta = Calloc(nprobes,double);
-  double *cdelta = Calloc(cols,double);
-  
-  double *r = Calloc(nprobes,double);
-  double *c = Calloc(cols,double);
+  int i,j;
+
   double *z = Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
@@ -265,39 +371,10 @@ void median_polish(double *data, int rows, int cols, int *cur_rows, double *resu
     }
   } 
   
+
+  median_polish_no_copy(z,rows,cols,results,resultsSE);
   
-  for (iter = 1; iter <= maxiter; iter++){
-    get_row_median(z,rdelta,nprobes,cols);
-    subtract_by_row(z,rdelta,nprobes,cols);
-    rmod(r,rdelta,nprobes);
-    delta = median(c,cols);
-    for (j = 0; j < cols; j++){
-      c[j] = c[j] - delta;
-    }
-    t = t + delta;
-    get_col_median(z,cdelta,nprobes,cols);
-    subtract_by_col(z,cdelta,nprobes,cols);
-    cmod(c,cdelta,cols);
-    delta = median(r,nprobes);
-    for (i =0; i < nprobes; i ++){
-      r[i] = r[i] - delta;
-    }
-    t = t+delta;
-    newsum = sum_abs(z,nprobes,cols);
-    if (newsum == 0.0 || fabs(1.0 - oldsum/newsum) < eps)
-      break;
-    oldsum = newsum;
-  }
-  
-  for (j=0; j < cols; j++){
-    results[j] =  t + c[j]; 
-    resultsSE[j] = R_NaReal;
-  }
-  
-  Free(rdelta);
-  Free(cdelta);
-  Free(r);
-  Free(c);
-  Free(z); 
+  Free(z);
+
 }
 
