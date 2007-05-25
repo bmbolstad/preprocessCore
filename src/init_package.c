@@ -12,6 +12,7 @@
  *****************************************************/
 
 #include "qnorm.h"
+#include "medianpolish.h"
 #include <R_ext/Rdynload.h>
 #include <Rdefines.h>
 #include <Rinternals.h>
@@ -35,10 +36,24 @@ static const R_CallMethodDef callMethods[]  = {
 void R_init_preprocessCore(DllInfo *info){
 
   R_registerRoutines(info, NULL, callMethods, NULL, NULL);
-  
+
+
+  /* The normalization routines */
   R_RegisterCCallable("preprocessCore", "qnorm_c", (DL_FUNC)&qnorm_c);
   R_RegisterCCallable("preprocessCore", "qnorm_robust_c", (DL_FUNC)&qnorm_robust_c);
   R_RegisterCCallable("preprocessCore", "qnorm_c_using_target", (DL_FUNC)&qnorm_c_using_target);
   R_RegisterCCallable("preprocessCore", "qnorm_c_determine_target", (DL_FUNC)&qnorm_c_determine_target);
   R_RegisterCCallable("preprocessCore", "qnorm_c_within_blocks", (DL_FUNC)&qnorm_c_within_blocks);
+
+  /* The summarization routines */
+
+  R_RegisterCCallable("preprocessCore", "median_polish_fit_no_copy", (DL_FUNC)&median_polish_fit_no_copy);
+  R_RegisterCCallable("preprocessCore", "median_polish_no_copy", (DL_FUNC)&median_polish_no_copy);
+  R_RegisterCCallable("preprocessCore", "median_polish_log2_no_copy", (DL_FUNC)&median_polish_log2_no_copy);
+  R_RegisterCCallable("preprocessCore", "median_polish_log2", (DL_FUNC)&median_polish_log2);
+  R_RegisterCCallable("preprocessCore", "median_polish", (DL_FUNC)&median_polish);
+  R_RegisterCCallable("preprocessCore", "MedianPolish", (DL_FUNC)&MedianPolish);
+  
+
+
 }

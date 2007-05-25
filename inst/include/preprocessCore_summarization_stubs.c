@@ -76,10 +76,10 @@ void AverageLog(double *data, int rows, int cols, int *cur_rows, double *results
 void AverageLog_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
   
 
-  static void(*fun)(double*, int, int, int*, double *, int, double *) = NULL;
+  static void(*fun)(double*, int, int, int*, double *, int) = NULL;
   
   if (fun == NULL)
-    fun =  (void(*)(double*, int, int, int*, double *, int, double *))R_GetCCallable("preprocessCore","AverageLog_noSE");
+    fun =  (void(*)(double*, int, int, int*, double *, int))R_GetCCallable("preprocessCore","AverageLog_noSE");
   
   return fun(data,rows,cols,cur_rows,results,nprobes);
 }
@@ -143,6 +143,64 @@ void LogAverage(double *data, int rows, int cols, int *cur_rows, double *results
 }
 
 
+void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, double *c, double t){
+
+
+  static void(*fun)(double *, int, int, double *, double *, double) = NULL;
+
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *, double *, double))R_GetCCallable("preprocessCore","median_polish_fit_no_copy");
+
+
+  return fun(data, rows, cols, r, c, t);
+
+}
+
+void median_polish_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+
+  static void(*fun)(double *, int, int, double *, double *) = NULL;
+
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *, double *))R_GetCCallable("preprocessCore","median_polish_no_copy");
+
+  return fun(data,rows,cols,results,resultsSE);
+
+}
+
+void median_polish_log2_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+  
+  static void(*fun)(double *, int, int, double *, double *) = NULL;
+
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *, double *))R_GetCCallable("preprocessCore","median_polish_log2_no_copy");
+
+  return fun(data,rows,cols,results,resultsSE);
+
+}
+
+
+void median_polish_log2(double *data, int rows, int cols, double *results, double *resultsSE, double *residuals){
+
+  static void(*fun)(double *, int, int, double *, double *, double *) = NULL;
+
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *, double *, double *))R_GetCCallable("preprocessCore","median_polish_log2");
+  
+
+  return fun(data,rows,cols,results,resultsSE,residuals);
+
+}
+
+void median_polish(double *data, int rows, int cols, double *results, double *resultsSE, double *residuals){
+
+  static void(*fun)(double *, int, int, double *, double *, double *) = NULL;
+  
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *, double *, double *))R_GetCCallable("preprocessCore","median_polish");
+  
+
+  return fun(data,rows,cols,results,resultsSE,residuals);
+}
 
 
 /*! \brief Compute medianpolish  
@@ -166,12 +224,15 @@ void LogAverage(double *data, int rows, int cols, int *cur_rows, double *results
 void MedianPolish(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
 
 
-  static void(*fun)(double *, int, int, int *, double *, int double *) = NULL;
+  static void(*fun)(double *, int, int, int *, double *, int, double *) = NULL;
 
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, int *, double *, int double *))R_GetCCallable("preprocessCore","MedianPolish");
+    fun = (void(*)(double *, int, int, int *, double *, int, double *))R_GetCCallable("preprocessCore","MedianPolish");
 
 
   return fun(data,rows,cols,cur_rows,results,nprobes,resultsSE);
 
 }
+
+
+

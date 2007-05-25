@@ -372,7 +372,7 @@ void MedianPolish(double *data, int rows, int cols, int *cur_rows, double *resul
   } 
   
 
-  median_polish_no_copy(z,rows,cols,results,resultsSE);
+  median_polish_no_copy(z,nprobes,cols,results,resultsSE);
   
   Free(z);
 
