@@ -53,6 +53,7 @@
  ** Oct 26, 2006 - fix unbalanced UNPROTECT in use_target.
  ** Nov 13, 2006 - remove median code
  ** May 20, 2007 - move to preprocessCore. clean up code.
+ ** May 26, 2007 - fix memory leak in qnorm_c_determine_target
  **
  ***********************************************************/
 
@@ -116,12 +117,13 @@ typedef struct{
  **		    
  **********************************************************/
 
-static int min(int x1,int x2){
-  if (x1 > x2)
-    return x2;
-  else
-    return x1;
-}
+/* static int min(int x1,int x2){
+ * if (x1 > x2)
+ *   return x2;
+ * else
+ *   return x1;
+ *}
+ */
 
 /**********************************************************
  **
@@ -1303,11 +1305,11 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
 
 
   int i,j,ind,row_mean_ind;
-  dataitem **dimat;
+  /* dataitem **dimat; */
   /*  double sum; */
   double *row_mean = (double *)Calloc((*rows),double);
   double *datvec;
-  double *ranks = (double *)Calloc((*rows),double);  
+  /*  double *ranks = (double *)Calloc((*rows),double); */ 
   
   double row_mean_ind_double,row_mean_ind_double_floor;
   double samplepercentile;
@@ -1372,11 +1374,11 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
     } 
 
 
-
-
-
-
   }
+
+  Free(row_mean);
+  Free(datvec);
+  return 0;
 }
 
 
@@ -1385,7 +1387,7 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
 SEXP R_qnorm_using_target(SEXP X, SEXP target,SEXP copy){
 
 
-  SEXP Xcopy,dim1,dim2;
+  SEXP Xcopy,dim1; /*,dim2; */
   int rows, cols;
   int target_rows, target_cols;
   double *Xptr;

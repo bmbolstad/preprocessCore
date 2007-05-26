@@ -261,7 +261,7 @@ void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, doub
 
 void median_polish_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
 
-  int i,j;
+  int j;
   
   double *r = Calloc(rows,double);
   double *c = Calloc(cols,double);
