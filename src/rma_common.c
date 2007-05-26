@@ -57,7 +57,7 @@ int sort_double(const double *a1,const double *a2){
  *************************************************************************/
 
 double  median(double *x, int length){
-  int i;
+  /*  int i; */
   int half;
   double med;
   double *buffer = Calloc(length,double);
@@ -100,7 +100,7 @@ double  median(double *x, int length){
  *************************************************************************/
 
 double  median_nocopy(double *x, int length){
-  int i;
+  /* int i; */
   int half;
   double med;
   double *buffer = x;  //Calloc(length,double);
