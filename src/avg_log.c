@@ -23,6 +23,7 @@
  ** Oct 5, 2003 - add output_param
  ** Oct 10, 2003 - added threestepPLM version of this summary.
  ** May 19, 2007 - branch out of affyPLM into a new package preprocessCore, then restructure the code. Add doxygen style documentation
+ ** May 26, 2007 - fix memory leak in average_log. add additional interfaces
  **
  ************************************************************************/
 
@@ -89,6 +90,20 @@ static double AvgLogSE(double *x, double mean, int length){
 }
 
 
+void averagelog_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+  int i,j;
+
+  for (j = 0; j < cols; j++){
+    for (i =0; i < rows; i++){
+      data[j*rows + i] = log(data[j*rows + i])/log(2.0);  
+    }
+    results[j] = AvgLog(&data[j*rows],rows);
+    resultsSE[j] = AvgLogSE(&data[j*rows],results[j],rows);
+  } 
+
+}
+
+
 /***************************************************************************
  ** 
  ** void averagelog(double *data, int rows, int cols, double *results, double *resultsSE)
@@ -117,6 +132,8 @@ void averagelog(double *data, int rows, int cols, double *results, double *resul
     results[j] = AvgLog(z,rows);
     resultsSE[j] = AvgLogSE(z,results[j],rows);
   } 
+  Free(z);
+
 }
 
 
@@ -168,9 +185,6 @@ void AverageLog(double *data, int rows, int cols, int *cur_rows, double *results
     results[j] = AvgLog(&z[j*nprobes],nprobes);
     resultsSE[j] = AvgLogSE(&z[j*nprobes],results[j],nprobes);
   }
-
-
-
 
   Free(z);
 }
