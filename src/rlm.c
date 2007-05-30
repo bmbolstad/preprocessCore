@@ -41,6 +41,7 @@
  ** June 23, 2004 - move specialization to its own file
  ** July 26, 2004 - rlm_wfit added
  ** Mar 1, 2006 - change all comments to ansi style
+ ** May 27, 2007 - clean up code for inclusion in preprocessCore
  **
  ********************************************************************/
 

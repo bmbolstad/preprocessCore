@@ -73,7 +73,7 @@ static double weight_bisquare(double x){
  **
  ****************************************************************************/
 
-static double Tukey_Biweight(double *x, int length){
+double Tukey_Biweight(double *x, int length){
   
   double median;
   int i;
@@ -186,7 +186,23 @@ static double Tukey_Biweight_SE(double *x,double BW, int length){
 }
 
 
+void tukeybiweight(double *data, int rows, int cols, double *results, double *resultsSE){
+  int i,j;
+  double *z = Calloc(rows,double);
 
+  for (j = 0; j < cols; j++){
+    for (i =0; i < rows; i++){
+      z[j*rows + i] = log(data[j*rows + i])/log(2.0);  
+    }
+    results[j] = Tukey_Biweight(z,rows);
+    resultsSE[j] = Tukey_Biweight_SE(z,results[j],rows);
+  }
+  Free(z);
+
+
+
+
+}
 
 /**********************************************************************************
  **
@@ -220,19 +236,16 @@ static double Tukey_Biweight_SE(double *x,double BW, int length){
  *  
  */
 
-void tukeybiweight(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+void TukeyBiweight(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
   int i,j;
-  double *z = Calloc(nprobes*cols,double);
+  double *z = Calloc(nprobes,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < nprobes; i++){
-      z[j*nprobes + i] = log(data[j*rows + cur_rows[i]])/log(2.0);  
+      z[i] = log(data[j*rows + cur_rows[i]])/log(2.0);  
     }
-  } 
-  
-  for (j=0; j < cols; j++){
-    results[j] = Tukey_Biweight(&z[j*nprobes],nprobes);
-    resultsSE[j] = Tukey_Biweight_SE(&z[j*nprobes],results[j],nprobes);
+    results[j] = Tukey_Biweight(z,nprobes);
+    resultsSE[j] = Tukey_Biweight_SE(z,results[j],nprobes);
   }
   Free(z);
 }
