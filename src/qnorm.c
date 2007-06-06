@@ -1304,7 +1304,7 @@ int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int
 int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target, int *targetrows){
 
 
-  int i,j,ind,row_mean_ind;
+  int i,j,row_mean_ind;
   /* dataitem **dimat; */
   /*  double sum; */
   double *row_mean = (double *)Calloc((*rows),double);

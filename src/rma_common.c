@@ -105,8 +105,6 @@ double  median_nocopy(double *x, int length){
   double med;
   double *buffer = x;  //Calloc(length,double);
   
-  memcpy(buffer,x,length*sizeof(double));
-
   half = (length + 1)/2;
   /*  
       qsort(buffer,length,sizeof(double), (int(*)(const void*, const void*))sort_double);  
