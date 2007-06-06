@@ -238,7 +238,7 @@ void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, doub
     }
     *t = *t + delta;
     get_col_median(z,cdelta,rows,cols);
-    subtract_by_col(z,cdelta,cols,cols);
+    subtract_by_col(z,cdelta,rows,cols);
     cmod(c,cdelta,cols);
     delta = median(r,rows);
     for (i =0; i < rows; i ++){
