@@ -48,6 +48,7 @@ void R_init_preprocessCore(DllInfo *info){
 
   /* The normalization routines */
   R_RegisterCCallable("preprocessCore", "qnorm_c", (DL_FUNC)&qnorm_c);
+  R_RegisterCCallable("preprocessCore", "R_qnorm_robust_weights", (DL_FUNC)&R_qnorm_robust_weights);
   R_RegisterCCallable("preprocessCore", "qnorm_robust_c", (DL_FUNC)&qnorm_robust_c);
   R_RegisterCCallable("preprocessCore", "qnorm_c_using_target", (DL_FUNC)&qnorm_c_using_target);
   R_RegisterCCallable("preprocessCore", "qnorm_c_determine_target", (DL_FUNC)&qnorm_c_determine_target);

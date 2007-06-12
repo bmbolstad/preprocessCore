@@ -27,6 +27,20 @@ int qnorm_c(double *data, int *rows, int *cols){
 
 
 
+SEXP R_qnorm_robust_weights(SEXP X, SEXP remove_extreme, SEXP n_remove){
+
+  
+  static SEXP(*fun)(SEXP, SEXP, SEXP) = NULL;
+  
+  if (fun == NULL)
+    fun =  (SEXP(*)(SEXP, SEXP, SEXP))R_GetCCallable("preprocessCore","R_qnorm_robust_weights");
+  
+  return fun(X,remove_extreme,n_remove);
+  
+} 
+
+
+
 int qnorm_robust_c(double *data,double *weights, int *rows, int *cols, int *use_median, int *use_log2, int *weight_scheme){
 
   
