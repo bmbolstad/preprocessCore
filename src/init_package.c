@@ -85,6 +85,7 @@ void R_init_preprocessCore(DllInfo *info){
 
   R_RegisterCCallable("preprocessCore","rlm_compute_se", (DL_FUNC)&rlm_compute_se);
 
+  R_RegisterCCallable("preprocessCore", "med_abs", (DL_FUNC)&med_abs);
   
   R_RegisterCCallable("preprocessCore","rlm_fit_anova", (DL_FUNC)&rlm_fit_anova);
   R_RegisterCCallable("preprocessCore","rlm_wfit_anova", (DL_FUNC)&rlm_wfit_anova);
