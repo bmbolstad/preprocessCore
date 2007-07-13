@@ -19,6 +19,8 @@
   outliers. If you make use of quantile normalization 
   please cite Bolstad et al, Bioinformatics (2003).
 
+  Note that this function does not handle missing (ie NA) values.
+
 }
 
 \value{

@@ -34,6 +34,9 @@
   most different from all the other means, \bold{both} removes first
   extreme variance and then an extreme mean. The option \bold{none} does
   not remove any chips, but will assign equal weights to all chips.
+
+  Note that this function does not handle missing values (ie
+  NA). Unexpected results might occur in this situation.
   
 }
 \note{This function is still experimental.}

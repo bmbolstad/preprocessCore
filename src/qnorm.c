@@ -54,6 +54,7 @@
  ** Nov 13, 2006 - remove median code
  ** May 20, 2007 - move to preprocessCore. clean up code.
  ** May 26, 2007 - fix memory leak in qnorm_c_determine_target
+ ** Jul 12, 2007 - improved ties handling (fixes off by one error)
  **
  ***********************************************************/
 
@@ -333,7 +334,7 @@ static double med_abs(double *x, int length){
 /*****************************************************************************************************
  *****************************************************************************************************
  **
- ** The following block implements the standard quantile normalization function
+ ** The following block implements the standard quantile normalization function (aka "classic")
  **
  **
  *****************************************************************************************************
@@ -347,6 +348,8 @@ static double med_abs(double *x, int length){
  ** quantile normalization algorithm. It is called from R.
  **
  ** returns 1 if there is a problem, 0 otherwise
+ **
+ ** Note that this function does not handle missing data (ie NA)
  **
  ********************************************************/
 
@@ -473,6 +476,8 @@ SEXP R_qnorm_c(SEXP X, SEXP copy){
  ** int *weight_scheme
  **
  ** This function implements the "robust" quantile normalizer
+ **
+ ** Note that this function does not handle NA values.
  **
  ********************************************************/
 
@@ -1595,4 +1600,124 @@ SEXP R_qnorm_within_blocks(SEXP X,SEXP blocks,SEXP copy){
 
 
 }
+
+
+
+
+
+
+
+/*********************************************************
+ **
+ ** void qnorm_c_improved(double *data, int *rows, int *cols)
+ **
+ **  this is the function that actually implements the
+ ** quantile normalization algorithm. It is called from R.
+ **
+ ** returns 1 if there is a problem, 0 otherwise
+ **
+ ** Note that this function does not handle missing data (ie NA)
+ **
+ ********************************************************/
+
+int qnorm_c_improvedties(double *data, int *rows, int *cols){
+  int i,j,ind;
+  dataitem **dimat;
+  /*  double sum; */
+  double *row_mean = (double *)Calloc((*rows),double);
+  double *datvec; /* = (double *)Calloc(*cols,double); */
+  double *ranks = (double *)Calloc((*rows),double);
+  
+  datvec = (double *)Calloc(*rows,double);
+  
+  for (i =0; i < *rows; i++){
+    row_mean[i] = 0.0;
+  }
+  
+  /* first find the normalizing distribution */
+  for (j = 0; j < *cols; j++){
+    for (i =0; i < *rows; i++){
+      datvec[i] = data[j*(*rows) + i];
+    }
+    qsort(datvec,*rows,sizeof(double),(int(*)(const void*, const void*))sort_double);
+    for (i =0; i < *rows; i++){
+      row_mean[i] += datvec[i]/((double)*cols);
+    }
+  }
+  
+  /* now assign back distribution */
+  dimat = (dataitem **)Calloc(1,dataitem *);
+  dimat[0] = (dataitem *)Calloc(*rows,dataitem);
+  
+  for (j = 0; j < *cols; j++){
+    for (i =0; i < *rows; i++){
+      dimat[0][i].data = data[j*(*rows) + i];
+      dimat[0][i].rank = i;
+    }
+    qsort(dimat[0],*rows,sizeof(dataitem),sort_fn);
+    get_ranks(ranks,dimat[0],*rows);
+    for (i =0; i < *rows; i++){
+      ind = dimat[0][i].rank;
+      if (ranks[i] - floor(ranks[i]) > 0.4){
+	data[j*(*rows) +ind] = 0.5*(row_mean[(int)floor(ranks[i])-1] + row_mean[(int)floor(ranks[i])]);
+      } else { 
+	data[j*(*rows) +ind] = row_mean[(int)floor(ranks[i])-1];
+      }
+    }
+  }
+  
+  Free(ranks);
+  Free(datvec);
+  Free(dimat[0]);
+  
+  Free(dimat);
+  Free(row_mean);
+  return 0;
+}
+
+
+
+
+/*********************************************************
+ **
+ ** SEXP R_qnorm_c(SEXP X)
+ **
+ ** SEXP X      - a matrix
+ ** SEXP copy   - a flag if TRUE then make copy
+ **               before normalizing, if FALSE work in place
+ **               note that this can be dangerous since
+ **               it will change the original matrix.
+ **
+ ** returns a quantile normalized matrix.
+ **
+ ** This is a .Call() interface for quantile normalization
+ **
+ *********************************************************/
+
+SEXP R_qnorm_c_improvedties(SEXP X, SEXP copy){
+
+  SEXP Xcopy,dim1;
+  double *Xptr;
+  int rows,cols;
+  
+  PROTECT(dim1 = getAttrib(X,R_DimSymbol));
+  rows = INTEGER(dim1)[0];
+  cols = INTEGER(dim1)[1];
+  if (asInteger(copy)){
+    PROTECT(Xcopy = allocMatrix(REALSXP,rows,cols));
+    copyMatrix(Xcopy,X,0);
+  } else {
+    Xcopy = X;
+  }
+  Xptr = NUMERIC_POINTER(AS_NUMERIC(Xcopy));
+  
+  qnorm_c_improvedties(Xptr, &rows, &cols);
+  if (asInteger(copy)){
+    UNPROTECT(2);
+  } else {
+    UNPROTECT(1);
+  }
+  return Xcopy;
+}
+
 
