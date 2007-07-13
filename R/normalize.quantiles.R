@@ -44,7 +44,7 @@ normalize.quantiles <- function(x,copy=TRUE){
 
   #matrix(.C("qnorm_c", as.double(as.vector(x)), as.integer(rows), as.integer(cols))[[1]], rows, cols)
 
-  .Call("R_qnorm_c_improvedties",x,copy, PACKAGE="preprocessCore");
+  .Call("R_qnorm_c",x,copy, PACKAGE="preprocessCore");
 }
 
 
