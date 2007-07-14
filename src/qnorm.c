@@ -1210,7 +1210,8 @@ int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int
   double samplepercentile;
   double target_ind_double,target_ind_double_floor;
 
-
+  int targetnon_na = 0;
+  int non_na = 0;
   
   row_mean = (double *)Calloc(*targetrows,double);
   
@@ -1220,13 +1221,18 @@ int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int
 
   /* first find the normalizing distribution */
   for (i =0; i < *targetrows; i++){
-    row_mean[i] = target[i];
+    if (ISNA(target[i])){
+
+    } else {
+      row_mean[targetnon_na] = target[i];
+      targetnon_na++;
+    }
   }
 
-  qsort(row_mean,*targetrows,sizeof(double),(int(*)(const void*, const void*))sort_double);
+  qsort(row_mean,targetnon_na,sizeof(double),(int(*)(const void*, const void*))sort_double);
 
   
-  if (*rows == *targetrows){
+  if (*rows == targetnon_na){
     /* now assign back distribution */
     /* this is basically the standard story */
 
@@ -1234,38 +1240,92 @@ int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int
     dimat[0] = (dataitem *)Calloc(*rows,dataitem);
     
     for (j = 0; j < *cols; j++){
+      non_na = 0;
       for (i =0; i < *rows; i++){
-	dimat[0][i].data = data[j*(*rows) + i];
-	dimat[0][i].rank = i;
+	if (ISNA(data[j*(*rows) + i])){
+
+	} else {
+	  dimat[0][non_na].data = data[j*(*rows) + i];
+	  dimat[0][non_na].rank = i;
+	  non_na++;
+	}
       }
-      qsort(dimat[0],*rows,sizeof(dataitem),sort_fn);
-      get_ranks(ranks,dimat[0],*rows);
-      for (i =0; i < *rows; i++){
-	ind = dimat[0][i].rank;
-	if (ranks[i] - floor(ranks[i]) > 0.4){
-	  data[j*(*rows) +ind] = 0.5*(row_mean[(int)floor(ranks[i])-1] + row_mean[(int)floor(ranks[i])]);
-	} else { 
-	  data[j*(*rows) +ind] = row_mean[(int)floor(ranks[i])-1];
+      if (non_na == *rows){
+	qsort(dimat[0],*rows,sizeof(dataitem),sort_fn);
+	get_ranks(ranks,dimat[0],*rows);
+	for (i =0; i < *rows; i++){
+	  ind = dimat[0][i].rank;
+	  if (ranks[i] - floor(ranks[i]) > 0.4){
+	    data[j*(*rows) +ind] = 0.5*(row_mean[(int)floor(ranks[i])-1] + row_mean[(int)floor(ranks[i])]);
+	  } else { 
+	    data[j*(*rows) +ind] = row_mean[(int)floor(ranks[i])-1];
+	  }
+	}
+      } else {
+	/* we are going to have to estimate the quantiles */ 
+	qsort(dimat[0],non_na,sizeof(dataitem),sort_fn);
+	get_ranks(ranks,dimat[0],non_na);
+	for (i =0; i < non_na; i++){
+	  //////// RESUME HERE
+	  samplepercentile = (double)(ranks[i] - 1)/(double)(non_na-1);
+	  /* target_ind_double = 1.0/3.0 + ((double)(*targetrows) + 1.0/3.0) * samplepercentile; */
+	  target_ind_double = 1.0 + ((double)(targetnon_na) - 1.0) * samplepercentile;
+	  target_ind_double_floor = floor(target_ind_double + 4*DOUBLE_EPS);
+	  
+	  target_ind_double = target_ind_double - target_ind_double_floor;
+	  
+	  if (fabs(target_ind_double) <=  4*DOUBLE_EPS){
+	    target_ind_double = 0.0;
+	  }
+	  
+	  
+	  if (target_ind_double  == 0.0){
+	    target_ind = (int)floor(target_ind_double_floor + 0.5); /* nearbyint(target_ind_double_floor); */	
+	    ind = dimat[0][i].rank;
+	    data[j*(*rows) +ind] = row_mean[target_ind-1];
+	  } else if (target_ind_double == 1.0){
+	    target_ind = (int)floor(target_ind_double_floor + 1.5); /* (int)nearbyint(target_ind_double_floor + 1.0); */ 
+	    ind = dimat[0][i].rank;
+	    data[j*(*rows) +ind] = row_mean[target_ind-1];
+	  } else {
+	    target_ind = (int)floor(target_ind_double_floor + 0.5); /* nearbyint(target_ind_double_floor); */	
+	    ind = dimat[0][i].rank;
+	    if ((target_ind < *targetrows) && (target_ind > 0)){
+	      data[j*(*rows) +ind] = (1.0- target_ind_double)*row_mean[target_ind-1] + target_ind_double*row_mean[target_ind];
+	    } else if (target_ind >= *targetrows){
+	      data[j*(*rows) +ind] = row_mean[*targetrows-1];
+	    } else {
+	      data[j*(*rows) +ind] = row_mean[0];
+	    }
+	  }
 	}
       }
     }
   } else {
+    /** the length of the target distribution and the size of the data matrix differ **/
     /** need to estimate quantiles **/
     dimat = (dataitem **)Calloc(1,dataitem *);
     dimat[0] = (dataitem *)Calloc(*rows,dataitem);
     
     for (j = 0; j < *cols; j++){
-      for (i =0; i < *rows; i++){
-	dimat[0][i].data = data[j*(*rows) + i];
-	dimat[0][i].rank = i;
-      }
-      qsort(dimat[0],*rows,sizeof(dataitem),sort_fn);
-      get_ranks(ranks,dimat[0],*rows);
-      for (i =0; i < *rows; i++){
+      non_na = 0;
+      for (i =0; i < *rows; i++){	
+	if (ISNA(data[j*(*rows) + i])){
 
-	samplepercentile = (double)ranks[i]/(double)(*rows +1);
+	} else {
+	  dimat[0][non_na].data = data[j*(*rows) + i];
+	  dimat[0][non_na].rank = i;
+	  non_na++;
+	}
+      }
+      
+      qsort(dimat[0],non_na,sizeof(dataitem),sort_fn);
+      get_ranks(ranks,dimat[0],non_na);
+      for (i =0; i < non_na; i++){
+
+	samplepercentile = (double)(ranks[i] - 1.0)/(double)(non_na -1);
 	/* target_ind_double = 1.0/3.0 + ((double)(*targetrows) + 1.0/3.0) * samplepercentile; */
-	target_ind_double = 1.0 + ((double)(*targetrows) - 1.0) * samplepercentile;
+	target_ind_double = 1.0 + ((double)(targetnon_na) - 1.0) * samplepercentile;
 	target_ind_double_floor = floor(target_ind_double + 4*DOUBLE_EPS);
 	
 	target_ind_double = target_ind_double - target_ind_double_floor;
@@ -1329,8 +1389,8 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
   
   double row_mean_ind_double,row_mean_ind_double_floor;
   double samplepercentile;
-
-
+  
+  int non_na;
   
   datvec = (double *)Calloc(*rows,double);
   
@@ -1340,12 +1400,58 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
   
   /* first find the normalizing distribution */
   for (j = 0; j < *cols; j++){
+    non_na = 0;
     for (i =0; i < *rows; i++){
-      datvec[i] = data[j*(*rows) + i];
+      if (ISNA(data[j*(*rows) + i])){
+	
+      } else {
+	datvec[non_na] = data[j*(*rows) + i];
+	non_na++;
+      }
     }
-    qsort(datvec,*rows,sizeof(double),(int(*)(const void*, const void*))sort_double);
-    for (i =0; i < *rows; i++){
-      row_mean[i] += datvec[i]/((double)*cols);
+    if (non_na == *rows){
+      /* no NA values */
+      qsort(datvec,*rows,sizeof(double),(int(*)(const void*, const void*))sort_double);
+      for (i =0; i < *rows; i++){
+	row_mean[i] += datvec[i]/((double)*cols);
+      }
+    } else {
+      /* Use the observed data (non NA) values to estimate the distribution */
+      /* Note that some of the variable names here might be a little confusing. Probably because I copied the code from below */
+      qsort(datvec,non_na,sizeof(double),(int(*)(const void*, const void*))sort_double);
+      for (i =0; i < *rows; i++){
+	samplepercentile = (double)(i)/(double)(*rows-1);
+	/* Rprintf("%f\n",samplepercentile); */
+	/* row_mean_ind_double = 1.0/3.0 + ((double)(*rows) + 1.0/3.0) * samplepercentile; */
+	row_mean_ind_double = 1.0 + ((double)(non_na) -1.0) * samplepercentile;
+	
+	row_mean_ind_double_floor = floor(row_mean_ind_double + 4*DOUBLE_EPS);
+	
+	row_mean_ind_double = row_mean_ind_double - row_mean_ind_double_floor;
+	
+	if (fabs(row_mean_ind_double) <=  4*DOUBLE_EPS){
+	  row_mean_ind_double = 0.0;
+	}
+	
+	
+	if (row_mean_ind_double  == 0.0){
+	  row_mean_ind = (int)floor(row_mean_ind_double_floor + 0.5);  /* (int)nearbyint(row_mean_ind_double_floor); */	
+	  row_mean[i]+= datvec[row_mean_ind-1]/((double)*cols);
+	} else if (row_mean_ind_double == 1.0){
+	  row_mean_ind = (int)floor(row_mean_ind_double_floor + 1.5);  /* (int)nearbyint(row_mean_ind_double_floor + 1.0); */ 
+	  row_mean[i]+= datvec[row_mean_ind-1]/((double)*cols);
+	} else {
+	  row_mean_ind =  (int)floor(row_mean_ind_double_floor + 0.5); /* (int)nearbyint(row_mean_ind_double_floor); */
+	  
+	  if ((row_mean_ind < *rows) && (row_mean_ind > 0)){
+	    row_mean[i]+= ((1.0- row_mean_ind_double)*datvec[row_mean_ind-1] + row_mean_ind_double*datvec[row_mean_ind])/((double)*cols);
+	  } else if (row_mean_ind >= *rows){
+	    row_mean[i]+= datvec[non_na-1]/((double)*cols);
+	  } else {
+	    row_mean[i]+=  datvec[0]/((double)*cols);
+	  }
+	}
+      } 
     }
   }
   
@@ -1356,7 +1462,7 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
   } else {
     /* need to estimate quantiles */
     for (i =0; i < *targetrows; i++){
-      samplepercentile = (double)(i+1)/(double)(*targetrows +1);
+      samplepercentile = (double)(i)/(double)(*targetrows -1);
       
       /* row_mean_ind_double = 1.0/3.0 + ((double)(*rows) + 1.0/3.0) * samplepercentile; */
       row_mean_ind_double = 1.0 + ((double)(*rows) -1.0) * samplepercentile;
@@ -1466,7 +1572,7 @@ SEXP R_qnorm_determine_target(SEXP X, SEXP targetlength){
 
   length = asInteger(targetlength);
 
-  Rprintf("%d\n",length);
+  /*  Rprintf("%d\n",length);*/
 
   PROTECT(target=allocVector(REALSXP,length));
 
