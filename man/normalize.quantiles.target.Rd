@@ -28,6 +28,10 @@
   \code{\link[affy]{rma}} or \code{\link[affy]{expresso}}
   please cite Bolstad et al, Bioinformatics (2003).
 
+
+  These functions will handle missing data (ie NA values), based on the
+  assumption that the data is missing at random.
+  
 }
 
 \value{
