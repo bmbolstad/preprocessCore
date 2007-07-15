@@ -12,14 +12,19 @@
   \item{x}{A matrix of intensities where each column corresponds to a
     chip and each row is a probe.}
   \item{copy}{Make a copy of matrix before normalizing. Usually safer to
-    work with a copy}
+    work with a copy, but in certain situations not making a copy of the
+    matrix, but instead normalizing it in place will be more memory friendly.}
 }
 \details{This method is based upon the concept of a quantile-quantile
   plot extended to n dimensions. No special allowances are made for
   outliers. If you make use of quantile normalization 
   please cite Bolstad et al, Bioinformatics (2003).
 
-  Note that this function does not handle missing (ie NA) values.
+  This functions will handle missing data (ie NA values), based on the
+  assumption that the data is missing at random.
+
+  Note that the current implementation optimizes for better memory usage
+  at the cost of some additional run-time.
 
 }
 

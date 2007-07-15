@@ -54,9 +54,21 @@
  ** Nov 13, 2006 - remove median code
  ** May 20, 2007 - move to preprocessCore. clean up code.
  ** May 26, 2007 - fix memory leak in qnorm_c_determine_target
- ** Jul 12, 2007 - improved ties handling (fixes off by "half" error which affects odd numbers of ties)
+ ** Jul 12, 2007 - improved ties handling (fixes off by "half" error which affects even numbers of ties)
+ ** Jul 14, 2007 - add NA handling to qnorm_c_using_target and qnorm_c_determine_target
  **
  ***********************************************************/
+
+/*****************************************************************************************************
+ *****************************************************************************************************
+ **
+ ** GENERAL NOTE: Many of the functions take pointers for arguements that are essentially just
+ **               int's. This is mostly legacy for when the functions were called via .C() in R rather
+ **               than via the .Call() interface.
+ **
+ *****************************************************************************************************
+ *****************************************************************************************************/
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1179,7 +1191,6 @@ SEXP R_qnorm_robust_weights(SEXP X, SEXP remove_extreme, SEXP n_remove){
  **                  normalized to)
  ** int *targetrows - length of target distribution vector
  **
- ** Note that it is assumed that there is no NA or Inf type values in the vectors. (ie no missing data)
  **
  ** if targetrows == rows then the standard methodology is used.
  ** 
@@ -1588,6 +1599,77 @@ SEXP R_qnorm_determine_target(SEXP X, SEXP targetlength){
 
 }
 
+
+
+
+
+/*********************************************************
+ **
+ ** void qnorm_c_handleNA(double *data, int *rows, int *cols)
+ **
+ **  this is the function that actually implements the
+ ** quantile normalization algorithm. It is called from R.
+ **
+ ** returns 1 if there is a problem, 0 otherwise
+ **
+ ** Note that this function does not handle missing data (ie NA)
+ **
+ ********************************************************/
+
+
+void qnorm_c_handleNA(double *data, int *rows, int *cols){
+
+  double *target = Calloc(*rows,double);
+    
+  qnorm_c_determine_target(data, rows, cols, target, rows);
+  qnorm_c_using_target(data, rows, cols, target, rows);
+
+  Free(target);
+
+}
+
+
+/*********************************************************
+ **
+ ** SEXP R_qnorm_c_handleNA(SEXP X)
+ **
+ ** SEXP X      - a matrix
+ ** SEXP copy   - a flag if TRUE then make copy
+ **               before normalizing, if FALSE work in place
+ **               note that this can be dangerous since
+ **               it will change the original matrix.
+ **
+ ** returns a quantile normalized matrix.
+ **
+ ** This is a .Call() interface for quantile normalization
+ **
+ *********************************************************/
+
+SEXP R_qnorm_c_handleNA(SEXP X, SEXP copy){
+
+  SEXP Xcopy,dim1;
+  double *Xptr;
+  int rows,cols;
+  
+  PROTECT(dim1 = getAttrib(X,R_DimSymbol));
+  rows = INTEGER(dim1)[0];
+  cols = INTEGER(dim1)[1];
+  if (asInteger(copy)){
+    PROTECT(Xcopy = allocMatrix(REALSXP,rows,cols));
+    copyMatrix(Xcopy,X,0);
+  } else {
+    Xcopy = X;
+  }
+  Xptr = NUMERIC_POINTER(AS_NUMERIC(Xcopy));
+  
+  qnorm_c_handleNA(Xptr, &rows, &cols);
+  if (asInteger(copy)){
+    UNPROTECT(2);
+  } else {
+    UNPROTECT(1);
+  }
+  return Xcopy;
+}
 
 
 
