@@ -27,6 +27,7 @@
 
 #include "psi_fns.h"
 
+#include "R_rlm_interfaces.h"
 
 
 
