@@ -9,6 +9,7 @@
  ** History
  ** May 20, 2007 - Initial version
  ** May 24-27, 2007 - add in additional registered functions
+ ** Sep 9, 2007 - add the R_rlm_rma_default and R_wrlm_rma_default_model as registered functions
  **
  *****************************************************/
 
@@ -20,6 +21,9 @@
 #include "lm.h"
 #include "rlm.h"
 #include "rlm_se.h"
+
+#include "R_rlm_interfaces.h"
+
 
 #include <R_ext/Rdynload.h>
 #include <Rdefines.h>
@@ -33,12 +37,14 @@ __declspec(dllexport)
 
 static const R_CallMethodDef callMethods[]  = {
   {"R_qnorm_c",(DL_FUNC)&R_qnorm_c,2},
-    {"R_qnorm_robust_weights", (DL_FUNC)&R_qnorm_robust_weights, 3},
-    {"R_qnorm_robust_c",(DL_FUNC)&R_qnorm_robust_c,6},
-    {"R_qnorm_determine_target",(DL_FUNC)&R_qnorm_determine_target,2},
-    {"R_qnorm_using_target",(DL_FUNC)&R_qnorm_using_target,3 },
-    {"R_qnorm_within_blocks",(DL_FUNC)&R_qnorm_within_blocks, 3},
-    {NULL, NULL, 0}
+  {"R_qnorm_robust_weights", (DL_FUNC)&R_qnorm_robust_weights, 3},
+  {"R_qnorm_robust_c",(DL_FUNC)&R_qnorm_robust_c,6},
+  {"R_qnorm_determine_target",(DL_FUNC)&R_qnorm_determine_target,2},
+  {"R_qnorm_using_target",(DL_FUNC)&R_qnorm_using_target,3},
+  {"R_qnorm_within_blocks",(DL_FUNC)&R_qnorm_within_blocks,3},
+  {"R_rlm_rma_default_model",(DL_FUNC)&R_rlm_rma_default_model,3},
+  {"R_wrlm_rma_default_model", (DL_FUNC)&R_wrlm_rma_default_model,4},
+  {NULL, NULL, 0}
   };
 
 void R_init_preprocessCore(DllInfo *info){
