@@ -10,6 +10,7 @@
  ** May 20, 2007 - Initial version
  ** May 24-27, 2007 - add in additional registered functions
  ** Sep 9, 2007 - add the R_rlm_rma_default and R_wrlm_rma_default_model as registered functions
+ ** Sep 10, 2007 - add logmedian medianlog dunctions
  **
  *****************************************************/
 
@@ -17,6 +18,10 @@
 #include "medianpolish.h"
 #include "log_avg.h"
 #include "avg_log.h"
+
+#include "median_log.h"
+#include "log_median.h"
+
 #include "biweight.h"
 #include "lm.h"
 #include "rlm.h"
@@ -75,6 +80,15 @@ void R_init_preprocessCore(DllInfo *info){
   R_RegisterCCallable("preprocessCore","averagelog", (DL_FUNC)&averagelog);
   R_RegisterCCallable("preprocessCore","AverageLog_noSE", (DL_FUNC)&AverageLog_noSE);
 
+  R_RegisterCCallable("preprocessCore","MedianLog", (DL_FUNC)&MedianLog);
+  R_RegisterCCallable("preprocessCore","medianlog_no_copy", (DL_FUNC)&medianlog_no_copy);
+  R_RegisterCCallable("preprocessCore","medianlog", (DL_FUNC)&medianlog);
+  R_RegisterCCallable("preprocessCore","MedianLog_noSE", (DL_FUNC)&MedianLog_noSE);
+  
+  R_RegisterCCallable("preprocessCore","LogMedian", (DL_FUNC)&LogMedian);
+  R_RegisterCCallable("preprocessCore","logmedian_no_copy", (DL_FUNC)&logmedian_no_copy);
+  R_RegisterCCallable("preprocessCore","logmedian", (DL_FUNC)&logmedian);
+ 
   R_RegisterCCallable("preprocessCore","logaverage", (DL_FUNC)&logaverage);
   R_RegisterCCallable("preprocessCore","LogAverage", (DL_FUNC)&LogAverage);
 
