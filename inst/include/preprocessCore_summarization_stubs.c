@@ -421,5 +421,87 @@ void rlm_compute_se_anova(double *Y, int y_rows,int y_cols, double *beta, double
 
 
 
+void MedianLog(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+
+  static void(*fun)(double *, int, int, int *, double *, int, double *) = NULL;
+
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, int *, double *, int, double *))R_GetCCallable("preprocessCore","MedianLog");
+
+  return fun(data, rows, cols, cur_rows, results, nprobes, resultsSE);
+
+}
 
 
+void MedianLog_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
+
+  static void(*fun)(double *, int, int, int *, double *, int) = NULL;
+
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, int *, double *, int))R_GetCCallable("preprocessCore","MedianLog_noSE");
+
+  return fun(data, rows, cols, cur_rows, results, nprobes);
+
+}
+
+
+
+void medianlog(double *data, int rows, int cols, double *results, double *resultsSE){
+
+  static void(*fun)(double *, int, int, double *, double *) = NULL;
+  
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *, double *))R_GetCCallable("preprocessCore","medianlog");
+
+  return fun(data, rows, cols, results, resultsSE);
+
+}
+
+
+void medianlog_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+
+  static void(*fun)(double *, int, int, double *, double *) = NULL;
+  
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *, double *))R_GetCCallable("preprocessCore","medianlog_no_copy");
+
+  return fun(data, rows, cols, results, resultsSE);
+
+}
+
+
+
+void LogMedian(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+
+  static void(*fun)(double *, int, int, int *, double *, int, double *) = NULL;
+
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, int *, double *, int, double *))R_GetCCallable("preprocessCore","LogMedian");
+
+  return fun(data, rows, cols, cur_rows, results, nprobes, resultsSE);
+
+}
+
+
+void logmedian(double *data, int rows, int cols, double *results, double *resultsSE){
+
+  static void(*fun)(double *, int, int, double *, double *) = NULL;
+  
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *, double *))R_GetCCallable("preprocessCore","logmedian");
+
+  return fun(data, rows, cols, results, resultsSE);
+
+}
+
+
+void logmedian_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+
+  static void(*fun)(double *, int, int, double *, double *) = NULL;
+  
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *, double *))R_GetCCallable("preprocessCore","logmedian_no_copy");
+
+  return fun(data, rows, cols, results, resultsSE);
+
+}
