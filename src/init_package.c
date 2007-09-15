@@ -49,6 +49,7 @@ static const R_CallMethodDef callMethods[]  = {
   {"R_qnorm_within_blocks",(DL_FUNC)&R_qnorm_within_blocks,3},
   {"R_rlm_rma_default_model",(DL_FUNC)&R_rlm_rma_default_model,3},
   {"R_wrlm_rma_default_model", (DL_FUNC)&R_wrlm_rma_default_model,4},
+  {"R_medianpolish_rma_default_model", (DL_FUNC)&R_medianpolish_rma_default_model,1},
   {NULL, NULL, 0}
   };
 
