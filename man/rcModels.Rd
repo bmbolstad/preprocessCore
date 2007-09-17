@@ -11,7 +11,7 @@ rcModelWPLM(y, w)
 rcModelMedianPolish(y)
 }
 \arguments{
-  \item{y}{A matrix}
+  \item{y}{A numeric matrix}
   \item{w}{A matrix or vector of weights. These should be non-negative.}
 }
 \value{

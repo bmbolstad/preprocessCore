@@ -16,11 +16,14 @@
 
 #include "qnorm.h"
 #include "medianpolish.h"
+
 #include "log_avg.h"
 #include "avg_log.h"
+#include "avg.h"
 
 #include "median_log.h"
 #include "log_median.h"
+#include "median.h"
 
 #include "biweight.h"
 #include "lm.h"
@@ -28,7 +31,7 @@
 #include "rlm_se.h"
 
 #include "R_rlm_interfaces.h"
-
+#include "R_colSummarize.h"
 
 #include <R_ext/Rdynload.h>
 #include <Rdefines.h>
@@ -50,7 +53,16 @@ static const R_CallMethodDef callMethods[]  = {
   {"R_rlm_rma_default_model",(DL_FUNC)&R_rlm_rma_default_model,3},
   {"R_wrlm_rma_default_model", (DL_FUNC)&R_wrlm_rma_default_model,4},
   {"R_medianpolish_rma_default_model", (DL_FUNC)&R_medianpolish_rma_default_model,1},
-  {NULL, NULL, 0}
+  {"R_colSummarize_avg_log", (DL_FUNC)&R_colSummarize_avg_log,1},  
+  {"R_colSummarize_log_avg", (DL_FUNC)&R_colSummarize_log_avg,1},
+  {"R_colSummarize_median_log", (DL_FUNC)&R_colSummarize_median_log,1},
+  {"R_colSummarize_log_median", (DL_FUNC)&R_colSummarize_log_median,1},
+  {"R_colSummarize_biweight_log", (DL_FUNC)&R_colSummarize_biweight_log,1},
+  {"R_colSummarize_medianpolish_log",(DL_FUNC)&R_colSummarize_medianpolish_log,1},  
+  {"R_colSummarize_avg",(DL_FUNC)&R_colSummarize_avg,1},
+  {"R_colSummarize_median",(DL_FUNC)&R_colSummarize_median,1},
+  {"R_colSummarize_biweight", (DL_FUNC)&R_colSummarize_biweight,1},
+  {"R_colSummarize_medianpolish",(DL_FUNC)&R_colSummarize_medianpolish,1},{NULL, NULL, 0}
   };
 
 void R_init_preprocessCore(DllInfo *info){
@@ -81,6 +93,11 @@ void R_init_preprocessCore(DllInfo *info){
   R_RegisterCCallable("preprocessCore","averagelog", (DL_FUNC)&averagelog);
   R_RegisterCCallable("preprocessCore","AverageLog_noSE", (DL_FUNC)&AverageLog_noSE);
 
+  R_RegisterCCallable("preprocessCore","ColAverage", (DL_FUNC)&ColAverage);
+  R_RegisterCCallable("preprocessCore","colaverage_no_copy", (DL_FUNC)&colaverage_no_copy);
+  R_RegisterCCallable("preprocessCore","colaverage", (DL_FUNC)&colaverage);
+  R_RegisterCCallable("preprocessCore","ColAverage_noSE", (DL_FUNC)&ColAverage_noSE);
+
   R_RegisterCCallable("preprocessCore","MedianLog", (DL_FUNC)&MedianLog);
   R_RegisterCCallable("preprocessCore","medianlog_no_copy", (DL_FUNC)&medianlog_no_copy);
   R_RegisterCCallable("preprocessCore","medianlog", (DL_FUNC)&medianlog);
@@ -90,6 +107,11 @@ void R_init_preprocessCore(DllInfo *info){
   R_RegisterCCallable("preprocessCore","logmedian_no_copy", (DL_FUNC)&logmedian_no_copy);
   R_RegisterCCallable("preprocessCore","logmedian", (DL_FUNC)&logmedian);
  
+  R_RegisterCCallable("preprocessCore","ColMedian", (DL_FUNC)&ColMedian);
+  R_RegisterCCallable("preprocessCore","colmedian_no_copy", (DL_FUNC)&colmedian_no_copy);
+  R_RegisterCCallable("preprocessCore","colmedian", (DL_FUNC)&colmedian);
+  R_RegisterCCallable("preprocessCore","ColMedian_noSE", (DL_FUNC)&ColMedian_noSE);
+
   R_RegisterCCallable("preprocessCore","logaverage", (DL_FUNC)&logaverage);
   R_RegisterCCallable("preprocessCore","LogAverage", (DL_FUNC)&LogAverage);
 
