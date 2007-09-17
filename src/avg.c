@@ -1,34 +1,28 @@
 /************************************************************************
  **
- ** avg_log.c
+ ** avg.c
  **
  ** created by: B. M. Bolstad   <bmb@bmbolstad.com>
- ** created on: Jan 7, 2002  (but based on earlier work from Nov 2002)
+ ** created on: Sep 16, 2007  (but based on earlier work from Nov avg_log.c)
  **
- ** Copyright (C) 2002-2007 Ben Bolstad
+ ** Copyright (C) 2007 Ben Bolstad
  **
- ** last modified: Jan 7, 2003
+ ** last modified: Sept 16, 2007
  **
  ** License: GPL V2 or later (same as the rest of the Affy package)
  **
  ** General discussion
  **
- ** Implement avgerage log2 pm summarization, with or without normalization
+ ** Implement average summarization
  **
- ** Nov 2, 2002 - modify so that it will work efficently with affy2
- ** Jan 3, 2003 - Clean up commenting, prepare for integration in AffyExtensions
- ** Jan 7, 2003 - Make function standalone, to prepare for later combination into
- **               a more general framework.
- ** Jul 23, 2003 - add parameter for computing SE and SE implemented
- ** Oct 5, 2003 - add output_param
- ** Oct 10, 2003 - added threestepPLM version of this summary.
- ** May 19, 2007 - branch out of affyPLM into a new package preprocessCore, then restructure the code. Add doxygen style documentation
- ** May 26, 2007 - fix memory leak in average_log. add additional interfaces
- ** Sep 16, 2007 - fix error in how StdError is computed
+ ** History
+ ** Sep 16, 2007 - Initial version
+ **
+ ** 
  **
  ************************************************************************/
 
-#include "avg_log.h"
+#include "avg.h"
 
 #include <R.h> 
 #include <Rdefines.h>
@@ -50,7 +44,7 @@
  **
  ***************************************************************************/
 
-static double AvgLog(double *x, int length){
+static double Avg(double *x, int length){
   int i;
   double sum = 0.0;
   double mean = 0.0;
@@ -77,7 +71,7 @@ static double AvgLog(double *x, int length){
  **
  ***************************************************************************/
 
-static double AvgLogSE(double *x, double mean, int length){
+static double AvgSE(double *x, double mean, int length){
   int i;
   double sum = 0.0;
 
@@ -85,32 +79,28 @@ static double AvgLogSE(double *x, double mean, int length){
     sum = sum + (x[i]- mean)*(x[i] - mean);
   }
   
-  sum = sqrt(sum/(double)(length-1));
+  sum = sqrt(sum/(double)(length -1));
   sum = sum/sqrt((double)length);
 
   return (sum);    
 }
 
 
-void averagelog_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+void colaverage_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
   int i,j;
 
   for (j = 0; j < cols; j++){
-    for (i =0; i < rows; i++){
-      data[j*rows + i] = log(data[j*rows + i])/log(2.0);  
-    }
-    results[j] = AvgLog(&data[j*rows],rows);
-    resultsSE[j] = AvgLogSE(&data[j*rows],results[j],rows);
+    results[j] = Avg(&data[j*rows],rows);
+    resultsSE[j] = AvgSE(&data[j*rows],results[j],rows);
   } 
-
 }
 
 
 /***************************************************************************
  ** 
- ** void averagelog(double *data, int rows, int cols, double *results, double *resultsSE)
+ ** void average(double *data, int rows, int cols, double *results, double *resultsSE)
  **
- ** aim: given a data matrix of probe intensities, compute average of log2 values in column wise manner 
+ ** aim: given a data matrix of probe intensities, compute averages in column wise manner 
  **      
  **
  ** double *data - Probe intensity matrix
@@ -123,16 +113,16 @@ void averagelog_no_copy(double *data, int rows, int cols, double *results, doubl
  ***************************************************************************/
 
 
-void averagelog(double *data, int rows, int cols, double *results, double *resultsSE){
+void colaverage(double *data, int rows, int cols, double *results, double *resultsSE){
   int i,j;
   double *z = Calloc(rows,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < rows; i++){
-      z[i] = log(data[j*rows + i])/log(2.0);  
+      z[i] = data[j*rows + i];  
     }
-    results[j] = AvgLog(z,rows);
-    resultsSE[j] = AvgLogSE(z,results[j],rows);
+    results[j] = Avg(z,rows);
+    resultsSE[j] = AvgSE(z,results[j],rows);
   } 
   Free(z);
 
@@ -143,7 +133,7 @@ void averagelog(double *data, int rows, int cols, double *results, double *resul
 
 /***************************************************************************
  **
- ** double AverageLog(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes)
+ ** double Average(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes)
  **
  ** aim: given a data matrix of probe intensities, and a list of rows in the matrix 
  **      corresponding to a single probeset, compute average log2 expression measure. 
@@ -173,19 +163,19 @@ void averagelog(double *data, int rows, int cols, double *results, double *resul
  *  
  */
 
-void AverageLog(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+void ColAverage(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
   int i,j;
   double *z = Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < nprobes; i++){
-      z[j*nprobes + i] = log(data[j*rows + cur_rows[i]])/log(2.0);  
+      z[j*nprobes + i] = data[j*rows + cur_rows[i]];  
     }
   } 
   
   for (j=0; j < cols; j++){
-    results[j] = AvgLog(&z[j*nprobes],nprobes);
-    resultsSE[j] = AvgLogSE(&z[j*nprobes],results[j],nprobes);
+    results[j] = Avg(&z[j*nprobes],nprobes);
+    resultsSE[j] = AvgSE(&z[j*nprobes],results[j],nprobes);
   }
 
   Free(z);
@@ -223,18 +213,18 @@ void AverageLog(double *data, int rows, int cols, int *cur_rows, double *results
  *  
  */
 
-void AverageLog_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
+void ColAverage_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
   int i,j;
   double *z = Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < nprobes; i++){
-      z[j*nprobes + i] = log(data[j*rows + cur_rows[i]])/log(2.0);  
+      z[j*nprobes + i] = data[j*rows + cur_rows[i]];  
     }
   } 
   
   for (j=0; j < cols; j++){
-    results[j] = AvgLog(&z[j*nprobes],nprobes);
+    results[j] = Avg(&z[j*nprobes],nprobes);
   }
   Free(z);
 }

@@ -26,6 +26,7 @@
  ** Oct 10, 2003 - added in PLM version
  ** Apr 5, 2004 - Change mallocs to Callocs
  ** May 19, 2007 - branch out of affyPLM into a new package preprocessCore, then restructure the code. Add doxygen style documentation
+ ** Sep 16, 2007 - fix bug in tukeybiweight
  **
  ************************************************************************/
 
@@ -192,7 +193,7 @@ void tukeybiweight(double *data, int rows, int cols, double *results, double *re
 
   for (j = 0; j < cols; j++){
     for (i =0; i < rows; i++){
-      z[j*rows + i] = log(data[j*rows + i])/log(2.0);  
+      z[i] = log(data[j*rows + i])/log(2.0);  
     }
     results[j] = Tukey_Biweight(z,rows);
     resultsSE[j] = Tukey_Biweight_SE(z,results[j],rows);
@@ -203,6 +204,40 @@ void tukeybiweight(double *data, int rows, int cols, double *results, double *re
 
 
 }
+
+
+
+
+void tukeybiweight_no_log(double *data, int rows, int cols, double *results, double *resultsSE){
+  int i,j;
+  double *z = Calloc(rows,double);
+
+  for (j = 0; j < cols; j++){
+    for (i =0; i < rows; i++){
+      z[i] = data[j*rows + i];  
+    }
+    results[j] = Tukey_Biweight(z,rows);
+    resultsSE[j] = Tukey_Biweight_SE(z,results[j],rows);
+  }
+  Free(z);
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**********************************************************************************
  **
