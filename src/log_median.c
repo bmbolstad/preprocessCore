@@ -20,6 +20,7 @@
  ** Jul 23, 2003 - add a parameter for storing SE (not yet implemented)
  ** Oct 10, 2003 - PLM version of threestep
  ** Sep 10, 2007 - move functionality out of affyPLM (and into preprocessCore)
+ ** Sep 19, 2007 - add LogMedian_noSE
  **
  ************************************************************************/
 
@@ -91,6 +92,26 @@ void LogMedian(double *data, int rows, int cols, int *cur_rows, double *results,
   }
   Free(z);
 }
+
+
+
+void LogMedian_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
+  int i,j;
+  double *z = Calloc(nprobes*cols,double);
+
+  for (j = 0; j < cols; j++){
+    for (i =0; i < nprobes; i++){
+      z[j*nprobes + i] = data[j*rows + cur_rows[i]];  
+    }
+  } 
+  
+  for (j=0; j < cols; j++){
+    results[j] = log_median(&z[j*nprobes],nprobes);
+  }
+  Free(z);
+}
+
+
 
 
 

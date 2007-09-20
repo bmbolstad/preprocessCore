@@ -19,6 +19,7 @@
  ** Jul 23, 2003 - parameter for storing SE added (not yet implemented)
  ** Oct 5, 2003 - method of adding parameters. 
  ** May 19, 2007 - branch out of affyPLM into a new package preprocessCore, then restructure the code. Add doxygen style documentation
+ ** Sep 19, 2007 - add LogAverage_noSE
  **
  ************************************************************************/
 
@@ -143,4 +144,20 @@ void LogAverage(double *data, int rows, int cols, int *cur_rows, double *results
   Free(z);
 }
 
+
+void LogAverage_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
+  int i,j;
+  double *z = Calloc(nprobes*cols,double);
+
+  for (j = 0; j < cols; j++){
+    for (i =0; i < nprobes; i++){
+      z[j*nprobes + i] = data[j*rows + cur_rows[i]];  
+    }
+  } 
+  
+  for (j=0; j < cols; j++){
+    results[j] = LogAvg(&z[j*nprobes],nprobes);
+  }
+  Free(z);
+}
 

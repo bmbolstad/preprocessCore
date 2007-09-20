@@ -378,3 +378,25 @@ void MedianPolish(double *data, int rows, int cols, int *cur_rows, double *resul
 
 }
 
+
+
+void MedianPolish_no_log(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+
+  int i,j;
+
+  double *z = Calloc(nprobes*cols,double);
+
+  for (j = 0; j < cols; j++){
+    for (i =0; i < nprobes; i++){
+      z[j*nprobes + i] = data[j*rows + cur_rows[i]];  
+    }
+  } 
+  
+
+  median_polish_no_copy(z,nprobes,cols,results,resultsSE);
+  
+  Free(z);
+
+}
+
+

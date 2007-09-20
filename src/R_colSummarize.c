@@ -1,6 +1,6 @@
 /*********************************************************************
  **
- ** file: R_rlm_interfaces.c
+ ** file: R_colSummarize.c
  **
  ** Aim: Code which provides .Call() interfaces to the column 
  ** summarization code.

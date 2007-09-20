@@ -9,7 +9,7 @@
 \alias{colSummarizeMedianLog}
 \alias{colSummarizeMedianpolish}
 \alias{colSummarizeMedianpolishLog}
-}
+
 \title{Summarize the column of matrices}
 \description{Compute column wise summary values of a matrix.
 }
