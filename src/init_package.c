@@ -32,6 +32,7 @@
 
 #include "R_rlm_interfaces.h"
 #include "R_colSummarize.h"
+#include "R_subColSummarize.h"
 
 #include <R_ext/Rdynload.h>
 #include <Rdefines.h>
@@ -62,7 +63,19 @@ static const R_CallMethodDef callMethods[]  = {
   {"R_colSummarize_avg",(DL_FUNC)&R_colSummarize_avg,1},
   {"R_colSummarize_median",(DL_FUNC)&R_colSummarize_median,1},
   {"R_colSummarize_biweight", (DL_FUNC)&R_colSummarize_biweight,1},
-  {"R_colSummarize_medianpolish",(DL_FUNC)&R_colSummarize_medianpolish,1},{NULL, NULL, 0}
+  {"R_colSummarize_medianpolish",(DL_FUNC)&R_colSummarize_medianpolish,1},
+  {"R_subColSummarize_avg_log", (DL_FUNC)&R_subColSummarize_avg_log,2},  
+  {"R_subColSummarize_log_avg", (DL_FUNC)&R_subColSummarize_log_avg,2},
+  {"R_subColSummarize_avg", (DL_FUNC)&R_subColSummarize_avg,2},
+  {"R_subColSummarize_biweight_log", (DL_FUNC)&R_subColSummarize_biweight_log,2},
+  {"R_subColSummarize_biweight", (DL_FUNC)&R_subColSummarize_biweight,2},
+  {"R_subColSummarize_median_log", (DL_FUNC)&R_subColSummarize_median_log,2},
+  {"R_subColSummarize_log_median", (DL_FUNC)&R_subColSummarize_log_median,2},
+  {"R_subColSummarize_median",(DL_FUNC)&R_subColSummarize_median,2},
+  {"R_subColSummarize_medianpolish_log",(DL_FUNC)&R_subColSummarize_medianpolish_log,2},
+  {"R_subColSummarize_medianpolish",(DL_FUNC)&R_subColSummarize_medianpolish,2},
+
+  {NULL, NULL, 0}
   };
 
 void R_init_preprocessCore(DllInfo *info){
@@ -114,6 +127,7 @@ void R_init_preprocessCore(DllInfo *info){
 
   R_RegisterCCallable("preprocessCore","logaverage", (DL_FUNC)&logaverage);
   R_RegisterCCallable("preprocessCore","LogAverage", (DL_FUNC)&LogAverage);
+  R_RegisterCCallable("preprocessCore","LogAverage_noSE", (DL_FUNC)&LogAverage_noSE);
 
   R_RegisterCCallable("preprocessCore","tukeybiweight", (DL_FUNC)&tukeybiweight);
   R_RegisterCCallable("preprocessCore","TukeyBiweight", (DL_FUNC)&TukeyBiweight);
