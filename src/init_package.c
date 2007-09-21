@@ -99,7 +99,8 @@ void R_init_preprocessCore(DllInfo *info){
   R_RegisterCCallable("preprocessCore", "median_polish_log2", (DL_FUNC)&median_polish_log2);
   R_RegisterCCallable("preprocessCore", "median_polish", (DL_FUNC)&median_polish);
   R_RegisterCCallable("preprocessCore", "MedianPolish", (DL_FUNC)&MedianPolish);
-  
+  R_RegisterCCallable("preprocessCore", "MedianPolish_no_log", (DL_FUNC)&MedianPolish_no_log);
+
 
   R_RegisterCCallable("preprocessCore","AverageLog", (DL_FUNC)&AverageLog);
   R_RegisterCCallable("preprocessCore","averagelog_no_copy", (DL_FUNC)&averagelog_no_copy);
@@ -119,6 +120,7 @@ void R_init_preprocessCore(DllInfo *info){
   R_RegisterCCallable("preprocessCore","LogMedian", (DL_FUNC)&LogMedian);
   R_RegisterCCallable("preprocessCore","logmedian_no_copy", (DL_FUNC)&logmedian_no_copy);
   R_RegisterCCallable("preprocessCore","logmedian", (DL_FUNC)&logmedian);
+  R_RegisterCCallable("preprocessCore","LogMedian_noSE", (DL_FUNC)&LogMedian_noSE);
  
   R_RegisterCCallable("preprocessCore","ColMedian", (DL_FUNC)&ColMedian);
   R_RegisterCCallable("preprocessCore","colmedian_no_copy", (DL_FUNC)&colmedian_no_copy);
@@ -130,9 +132,12 @@ void R_init_preprocessCore(DllInfo *info){
   R_RegisterCCallable("preprocessCore","LogAverage_noSE", (DL_FUNC)&LogAverage_noSE);
 
   R_RegisterCCallable("preprocessCore","tukeybiweight", (DL_FUNC)&tukeybiweight);
+  R_RegisterCCallable("preprocessCore","tukeybiweight_no_log", (DL_FUNC)&tukeybiweight_no_log);
   R_RegisterCCallable("preprocessCore","TukeyBiweight", (DL_FUNC)&TukeyBiweight);
+  R_RegisterCCallable("preprocessCore","TukeyBiweight_noSE", (DL_FUNC)&TukeyBiweight_noSE);
+  R_RegisterCCallable("preprocessCore","TukeyBiweight_no_log_noSE", (DL_FUNC)&TukeyBiweight_no_log_noSE);
   R_RegisterCCallable("preprocessCore","Tukey_Biweight", (DL_FUNC)&Tukey_Biweight);
-
+  
 
   R_RegisterCCallable("preprocessCore","lm_wfit", (DL_FUNC)&lm_wfit);
   
