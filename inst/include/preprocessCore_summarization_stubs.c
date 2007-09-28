@@ -1,7 +1,23 @@
 #include <Rinternals.h>
 #include <R_ext/Rdynload.h>
 
-
+/*! \brief log2 transform and then compute the mean and SE of the mean
+ * 
+ *  Given a data matrix of probe intensities compute average log2 expression measure and SE of this estimate
+ *  on a column by column basis. Specifically, each element is log2 transformed, then the arithmetic mean
+ *  is computed for each column. The sample standard error is also computed. This function guarantees that 
+ *  no additional memory is temporarily allocated to copy the input data matrix. However, this means that
+ *  on output the input matrix will be changed.
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols
+ *
+ *  
+ */
 
 void averagelog_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
 
@@ -13,8 +29,6 @@ void averagelog_no_copy(double *data, int rows, int cols, double *results, doubl
   fun(data,rows,cols,results,resultsSE);
   return;
 }
-
-
 
 /*! \brief log2 transform and then compute the mean and SE of the mean
  * 
@@ -42,7 +56,6 @@ void averagelog(double *data, int rows, int cols, double *results, double *resul
   fun(data,rows,cols,results,resultsSE);
   return;
 }
-
 
 /*! \brief log2 transform and then compute the mean and SE of the mean
  *
@@ -72,7 +85,6 @@ void AverageLog(double *data, int rows, int cols, int *cur_rows, double *results
   return;
 }
 
-
 /*! \brief log2 transform and then compute the mean
  *
  *  Given a data matrix of probe intensities, and a list of rows in the matrix 
@@ -89,7 +101,6 @@ void AverageLog(double *data, int rows, int cols, int *cur_rows, double *results
  *  
  */
 
-
 void AverageLog_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
   
 
@@ -100,9 +111,6 @@ void AverageLog_noSE(double *data, int rows, int cols, int *cur_rows, double *re
   fun(data,rows,cols,cur_rows,results,nprobes);
   return;
 }
-
-
-
 
 /*! \brief compute the mean then log2 transform and also SE of the log2 mean
  * 
@@ -128,8 +136,6 @@ void logaverage(double *data, int rows, int cols, double *results, double *resul
   fun(data,rows,cols,results,resultsSE);
   return;
 }
-
-
 
 /*! \brief compute the average and then log2 transform it.
  *
@@ -159,7 +165,21 @@ void LogAverage(double *data, int rows, int cols, int *cur_rows, double *results
   return;
 }
 
-
+/*! \brief compute the average and then log2 transform it.
+ *
+ * Given a data matrix of probe intensities, and a list of rows in the matrix 
+ *      corresponding to a single probeset, compute log2 average expression measure. 
+ *      Note that data is a probes by chips matrix. Also compute SE estimates
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows a vector containing row indices to use
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param nprobes number of probes in current set
+ *
+ *  
+ */
 
 void LogAverage_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
 
@@ -172,7 +192,20 @@ void LogAverage_noSE(double *data, int rows, int cols, int *cur_rows, double *re
   return;
 }
 
-
+/*! \brief log2 transform the data and then use a 1-step Tukey Biweight to summarize each column
+ * 
+ *  Given a data matrix of probe intensities compute average expression measure then log2 it and SE of this estimate
+ *  on a column by column basis
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols
+ *
+ *  
+ */
 
 void tukeybiweight(double *data, int rows, int cols, double *results, double *resultsSE){
 
@@ -184,6 +217,21 @@ void tukeybiweight(double *data, int rows, int cols, double *results, double *re
   return;
 }
 
+/*! \brief Use a 1-step Tukey Biweight to summarize each column
+ * 
+ *  Given a data matrix of probe intensities compute average expression measure then log2 it and SE of this estimate
+ *  on a column by column basis
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols
+ *
+ *  
+ */
+
 void tukeybiweight_no_log(double *data, int rows, int cols, double *results, double *resultsSE){
 
   static void(*fun)(double *, int, int, double *, double *) = NULL;
@@ -194,10 +242,22 @@ void tukeybiweight_no_log(double *data, int rows, int cols, double *results, dou
   return;
 }
 
-
-
-
-
+/*! \brief Use a 1-step Tukey Biweight to summarize each column
+ *
+ * Given a data matrix of probe intensities, and a list of rows in the matrix 
+ * corresponding to a single probeset, compute log2 transformed 1-step Tukey Biweight expression measure. 
+ * Note that data is a probes by chips matrix. Also compute SE estimates
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows a vector containing row indices to use
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param nprobes number of probes in current set
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols
+ *
+ *  
+ */
 
 void TukeyBiweight(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
 
@@ -210,6 +270,22 @@ void TukeyBiweight(double *data, int rows, int cols, int *cur_rows, double *resu
   return;
 }
 
+/*! \brief Use a 1-step Tukey Biweight to summarize each column
+ *
+ * Given a data matrix of probe intensities, and a list of rows in the matrix 
+ * corresponding to a single probeset, log2 transform each data item and then compute 1-step Tukey Biweight expression measure. 
+ * Note that data is a probes by chips matrix.
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows a vector containing row indices to use
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param nprobes number of probes in current set
+ *
+ *  
+ */
+
 void TukeyBiweight_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
 
 
@@ -221,6 +297,20 @@ void TukeyBiweight_noSE(double *data, int rows, int cols, int *cur_rows, double 
   return;
 }
 
+/*! \brief Use a 1-step Tukey Biweight to summarize each column
+ *
+ * Given a data matrix of probe intensities, and a list of rows in the matrix 
+ * corresponding to a single probeset, compute 1-step Tukey Biweight expression measure. 
+ * Note that data is a probes by chips matrix.
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows a vector containing row indices to use
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param nprobes number of probes in current set
+ *  
+ */
 
 void TukeyBiweight_no_log_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
 
@@ -234,8 +324,16 @@ void TukeyBiweight_no_log_noSE(double *data, int rows, int cols, int *cur_rows, 
 }
 
 
-
-
+/*! \brief compute a 1-step Tukey Biweight
+ *
+ *
+ * implements one step Tukey Biweight as documented in the Affymetrix 
+ * Statistical Algorithms Description Document. 
+ *
+ * @param x  vector of data
+ * @param length  length of vector of data
+ *
+ */
 
 double Tukey_Biweight(double *x, int length){
 
@@ -264,6 +362,21 @@ void lm_wfit(double *x, double *y, double *w, int rows, int cols, double tol, do
 
 
 
+/*! \brief Compute medianpolish  
+ *
+ *
+ *      Given a data matrix, compute median polish parameter estimates 
+ *      Note that data is a probes by chips matrix. Also compute SE estimates. 
+ *      The input data matrix contains the fitted residuals on output.
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param r pre-allocated space to store estimated row effects. Should be of length rows. Assumed on input that this is zero-ed out.
+ * @param c pre-allocated space to store estimated column effects. Should be of length cols. Assumed on input that this is zero-ed out.
+ * @param t pre-allocated space to store "intercept" effect. Should be of length 1.
+ *
+ */
 
 void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, double *c, double *t){
 
@@ -278,6 +391,21 @@ void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, doub
 
 }
 
+/*! \brief Compute medianpolish  
+ *
+ *
+ *      Given a data matrix of probe intensities, compute median polish expression measure. 
+ *      Note that data is a probes by chips matrix. Also compute SE estimates. 
+ *      The input data matrix contains the fitted residuals on output.
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols. Note that this is just NA values
+ *  
+ */
+
 void median_polish_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
 
   static void(*fun)(double *, int, int, double *, double *) = NULL;
@@ -288,6 +416,22 @@ void median_polish_no_copy(double *data, int rows, int cols, double *results, do
   return;
 
 }
+
+/*! \brief Compute medianpolish  
+ *
+ *
+ *      Given a data matrix of probe intensities, compute median polish expression measure. 
+ *      Note that data is a probes by chips matrix. Also compute SE estimates. This function
+ *      \f$\log_2\f$ transforms its input before apply the median polish. The input data matrix
+ *      contains the fitted residuals on output.
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols. Note that this is just NA values
+ *  
+ */
 
 void median_polish_log2_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
   
@@ -300,6 +444,21 @@ void median_polish_log2_no_copy(double *data, int rows, int cols, double *result
 
 }
 
+/*! \brief Compute medianpolish  
+ *
+ *
+ *      Given a data matrix of probe intensities, compute median polish expression measure. 
+ *      Note that data is a probes by chips matrix. Also compute SE estimates. This function
+ *      \f$\log_2\f$ transforms its input before apply the median polish.
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols. Note that this is just NA values
+ * @param residuals pre-allocated space to store the redsiuals. Should be of length rows*cols
+ *  
+ */
 
 void median_polish_log2(double *data, int rows, int cols, double *results, double *resultsSE, double *residuals){
 
@@ -313,6 +472,22 @@ void median_polish_log2(double *data, int rows, int cols, double *results, doubl
 
 }
 
+/*! \brief Compute medianpolish  
+ *
+ *
+ *      Given a data matrix of probe intensities, compute median polish expression measure. 
+ *      Note that data is a probes by chips matrix. Also compute SE estimates.
+ *      
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols. Note that this is just NA values
+ * @param residuals pre-allocated space to store the redsiuals. Should be of length rows*cols
+ *  
+ */
+
 void median_polish(double *data, int rows, int cols, double *results, double *resultsSE, double *residuals){
 
   static void(*fun)(double *, int, int, double *, double *, double *) = NULL;
@@ -324,6 +499,38 @@ void median_polish(double *data, int rows, int cols, double *results, double *re
   return;
 }
 
+/*! \brief Compute medianpolish  
+ *
+ *
+ *      Given a data matrix of probe intensities, and a list of rows in the matrix 
+ *      corresponding to a single probeset, compute median polish expression measure. 
+ *      Note that data is a probes by chips matrix. Also compute SE estimates. This function
+ *      \f$\log_2\f$ transforms its inpue before apply the median polish.
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows a vector containing row indices to use
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param nprobes number of probes in current set
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols. Note that this is just NA values
+ *
+ *  
+ */
+
+
+void MedianPolish(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+
+
+  static void(*fun)(double *, int, int, int *, double *, int, double *) = NULL;
+
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, int *, double *, int, double *))R_GetCCallable("preprocessCore","MedianPolish");
+
+  fun(data,rows,cols,cur_rows,results,nprobes,resultsSE);
+  return;
+
+}
 
 /*! \brief Compute medianpolish  
  *
@@ -342,20 +549,6 @@ void median_polish(double *data, int rows, int cols, double *results, double *re
  *
  *  
  */
-
-void MedianPolish(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
-
-
-  static void(*fun)(double *, int, int, int *, double *, int, double *) = NULL;
-
-  if (fun == NULL)
-    fun = (void(*)(double *, int, int, int *, double *, int, double *))R_GetCCallable("preprocessCore","MedianPolish");
-
-  fun(data,rows,cols,cur_rows,results,nprobes,resultsSE);
-  return;
-
-}
-
 
 void MedianPolish_no_log(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
 
@@ -477,9 +670,23 @@ void rlm_compute_se_anova(double *Y, int y_rows,int y_cols, double *beta, double
 
 }
 
-
-
-
+/*! \brief  \f$\log_2\f$ transform the data and compute the median 
+ * 
+ *  Given a data matrix of probe intensities \f$\log_2\f$ transform it and then compute the median. Also compute SE of this estimate
+ *  on a column by column basis using only a specified subset of rows. Specifically, the median of each column is based on
+ *  \f$\log_2\f$ transformed data. The sample standard error is also computed. 
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows indices specifying which rows in the matrix to use
+ * @param results pre-allocated space to store output log2 medians. Should be of length cols
+ * @param nprobes the number of rows in cur_rows
+ * @param resultsSE pre-allocated space to store SE of log2 medians. Should be of length cols
+ *
+ *  
+ */
 
 void MedianLog(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
 
@@ -492,6 +699,20 @@ void MedianLog(double *data, int rows, int cols, int *cur_rows, double *results,
 
 }
 
+/*! \brief  \f$\log_2\f$ transform the data and compute the median 
+ * 
+ *  Given a data matrix of probe intensities \f$\log_2\f$ transform it and then compute the median on a column by column basis using only a specified subset of rows. 
+ *  Specifically, the median of each column is based on \f$\log_2\f$ transformed data.
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows indices specifying which rows in the matrix to use
+ * @param results pre-allocated space to store output log2 medians. Should be of length cols
+ * @param nprobes the number of rows in cur_rows
+ *  
+ */
 
 void MedianLog_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
 
@@ -503,6 +724,23 @@ void MedianLog_noSE(double *data, int rows, int cols, int *cur_rows, double *res
   return;
 
 }
+
+/*! \brief compute the median for each column of \f$\log_2\f$ transformed data.
+ * 
+ *  Given a data matrix of probe intensities \f$\log_2\f$ transform it then compute median of each column. Also produce the SE of this estimate
+ *  on a column by column basis. Specifically, the median is computed for each column and then \f$\log_2\f$ transformed.
+ *  The sample standard error is also computed. On output the data matrix will
+ *  be unchanged.
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 medians. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 medians. Should be of length cols
+ *
+ *  
+ */
 
 
 
@@ -517,6 +755,22 @@ void medianlog(double *data, int rows, int cols, double *results, double *result
 
 }
 
+/*! \brief compute the median for each column of \f$\log_2\f$ transformed data.
+ * 
+ *  Given a data matrix of probe intensities \f$\log_2\f$ transform it then compute median of each column. Also produce the SE of this estimate
+ *  on a column by column basis. Specifically, the median is computed for each column and then \f$\log_2\f$ transformed.
+ *  The sample standard error is also computed. On output the data matrix will
+ *  be changed.
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 medians. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 medians. Should be of length cols
+ *
+ *  
+ */
 
 void medianlog_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
 
@@ -529,7 +783,23 @@ void medianlog_no_copy(double *data, int rows, int cols, double *results, double
 
 }
 
-
+/*! \brief compute the median for subset of rows and the \f$\log_2\f$ transform it
+ * 
+ *  Given a data matrix of probe intensities compute median and then \f$\log_2\f$ transform it. Also compute SE of this estimate
+ *  on a column by column basis using only a specified subset of rows. Specifically, the median of each column is computed
+ *  the it is \f$\log_2\f$ transformed. The sample standard error is also computed. 
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows indices specifying which rows in the matrix to use
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param nprobes the number of rows in cur_rows
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols
+ *
+ *  
+ */
 
 void LogMedian(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
 
@@ -542,6 +812,24 @@ void LogMedian(double *data, int rows, int cols, int *cur_rows, double *results,
 
 }
 
+/*! \brief compute the median for subset of rows and the \f$\log_2\f$ transform it
+ * 
+ *  Given a data matrix of probe intensities compute median and then \f$\log_2\f$ transform it. Computed on a column by column basis using only a specified subset of rows. 
+ * Specifically, the median of each column is computed
+ *  the it is \f$\log_2\f$ transformed.
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows indices specifying which rows in the matrix to use
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param nprobes the number of rows in cur_rows
+ *
+ *  
+ */
+
+
 void LogMedian_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
 
   static void(*fun)(double *, int, int, int *, double *, int, double *) = NULL;
@@ -553,6 +841,22 @@ void LogMedian_noSE(double *data, int rows, int cols, int *cur_rows, double *res
 
 }
 
+/*! \brief compute the median for each column and then \f$\log_2\f$ transform it
+ * 
+ *  Given a data matrix of probe intensities compute median and then \f$\log_2\f$ transform it. Also produce the SE of this estimate
+ *  on a column by column basis. Specifically, the median is computed for each column and then \f$\log_2\f$ transformed.
+ *  The sample standard error is also computed. On output the data matrix will
+ *  be unchanged.
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols
+ *
+ *  
+ */
 
 void logmedian(double *data, int rows, int cols, double *results, double *resultsSE){
 
@@ -565,6 +869,22 @@ void logmedian(double *data, int rows, int cols, double *results, double *result
 
 }
 
+/*! \brief compute the median for each column and then \f$\log_2\f$ transform it
+ * 
+ *  Given a data matrix of probe intensities compute median and then \f$\log_2\f$ transform it. Also produce the SE of this estimate
+ *  on a column by column basis. Specifically, the median is computed for each column and then \f$\log_2\f$ transformed.
+ *  The sample standard error is also computed. On output the data matrix will
+ *  be changed.  
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols
+ *
+ *  
+ */
 
 void logmedian_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
 
@@ -578,10 +898,23 @@ void logmedian_no_copy(double *data, int rows, int cols, double *results, double
 }
 
 
-
-
-
-
+/*! \brief Compute the mean and SE of the mean
+ * 
+ *  Given a data matrix of probe intensities compute average log2 expression measure and SE of this estimate
+ *  on a column by column basis. Specifically, each element is log2 transformed, then the arithmetic mean
+ *  is computed for each column. The sample standard error is also computed. This function guarantees that 
+ *  no additional memory is temporarily allocated to copy the input data matrix. However, this means that
+ *  on output the input matrix may be changed.
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols
+ *
+ *  
+ */
 
 void colaverage_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
 
@@ -593,6 +926,24 @@ void colaverage_no_copy(double *data, int rows, int cols, double *results, doubl
   fun(data,rows,cols,results,resultsSE);
   return;
 }
+
+/*! \brief Compute the mean and SE of the mean
+ * 
+ *  Given a data matrix of probe intensities compute average log2 expression measure and SE of this estimate
+ *  on a column by column basis. Specifically, each element is log2 transformed, then the arithmetic mean
+ *  is computed for each column. The sample standard error is also computed. This function guarantees that 
+ *  no additional memory is temporarily allocated to copy the input data matrix. However, this means that
+ *  on output the input matrix may be changed.
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols
+ *
+ *  
+ */
 
 void colaverage(double *data, int rows, int cols, double *results, double *resultsSE){
 
@@ -606,6 +957,23 @@ void colaverage(double *data, int rows, int cols, double *results, double *resul
 }
 
 
+/*! \brief Compute the mean and SE of the mean for subset of rows
+ * 
+ *  Given a data matrix of probe intensities compute averageexpression measure and SE of this estimate
+ *  on a column by column basis using only a specified subset of rows. Specifically, the arithmetic mean
+ *  is computed for each column. The sample standard error is also computed. 
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows indices specifying which rows in the matrix to use
+ * @param results pre-allocated space to store output averages. Should be of length cols
+ * @param nprobes the number of elements in cur_rows
+ * @param resultsSE pre-allocated space to store SE of averages. Should be of length cols
+ *
+ *  
+ */
 
 void ColAverage(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
 
@@ -618,6 +986,24 @@ void ColAverage(double *data, int rows, int cols, int *cur_rows, double *results
   return;
 }
 
+/*! \brief compute the mean for specified subset of rows
+ * 
+ *  Given a data matrix of probe intensities compute average expression measure and SE of this estimate
+ *  on a column by column basis using only a specified subset of rows. Specifically, the arithmetic mean
+ *  is computed for each column. The sample standard error is also computed. 
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows indices specifying which rows in the matrix to use
+ * @param results pre-allocated space to store output averages. Should be of length cols
+ * @param nprobes the number of elements in cur_rows
+ *
+ *
+ *  
+ */
+
 void ColAverage_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
 
   static void(*fun)(double*, int, int, int*, double *, int) = NULL;
@@ -629,8 +1015,21 @@ void ColAverage_noSE(double *data, int rows, int cols, int *cur_rows, double *re
   return;
 }
 
-
-
+/*! \brief Compute the median and SE of the median
+ * 
+ *  Given a data matrix of probe intensities compute median measure and SE of this estimate
+ *  on a column by column basis. The sample standard error is also computed. On output the data matrix will
+ *  be changed.
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of averages. Should be of length cols
+ *
+ *  
+ */
 
 void colmedian_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
 
@@ -642,6 +1041,24 @@ void colmedian_no_copy(double *data, int rows, int cols, double *results, double
   fun(data,rows,cols,results,resultsSE);
   return;
 }
+
+/*! \brief Compute the median and SE of the median
+ * 
+ *  Given a data matrix of probe intensities compute median measure and SE of this estimate
+ *  on a column by column basis. Specifically, each element is log2 transformed, then the arithmetic mean
+ *  is computed for each column. The sample standard error is also computed. This function guarantees that 
+ *  no additional memory is temporarily allocated to copy the input data matrix. However, this means that
+ *  on output the input matrix will be unchanged.
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols
+ *
+ *  
+ */
 
 void colmedian(double *data, int rows, int cols, double *results, double *resultsSE){
 
@@ -655,6 +1072,23 @@ void colmedian(double *data, int rows, int cols, double *results, double *result
 }
 
 
+/*! \brief Compute the median and SE of the median for subset of rows
+ * 
+ *  Given a data matrix of probe intensities compute median and SE of this estimate
+ *  on a column by column basis using only a specified subset of rows. Specifically, the arithmetic mean
+ *  is computed for each column. The sample standard error is also computed. 
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows indices specifying which rows in the matrix to use
+ * @param results pre-allocated space to store output medians. Should be of length cols
+ * @param nprobes the number of elements in cur_rows
+ * @param resultsSE pre-allocated space to store SE of medians. Should be of length cols
+ *
+ *  
+ */
 
 void ColMedian(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
 
@@ -666,6 +1100,24 @@ void ColMedian(double *data, int rows, int cols, int *cur_rows, double *results,
   fun(data, rows, cols, cur_rows, results, nprobes, resultsSE);
   return;
 }
+
+/*! \brief compute the median for specified subset of rows
+ * 
+ *  Given a data matrix of probe intensities compute median expression measure 
+ *  on a column by column basis using only a specified subset of rows. Specifically, the median
+ *  is computed for each column.  
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows indices specifying which rows in the matrix to use
+ * @param results pre-allocated space to store output medians. Should be of length cols
+ * @param nprobes the number of elements in cur_rows
+ *
+ *
+ *  
+ */
 
 void ColMedian_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
 
