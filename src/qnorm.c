@@ -56,6 +56,8 @@
  ** May 26, 2007 - fix memory leak in qnorm_c_determine_target
  ** Jul 12, 2007 - improved ties handling (fixes off by "half" error which affects even numbers of ties)
  ** Jul 14, 2007 - add NA handling to qnorm_c_using_target and qnorm_c_determine_target
+ ** Oct 6, 2007 - initial pthreads support for qnorm_c supplied by Paul Gordon <gordonp@ucalgary.ca>
+ ** Oct 9, 2007 - modify how columns are partioned to threads (when less columns than threads)
  **
  ***********************************************************/
 
@@ -82,6 +84,20 @@
 #include <Rmath.h>
 #include <Rinternals.h>
  
+#ifdef USE_PTHREADS
+#include <pthread.h>
+#define THREADS_ENV_VAR "R_THREADS"
+pthread_mutex_t mutex_R;
+struct loop_data{
+  double *data;
+  double *row_mean;
+  int *rows;
+  int *cols;
+  int start_col;
+  int end_col;
+};
+#endif
+
 /*****************************************************************************************************
  *****************************************************************************************************
  **
@@ -352,6 +368,86 @@ static double med_abs(double *x, int length){
  *****************************************************************************************************
  *****************************************************************************************************/
 
+void normalize_determine_target(double *data, double *row_mean, int *rows, int *cols, int start_col, int end_col){
+  int i, j;
+  double *datvec = (double *)Calloc((*rows),double);
+  
+#ifdef USE_PTHREADS
+  long double *row_submean = (long double *)Calloc((*rows), long double);
+  for (i =0; i < *rows; i++){
+    row_submean[i] = 0.0;
+  }
+#endif
+
+  for (j = start_col; j <= end_col; j++){
+
+    /* first find the normalizing distribution */
+    for (i = 0; i < *rows; i++){
+      datvec[i] = data[j*(*rows) + i];
+    }
+    qsort(datvec,*rows,sizeof(double),(int(*)(const void*, const void*))sort_double);
+    for (i = 0; i < *rows; i++){
+#ifdef USE_PTHREADS
+      row_submean[i] += datvec[i];
+#else
+      row_mean[i] += datvec[i]/((double)*cols);
+#endif
+    }
+  }
+  Free(datvec);
+
+#ifdef USE_PTHREADS
+  /* add to the global running total, will do the division after all threads finish (for precision of the result) */
+  pthread_mutex_lock (&mutex_R);
+  for (i = 0; i < *rows; i++){
+    row_mean[i] += (double) row_submean[i];
+  }
+  pthread_mutex_unlock (&mutex_R);
+#endif
+}
+  
+void normalize_distribute_target(double *data, double *row_mean, int *rows, int *cols, int start_col, int end_col){ 
+  int i, j, ind;
+  dataitem **dimat;
+  double *ranks = (double *)Calloc((*rows),double);
+
+  dimat = (dataitem **)Calloc(1,dataitem *);
+  dimat[0] = (dataitem *)Calloc(*rows,dataitem);
+
+  for (j = start_col; j <= end_col; j++){
+    for (i = 0; i < *rows; i++){
+      dimat[0][i].data = data[j*(*rows) + i];
+      dimat[0][i].rank = i;
+    }
+    qsort(dimat[0],*rows,sizeof(dataitem),sort_fn);
+    get_ranks(ranks,dimat[0],*rows);
+    for (i = 0; i < *rows; i++){
+      ind = dimat[0][i].rank;
+      if (ranks[i] - floor(ranks[i]) > 0.4){
+	data[j*(*rows) +ind] = 0.5*(row_mean[(int)floor(ranks[i])-1] + row_mean[(int)floor(ranks[i])]);
+      } else { 
+	data[j*(*rows) +ind] = row_mean[(int)floor(ranks[i])-1];
+      }
+    }
+  }
+
+  Free(ranks);
+  Free(dimat[0]);
+  Free(dimat);
+}
+
+#ifdef USE_PTHREADS
+void *normalize_group(void *data){
+  struct loop_data *args = (struct loop_data *) data;
+  normalize_determine_target(args->data, args->row_mean, args->rows, args->cols, args->start_col, args->end_col);
+}
+
+void *distribute_group(void *data){
+  struct loop_data *args = (struct loop_data *) data;
+  normalize_distribute_target(args->data, args->row_mean, args->rows, args->cols, args->start_col, args->end_col);
+}
+#endif
+
 /*********************************************************
  **
  ** void qnorm_c(double *data, int *rows, int *cols)
@@ -366,56 +462,130 @@ static double med_abs(double *x, int length){
  ********************************************************/
 
 int qnorm_c(double *data, int *rows, int *cols){
-  int i,j,ind;
-  dataitem **dimat;
-  /*  double sum; */
+  int i;
   double *row_mean = (double *)Calloc((*rows),double);
-  double *datvec; /* = (double *)Calloc(*cols,double); */
-  double *ranks = (double *)Calloc((*rows),double);
-  
-  datvec = (double *)Calloc(*rows,double);
-  
+#ifdef USE_PTHREADS
+  int t, returnCode, chunk_size, num_threads = 1;
+  double chunk_size_d, chunk_tot_d;
+  char *nthreads;
+  pthread_attr_t attr;
+  pthread_t *threads;
+  struct loop_data *args;
+  void *status;
+#endif
+
   for (i =0; i < *rows; i++){
     row_mean[i] = 0.0;
   }
-  
-  /* first find the normalizing distribution */
-  for (j = 0; j < *cols; j++){
-    for (i =0; i < *rows; i++){
-      datvec[i] = data[j*(*rows) + i];
-    }
-    qsort(datvec,*rows,sizeof(double),(int(*)(const void*, const void*))sort_double);
-    for (i =0; i < *rows; i++){
-      row_mean[i] += datvec[i]/((double)*cols);
+
+#ifdef USE_PTHREADS
+  nthreads = getenv(THREADS_ENV_VAR);
+  if(nthreads != NULL){
+    num_threads = atoi(nthreads);
+    if(num_threads <= 0){
+      error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
+  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+
+  /* Initialize and set thread detached attribute */
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+  /* this code works out how many threads to use and allocates ranges of columns to each thread */
+  /* The aim is to try to be as fair as possible in dividing up the matrix */
+  /* A special cases to be aware of: 
+    1) Number of columns is less than the number of threads
+  */
   
-  /* now assign back distribution */
-  dimat = (dataitem **)Calloc(1,dataitem *);
-  dimat[0] = (dataitem *)Calloc(*rows,dataitem);
-  
-  for (j = 0; j < *cols; j++){
-    for (i =0; i < *rows; i++){
-      dimat[0][i].data = data[j*(*rows) + i];
-      dimat[0][i].rank = i;
-    }
-    qsort(dimat[0],*rows,sizeof(dataitem),sort_fn);
-    get_ranks(ranks,dimat[0],*rows);
-    for (i =0; i < *rows; i++){
-      ind = dimat[0][i].rank;
-      if (ranks[i] - floor(ranks[i]) > 0.4){
-	data[j*(*rows) +ind] = 0.5*(row_mean[(int)floor(ranks[i])-1] + row_mean[(int)floor(ranks[i])]);
-      } else { 
-	data[j*(*rows) +ind] = row_mean[(int)floor(ranks[i])-1];
+  if (num_threads < *cols){
+    chunk_size = *cols/num_threads;
+    chunk_size_d = ((double) *cols)/((double) num_threads);
+  } else {
+    chunk_size = 1;
+    chunk_size_d = 1;
+  }
+
+  if(chunk_size == 0){
+    chunk_size = 1;
+  }
+  args = (struct loop_data *) Calloc((*cols < num_threads ? *cols : num_threads), struct loop_data);
+
+  args[0].data = data;
+  args[0].row_mean = row_mean;
+  args[0].rows = rows;  
+  args[0].cols = cols;
+
+  pthread_mutex_init(&mutex_R, NULL);
+
+  t = 0; /* t = number of actual threads doing work */
+  chunk_tot_d = 0;
+  for (i=0; floor(chunk_tot_d+0.00001) < *cols; i+=chunk_size){
+     if(t != 0){
+       memcpy(&(args[t]), &(args[0]), sizeof(struct loop_data));
+     }
+
+     args[t].start_col = i;     
+     /* take care of distribution of the remainder (when #chips%#threads != 0) */
+     chunk_tot_d += chunk_size_d;
+     // Add 0.00001 in case there was a rounding issue with the division
+     if(i+chunk_size < floor(chunk_tot_d+0.00001)){
+       args[t].end_col = i+chunk_size;
+       i++;
+     }
+     else{
+       args[t].end_col = i+chunk_size-1;
+     }
+     t++;
+  }
+
+  /* Determining the quantile normalization target distribution */
+  for (i =0; i < t; i++){
+     returnCode = pthread_create(&threads[i], &attr, normalize_group, (void *) &(args[i]));
+     if (returnCode){
+         error("ERROR; return code from pthread_create() is %d\n", returnCode);
+     }
+  }
+  /* Wait for the other threads */
+  for(i = 0; i < t; i++){
+      returnCode = pthread_join(threads[i], &status);
+      if (returnCode){
+         error("ERROR; return code from pthread_join(thread #%d) is %d, exit status for thread was %d\n", 
+	       i, returnCode, *((int *) status));
       }
-    }
   }
-  Free(ranks);
-  Free(datvec);
-  Free(dimat[0]);
-  
-  Free(dimat);
+
+  /* When in threaded mode, row_mean is the sum, waiting for a final division here, to maintain precision */
+  for (i = 0; i < *rows; i++){
+    row_mean[i] /= (double)*cols;
+  }
+
+  /* now assign back the target normalization distribution to a given set of columns */
+  for (i =0; i < t; i++){
+     returnCode = pthread_create(&threads[i], &attr, distribute_group, (void *) &(args[i]));
+     if (returnCode){
+         error("ERROR; return code from pthread_create() is %d\n", returnCode);
+     }
+  }
+  /* Wait for the other threads */
+  for(i = 0; i < t; i++){
+      returnCode = pthread_join(threads[i], &status);
+      if (returnCode){
+         error("ERROR; return code from pthread_join(thread #%d) is %d, exit status for thread was %d\n", 
+	       i, returnCode, *((int *) status));
+      }
+  }
+  pthread_attr_destroy(&attr);  
+  pthread_mutex_destroy(&mutex_R);
+  Free(threads);
+  Free(args);  
+#else
+  normalize_determine_target(data, row_mean, rows, cols, 0, *cols-1);
+  normalize_distribute_target(data, row_mean, rows, cols, 0, *cols-1); 
+#endif
+
   Free(row_mean);
+
   return 0;
 }
 
