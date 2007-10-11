@@ -1,0 +1,8 @@
+1.1.1
+-----
+
+Add experimental support for pthreads based multi-threaded quantile normalization via code contributed by Paul Gordon <gordonp@ucalgary.ca>
+
+This is only implemented for the RMA quantile normalization (ie accessible via calling the rma() function.
+
+The number of threads is user controlled by setting the R_THREADS environmnet 
