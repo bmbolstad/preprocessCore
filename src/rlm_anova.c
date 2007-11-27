@@ -6,7 +6,7 @@
  **
  ** Copyright (C) 2004-2007 Ben Bolstad
  **
- ** created by: B. M. Bolstad <bolstad@stat.berkeley.edu>
+ ** created by: B. M. Bolstad <bmb@bmbolstad.com>
  ** 
  ** created on: June 23, 2003
  **

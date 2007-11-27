@@ -1447,7 +1447,7 @@ int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int
 	qsort(dimat[0],non_na,sizeof(dataitem),sort_fn);
 	get_ranks(ranks,dimat[0],non_na);
 	for (i =0; i < non_na; i++){
-	  //////// RESUME HERE
+	 
 	  samplepercentile = (double)(ranks[i] - 1)/(double)(non_na-1);
 	  /* target_ind_double = 1.0/3.0 + ((double)(*targetrows) + 1.0/3.0) * samplepercentile; */
 	  target_ind_double = 1.0 + ((double)(targetnon_na) - 1.0) * samplepercentile;
