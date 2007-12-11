@@ -5,6 +5,7 @@
 ##
 ## History
 ## Sept 18, 2007 - Initial verison
+## Dec 10, 2007 - add rownames to output
 ##
 
 
@@ -31,7 +32,10 @@ subColSummarizeAvgLog <- function(y, group.labels){
 
   rowIndexList <- convert.group.labels(group.labels)
   
-  .Call("R_subColSummarize_avg_log", y, rowIndexList, PACKAGE="preprocessCore")
+  x <- .Call("R_subColSummarize_avg_log", y, rowIndexList, PACKAGE="preprocessCore")
+
+  rownames(x) <- names(rowIndexList)
+  x
 }
 
 
@@ -49,7 +53,9 @@ subColSummarizeLogAvg <- function(y, group.labels){
 
   rowIndexList <- convert.group.labels(group.labels)
   
-  .Call("R_subColSummarize_log_avg", y, rowIndexList, PACKAGE="preprocessCore")
+  x <- .Call("R_subColSummarize_log_avg", y, rowIndexList, PACKAGE="preprocessCore")
+  rownames(x) <- names(rowIndexList)
+  x
 }
 
 
@@ -66,7 +72,10 @@ subColSummarizeAvg <- function(y, group.labels){
 
   rowIndexList <- convert.group.labels(group.labels)
   
-  .Call("R_subColSummarize_avg", y, rowIndexList, PACKAGE="preprocessCore")
+  x <- .Call("R_subColSummarize_avg", y, rowIndexList, PACKAGE="preprocessCore")
+  rownames(x) <- names(rowIndexList)
+  x
+  
 }
 
 
@@ -83,7 +92,9 @@ subColSummarizeBiweightLog <- function(y, group.labels){
 
   rowIndexList <- convert.group.labels(group.labels)
   
-  .Call("R_subColSummarize_biweight_log", y, rowIndexList, PACKAGE="preprocessCore")
+  x <- .Call("R_subColSummarize_biweight_log", y, rowIndexList, PACKAGE="preprocessCore")
+  rownames(x) <- names(rowIndexList)
+  x
 }
 
 
@@ -100,7 +111,11 @@ subColSummarizeBiweight <- function(y, group.labels){
 
   rowIndexList <- convert.group.labels(group.labels)
   
-  .Call("R_subColSummarize_biweight", y, rowIndexList, PACKAGE="preprocessCore")
+  x <- .Call("R_subColSummarize_biweight", y, rowIndexList, PACKAGE="preprocessCore")
+  rownames(x) <- names(rowIndexList)
+  x
+
+
 }
 
 
@@ -118,7 +133,9 @@ subColSummarizeMedianLog <- function(y, group.labels){
 
   rowIndexList <- convert.group.labels(group.labels)
   
-  .Call("R_subColSummarize_median_log", y, rowIndexList, PACKAGE="preprocessCore")
+  x <- .Call("R_subColSummarize_median_log", y, rowIndexList, PACKAGE="preprocessCore")
+  rownames(x) <- names(rowIndexList)
+  x
 }
 
 
@@ -136,7 +153,9 @@ subColSummarizeLogMedian <- function(y, group.labels){
 
   rowIndexList <- convert.group.labels(group.labels)
   
-  .Call("R_subColSummarize_log_median", y, rowIndexList, PACKAGE="preprocessCore")
+  x <- .Call("R_subColSummarize_log_median", y, rowIndexList, PACKAGE="preprocessCore")
+  rownames(x) <- names(rowIndexList)
+  x
 }
 
 
@@ -153,7 +172,9 @@ subColSummarizeMedian <- function(y, group.labels){
 
   rowIndexList <- convert.group.labels(group.labels)
   
-  .Call("R_subColSummarize_median", y, rowIndexList, PACKAGE="preprocessCore")
+  x <- .Call("R_subColSummarize_median", y, rowIndexList, PACKAGE="preprocessCore")
+  rownames(x) <- names(rowIndexList)
+  x
 }
 
 
@@ -173,7 +194,9 @@ subColSummarizeMedianpolishLog <- function(y, group.labels){
 
   rowIndexList <- convert.group.labels(group.labels)
   
-  .Call("R_subColSummarize_medianpolish_log", y, rowIndexList, PACKAGE="preprocessCore")
+  x <- .Call("R_subColSummarize_medianpolish_log", y, rowIndexList, PACKAGE="preprocessCore")
+  rownames(x) <- names(rowIndexList)
+  x
 }
 
 
@@ -188,6 +211,8 @@ subColSummarizeMedianpolish <- function(y, group.labels){
 
   rowIndexList <- convert.group.labels(group.labels)
   
-  .Call("R_subColSummarize_medianpolish", y, rowIndexList, PACKAGE="preprocessCore")
+  x <- .Call("R_subColSummarize_medianpolish", y, rowIndexList, PACKAGE="preprocessCore")
+  rownames(x) <- names(rowIndexList)
+  x
 }
 
