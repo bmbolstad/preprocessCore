@@ -6,13 +6,14 @@
 \description{These functions fit row-column effect models to matrices
 }
 \usage{
-rcModelPLM(y)
-rcModelWPLM(y, w)
+rcModelPLM(y,row.effects=NULL)
+rcModelWPLM(y, w,row.effects=NULL)
 rcModelMedianPolish(y)
 }
 \arguments{
   \item{y}{A numeric matrix}
   \item{w}{A matrix or vector of weights. These should be non-negative.}
+  \item{row.effects}{If these are supplied then the fitting procedure uses these (and analyzes individual columns separately)}
 }
 \value{
   A list with following items:
@@ -57,6 +58,12 @@ y <- y + rnorm(50)
 rcModelPLM(y)
 rcModelWPLM(y, w)
 rcModelMedianPolish(y)
+
+
+
+rcModelPLM(y,row.effects=row.effects)
+rcModelWPLM(y,w,row.effects=row.effects)
+
 }
 \author{B. M. Bolstad \email{bmb@bmbolstad.com}}
 \keyword{models}

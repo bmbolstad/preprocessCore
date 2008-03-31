@@ -2,7 +2,7 @@
  **
  ** file: init_package.c
  **
- ** Copyright (C) 2007    B. M. Bolstad
+ ** Copyright (C) 2007-2008    B. M. Bolstad
  **
  ** aim: Register c code routines so that they can be called in other packages.
  **"
@@ -11,6 +11,7 @@
  ** May 24-27, 2007 - add in additional registered functions
  ** Sep 9, 2007 - add the R_rlm_rma_default and R_wrlm_rma_default_model as registered functions
  ** Sep 10, 2007 - add logmedian medianlog dunctions
+ ** Mar 11, 2007 - add R_rlm_rma_given_probe_effects etc functions
  **
  *****************************************************/
 
@@ -34,10 +35,17 @@
 #include "R_colSummarize.h"
 #include "R_subColSummarize.h"
 
+#include "plmr.h"
+#include "R_plmr_interfaces.h"
+
+#include "rma_background4.h"
+
+
 #include <R_ext/Rdynload.h>
 #include <Rdefines.h>
 #include <Rinternals.h>
 #include <R_ext/RConverters.h>
+
 
 #if _MSC_VER >= 1000
 __declspec(dllexport)
@@ -74,7 +82,15 @@ static const R_CallMethodDef callMethods[]  = {
   {"R_subColSummarize_median",(DL_FUNC)&R_subColSummarize_median,2},
   {"R_subColSummarize_medianpolish_log",(DL_FUNC)&R_subColSummarize_medianpolish_log,2},
   {"R_subColSummarize_medianpolish",(DL_FUNC)&R_subColSummarize_medianpolish,2},
-
+  {"R_plmr_model",(DL_FUNC)&R_plmr_model,3},
+  {"R_wplmr_model", (DL_FUNC)&R_wplmr_model,4},
+  {"R_plmrr_model",(DL_FUNC)&R_plmrr_model,3},
+  {"R_wplmrr_model", (DL_FUNC)&R_wplmrr_model,4},
+  {"R_plmrc_model",(DL_FUNC)&R_plmrc_model,3},
+  {"R_wplmrc_model", (DL_FUNC)&R_wplmrc_model,4},
+  {"R_rlm_rma_given_probe_effects", (DL_FUNC)&R_rlm_rma_given_probe_effects,4},
+  {"R_rlm_rma_given_probe_effects", (DL_FUNC)&R_wrlm_rma_given_probe_effects,5},
+  {"R_rma_bg_correct",(DL_FUNC)&R_rma_bg_correct,2},
   {NULL, NULL, 0}
   };
 
@@ -149,10 +165,32 @@ void R_init_preprocessCore(DllInfo *info){
 
   R_RegisterCCallable("preprocessCore", "med_abs", (DL_FUNC)&med_abs);
   
+  /* The PLM functions */
   R_RegisterCCallable("preprocessCore","rlm_fit_anova", (DL_FUNC)&rlm_fit_anova);
   R_RegisterCCallable("preprocessCore","rlm_wfit_anova", (DL_FUNC)&rlm_wfit_anova);
   R_RegisterCCallable("preprocessCore","rlm_compute_se_anova", (DL_FUNC)&rlm_compute_se_anova);
    
+
+  /* The PLM-R functions */
+  R_RegisterCCallable("preprocessCore","plmr_fit", (DL_FUNC)&plmr_fit); 
+  R_RegisterCCallable("preprocessCore","plmr_wfit", (DL_FUNC)&plmr_wfit);
+   
+  R_RegisterCCallable("preprocessCore","plmrc_fit", (DL_FUNC)&plmrc_fit); 
+  R_RegisterCCallable("preprocessCore","plmrc_wfit", (DL_FUNC)&plmrc_wfit);
+   
+  R_RegisterCCallable("preprocessCore","plmrr_fit", (DL_FUNC)&plmrr_fit); 
+  R_RegisterCCallable("preprocessCore","plmrr_wfit", (DL_FUNC)&plmrr_wfit);
+
+  /* The PLM functions that work with fixed row(probe) effects */
+  R_RegisterCCallable("preprocessCore","rlm_fit_anova_given_probe_effects", (DL_FUNC)&rlm_fit_anova_given_probe_effects);
+  R_RegisterCCallable("preprocessCore","rlm_compute_se_anova_given_probe_effects", (DL_FUNC)&rlm_compute_se_anova_given_probe_effects);
+  R_RegisterCCallable("preprocessCore","rlm_wfit_anova_given_probe_effects", (DL_FUNC)&rlm_wfit_anova_given_probe_effects);
+ 
+
+  /* RMA background correction */
+  R_RegisterCCallable("preprocessCore","rma_bg_adjust", (DL_FUNC)&rma_bg_adjust);
+  R_RegisterCCallable("preprocessCore","rma_bg_parameters", (DL_FUNC)&rma_bg_parameters);
+  R_RegisterCCallable("preprocessCore","rma_bg_correct", (DL_FUNC)&rma_bg_correct);
 
 
 }

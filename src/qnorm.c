@@ -4,7 +4,7 @@
  **
  ** aim: A c implementation of the quantile normalization method 
  **
- ** Copyright (C) 2002-2006    Ben Bolstad
+ ** Copyright (C) 2002-2008    Ben Bolstad
  **
  ** written by: B. M. Bolstad  <bmb@bmbolstad.com>
  **
@@ -58,6 +58,8 @@
  ** Jul 14, 2007 - add NA handling to qnorm_c_using_target and qnorm_c_determine_target
  ** Oct 6, 2007 - initial pthreads support for qnorm_c supplied by Paul Gordon <gordonp@ucalgary.ca>
  ** Oct 9, 2007 - modify how columns are partioned to threads (when less columns than threads)
+ ** Mar 14, 2008 - multithreaded qnorm_c_determine_target based on pthreads
+ ** Mar 15, 2008 - multithreaded qnorm_c_using_target based on pthreads
  **
  ***********************************************************/
 
@@ -93,6 +95,7 @@ struct loop_data{
   double *row_mean;
   int *rows;
   int *cols;
+  int *row_meanlength;
   int start_col;
   int end_col;
 };
@@ -1349,82 +1352,35 @@ SEXP R_qnorm_robust_weights(SEXP X, SEXP remove_extreme, SEXP n_remove){
  *****************************************************************************************************/
 
 
+void using_target(double *data, int *rows, int *cols, double *target, int *targetrows, int start_col, int end_col){
 
-/*****************************************************************
- **
- ** int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int *targetrows)
- **
- ** double *data - a matrix of data to be normalized
- ** int *rows - dimensions of data
- ** int *cols - dimensions of data
- ** double *target - vector containing target distribution (ie distribution to be
- **                  normalized to)
- ** int *targetrows - length of target distribution vector
- **
- **
- ** if targetrows == rows then the standard methodology is used.
- ** 
- ** in other cases the appropriate quantiles to be normalized to are determined in a method
- ** equivalent to what you get using "type 8" with the quantile function
- **
- ** Note sample percentiles are calculated using i/(n+1)  (ie if there is 
- ** only 2 observations, the first sample percentile is 1/3 = 0.333,
- ** the second sample percentile will be 2/3 = 0.6666
- **
- ** 
- **
- *****************************************************************/
-
-
-
-int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int *targetrows){
-
-
-  
   int i,j,ind,target_ind;
+  
   dataitem **dimat;
 
-  double *row_mean; 
-  double *datvec;
-  double *ranks = (double *)Calloc((*rows),double);
+  double *row_mean = target;
 
+  double *ranks = (double *)Calloc((*rows),double);
   double samplepercentile;
   double target_ind_double,target_ind_double_floor;
 
-  int targetnon_na = 0;
+  int targetnon_na = *targetrows;
   int non_na = 0;
   
-  row_mean = (double *)Calloc(*targetrows,double);
-  
-  datvec = (double *)Calloc(*rows,double);
-  
 
 
-  /* first find the normalizing distribution */
-  for (i =0; i < *targetrows; i++){
-    if (ISNA(target[i])){
-
-    } else {
-      row_mean[targetnon_na] = target[i];
-      targetnon_na++;
-    }
-  }
-
-  qsort(row_mean,targetnon_na,sizeof(double),(int(*)(const void*, const void*))sort_double);
-
-  
   if (*rows == targetnon_na){
     /* now assign back distribution */
     /* this is basically the standard story */
-
+    
     dimat = (dataitem **)Calloc(1,dataitem *);
     dimat[0] = (dataitem *)Calloc(*rows,dataitem);
     
-    for (j = 0; j < *cols; j++){
+    for (j = start_col; j <= end_col; j++){
       non_na = 0;
       for (i =0; i < *rows; i++){
 	if (ISNA(data[j*(*rows) + i])){
-
+	  
 	} else {
 	  dimat[0][non_na].data = data[j*(*rows) + i];
 	  dimat[0][non_na].rank = i;
@@ -1447,7 +1403,7 @@ int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int
 	qsort(dimat[0],non_na,sizeof(dataitem),sort_fn);
 	get_ranks(ranks,dimat[0],non_na);
 	for (i =0; i < non_na; i++){
-	 
+	  
 	  samplepercentile = (double)(ranks[i] - 1)/(double)(non_na-1);
 	  /* target_ind_double = 1.0/3.0 + ((double)(*targetrows) + 1.0/3.0) * samplepercentile; */
 	  target_ind_double = 1.0 + ((double)(targetnon_na) - 1.0) * samplepercentile;
@@ -1488,7 +1444,7 @@ int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int
     dimat = (dataitem **)Calloc(1,dataitem *);
     dimat[0] = (dataitem *)Calloc(*rows,dataitem);
     
-    for (j = 0; j < *cols; j++){
+    for (j = start_col; j <= end_col; j++){
       non_na = 0;
       for (i =0; i < *rows; i++){	
 	if (ISNA(data[j*(*rows) + i])){
@@ -1539,14 +1495,172 @@ int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int
       }
     }
   }
-
-
-
-  Free(ranks);
-  Free(datvec);
   Free(dimat[0]);
-  
   Free(dimat);
+
+}
+
+
+
+
+
+#ifdef USE_PTHREADS
+void *using_target_group(void *data){
+  struct loop_data *args = (struct loop_data *) data;
+  using_target(args->data,  args->rows, args->cols, args->row_mean, args->row_meanlength, args->start_col, args->end_col);  
+}
+#endif
+
+
+
+/*****************************************************************
+ **
+ ** int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int *targetrows)
+ **
+ ** double *data - a matrix of data to be normalized
+ ** int *rows - dimensions of data
+ ** int *cols - dimensions of data
+ ** double *target - vector containing target distribution (ie distribution to be
+ **                  normalized to)
+ ** int *targetrows - length of target distribution vector
+ **
+ **
+ ** if targetrows == rows then the standard methodology is used.
+ ** 
+ ** in other cases the appropriate quantiles to be normalized to are determined in a method
+ ** equivalent to what you get using "type 8" with the quantile function
+ **
+ ** Note sample percentiles are calculated using i/(n+1)  (ie if there is 
+ ** only 2 observations, the first sample percentile is 1/3 = 0.333,
+ ** the second sample percentile will be 2/3 = 0.6666
+ **
+ ** 
+ **
+ *****************************************************************/
+
+
+
+int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int *targetrows){
+
+
+  
+  int i;
+
+  double *row_mean; 
+  int targetnon_na = 0;
+
+#ifdef USE_PTHREADS
+  int t, returnCode, chunk_size, num_threads = 1;
+  double chunk_size_d, chunk_tot_d;
+  char *nthreads;
+  pthread_attr_t attr;
+  pthread_t *threads;
+  struct loop_data *args;
+  void *status;
+#endif
+  
+  row_mean = (double *)Calloc(*targetrows,double);
+  
+  /* first find the normalizing distribution */
+  for (i =0; i < *targetrows; i++){
+    if (ISNA(target[i])){
+
+    } else {
+      row_mean[targetnon_na] = target[i];
+      targetnon_na++;
+    }
+  }
+
+  qsort(row_mean,targetnon_na,sizeof(double),(int(*)(const void*, const void*))sort_double);
+
+#ifdef USE_PTHREADS
+  nthreads = getenv(THREADS_ENV_VAR);
+  if(nthreads != NULL){
+    num_threads = atoi(nthreads);
+    if(num_threads <= 0){
+      error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
+    }
+  }
+  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+
+  /* Initialize and set thread detached attribute */
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+  /* this code works out how many threads to use and allocates ranges of columns to each thread */
+  /* The aim is to try to be as fair as possible in dividing up the matrix */
+  /* A special cases to be aware of: 
+    1) Number of columns is less than the number of threads
+  */
+  
+  if (num_threads < *cols){
+    chunk_size = *cols/num_threads;
+    chunk_size_d = ((double) *cols)/((double) num_threads);
+  } else {
+    chunk_size = 1;
+    chunk_size_d = 1;
+  }
+
+  if(chunk_size == 0){
+    chunk_size = 1;
+  }
+  args = (struct loop_data *) Calloc((*cols < num_threads ? *cols : num_threads), struct loop_data);
+
+  args[0].data = data;
+  args[0].row_mean = row_mean;
+  args[0].rows = rows;  
+  args[0].cols = cols;
+  args[0].row_meanlength = &targetnon_na;
+
+  pthread_mutex_init(&mutex_R, NULL);
+
+  t = 0; /* t = number of actual threads doing work */
+  chunk_tot_d = 0;
+  for (i=0; floor(chunk_tot_d+0.00001) < *cols; i+=chunk_size){
+     if(t != 0){
+       memcpy(&(args[t]), &(args[0]), sizeof(struct loop_data));
+     }
+
+     args[t].start_col = i;     
+     /* take care of distribution of the remainder (when #chips%#threads != 0) */
+     chunk_tot_d += chunk_size_d;
+     // Add 0.00001 in case there was a rounding issue with the division
+     if(i+chunk_size < floor(chunk_tot_d+0.00001)){
+       args[t].end_col = i+chunk_size;
+       i++;
+     }
+     else{
+       args[t].end_col = i+chunk_size-1;
+     }
+     t++;
+  }
+
+  /* Determining the quantile normalization target distribution */
+  for (i =0; i < t; i++){
+     returnCode = pthread_create(&threads[i], &attr, using_target_group, (void *) &(args[i]));
+     if (returnCode){
+         error("ERROR; return code from pthread_create() is %d\n", returnCode);
+     }
+  }
+  /* Wait for the other threads */
+  for(i = 0; i < t; i++){
+      returnCode = pthread_join(threads[i], &status);
+      if (returnCode){
+         error("ERROR; return code from pthread_join(thread #%d) is %d, exit status for thread was %d\n", 
+	       i, returnCode, *((int *) status));
+      }
+  }
+
+  pthread_attr_destroy(&attr);  
+  pthread_mutex_destroy(&mutex_R);
+  Free(threads);
+  Free(args);  
+
+#else
+  using_target(data, rows, cols, row_mean, &targetnon_na, 0, *cols -1);
+#endif
+
+
   Free(row_mean);
   return 0;
 
@@ -1557,30 +1671,24 @@ int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int
 
 
 
+void determine_target(double *data, double *row_mean, int *rows, int *cols, int start_col, int end_col){
 
-int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target, int *targetrows){
-
-
+  
   int i,j,row_mean_ind;
-  /* dataitem **dimat; */
-  /*  double sum; */
-  double *row_mean = (double *)Calloc((*rows),double);
   double *datvec;
-  /*  double *ranks = (double *)Calloc((*rows),double); */ 
   
   double row_mean_ind_double,row_mean_ind_double_floor;
   double samplepercentile;
   
   int non_na;
-  
+#ifdef USE_PTHREADS
+  long double *row_submean = (long double *)Calloc((*rows), long double);
+#endif
+
   datvec = (double *)Calloc(*rows,double);
   
-  for (i =0; i < *rows; i++){
-    row_mean[i] = 0.0;
-  }
-  
   /* first find the normalizing distribution */
-  for (j = 0; j < *cols; j++){
+  for (j = start_col; j <= end_col; j++){
     non_na = 0;
     for (i =0; i < *rows; i++){
       if (ISNA(data[j*(*rows) + i])){
@@ -1594,7 +1702,11 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
       /* no NA values */
       qsort(datvec,*rows,sizeof(double),(int(*)(const void*, const void*))sort_double);
       for (i =0; i < *rows; i++){
+#ifdef USE_PTHREADS
+	row_submean[i] += datvec[i];
+#else
 	row_mean[i] += datvec[i]/((double)*cols);
+#endif
       }
     } else {
       /* Use the observed data (non NA) values to estimate the distribution */
@@ -1617,24 +1729,175 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
 	
 	if (row_mean_ind_double  == 0.0){
 	  row_mean_ind = (int)floor(row_mean_ind_double_floor + 0.5);  /* (int)nearbyint(row_mean_ind_double_floor); */	
+#ifdef USE_PTHREADS
+	  row_submean[i]+= datvec[row_mean_ind-1];
+#else
 	  row_mean[i]+= datvec[row_mean_ind-1]/((double)*cols);
+#endif
 	} else if (row_mean_ind_double == 1.0){
 	  row_mean_ind = (int)floor(row_mean_ind_double_floor + 1.5);  /* (int)nearbyint(row_mean_ind_double_floor + 1.0); */ 
+#ifdef USE_PTHREADS
+	  row_submean[i]+= datvec[row_mean_ind-1];
+#else  
 	  row_mean[i]+= datvec[row_mean_ind-1]/((double)*cols);
+#endif
 	} else {
 	  row_mean_ind =  (int)floor(row_mean_ind_double_floor + 0.5); /* (int)nearbyint(row_mean_ind_double_floor); */
 	  
 	  if ((row_mean_ind < *rows) && (row_mean_ind > 0)){
+#ifdef USE_PTHREADS
+	    row_submean[i]+= ((1.0- row_mean_ind_double)*datvec[row_mean_ind-1] + row_mean_ind_double*datvec[row_mean_ind]);
+#else
 	    row_mean[i]+= ((1.0- row_mean_ind_double)*datvec[row_mean_ind-1] + row_mean_ind_double*datvec[row_mean_ind])/((double)*cols);
+#endif
 	  } else if (row_mean_ind >= *rows){
+#ifdef USE_PTHREADS
+	    row_submean[i]+= datvec[non_na-1];
+#else
 	    row_mean[i]+= datvec[non_na-1]/((double)*cols);
+#endif
 	  } else {
+#ifdef USE_PTHREADS
+	    row_submean[i]+=  datvec[0];
+#else
 	    row_mean[i]+=  datvec[0]/((double)*cols);
+#endif
 	  }
 	}
       } 
     }
   }
+#ifdef USE_PTHREADS
+  /* add to the global running total, will do the division after all threads finish (for precision of the result) */
+  pthread_mutex_lock (&mutex_R);
+  for (i = 0; i < *rows; i++){
+    row_mean[i] += (double) row_submean[i];
+  }
+  pthread_mutex_unlock (&mutex_R);
+#endif  
+  Free(datvec);
+}
+
+
+
+#ifdef USE_PTHREADS
+void *determine_target_group(void *data){
+  struct loop_data *args = (struct loop_data *) data;
+  determine_target(args->data, args->row_mean, args->rows, args->cols, args->start_col, args->end_col);
+}
+#endif
+
+
+
+
+int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target, int *targetrows){
+
+
+  int i,j,row_mean_ind;
+  double *row_mean = (double *)Calloc((*rows),double);
+  double row_mean_ind_double,row_mean_ind_double_floor;
+  double samplepercentile;
+  
+  int non_na;
+#ifdef USE_PTHREADS
+  int t, returnCode, chunk_size, num_threads = 1;
+  double chunk_size_d, chunk_tot_d;
+  char *nthreads;
+  pthread_attr_t attr;
+  pthread_t *threads;
+  struct loop_data *args;
+  void *status;
+#endif
+
+#if defined(USE_PTHREADS)
+  nthreads = getenv(THREADS_ENV_VAR);
+  if(nthreads != NULL){
+    num_threads = atoi(nthreads);
+    if(num_threads <= 0){
+      error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
+    }
+  }
+  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+
+  /* Initialize and set thread detached attribute */
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+  /* this code works out how many threads to use and allocates ranges of columns to each thread */
+  /* The aim is to try to be as fair as possible in dividing up the matrix */
+  /* A special cases to be aware of: 
+    1) Number of columns is less than the number of threads
+  */
+  
+  if (num_threads < *cols){
+    chunk_size = *cols/num_threads;
+    chunk_size_d = ((double) *cols)/((double) num_threads);
+  } else {
+    chunk_size = 1;
+    chunk_size_d = 1;
+  }
+
+  if(chunk_size == 0){
+    chunk_size = 1;
+  }
+  args = (struct loop_data *) Calloc((*cols < num_threads ? *cols : num_threads), struct loop_data);
+
+  args[0].data = data;
+  args[0].row_mean = row_mean;
+  args[0].rows = rows;  
+  args[0].cols = cols;
+
+  pthread_mutex_init(&mutex_R, NULL);
+
+  t = 0; /* t = number of actual threads doing work */
+  chunk_tot_d = 0;
+  for (i=0; floor(chunk_tot_d+0.00001) < *cols; i+=chunk_size){
+     if(t != 0){
+       memcpy(&(args[t]), &(args[0]), sizeof(struct loop_data));
+     }
+
+     args[t].start_col = i;     
+     /* take care of distribution of the remainder (when #chips%#threads != 0) */
+     chunk_tot_d += chunk_size_d;
+     // Add 0.00001 in case there was a rounding issue with the division
+     if(i+chunk_size < floor(chunk_tot_d+0.00001)){
+       args[t].end_col = i+chunk_size;
+       i++;
+     }
+     else{
+       args[t].end_col = i+chunk_size-1;
+     }
+     t++;
+  }
+
+  /* Determining the quantile normalization target distribution */
+  for (i =0; i < t; i++){
+    returnCode = pthread_create(&threads[i], &attr, determine_target_group, (void *) &(args[i]));
+     if (returnCode){
+         error("ERROR; return code from pthread_create() is %d\n", returnCode);
+     }
+  }
+  /* Wait for the other threads */
+  for(i = 0; i < t; i++){
+      returnCode = pthread_join(threads[i], &status);
+      if (returnCode){
+         error("ERROR; return code from pthread_join(thread #%d) is %d, exit status for thread was %d\n", 
+	       i, returnCode, *((int *) status));
+      }
+  }
+
+  /* When in threaded mode, row_mean is the sum, waiting for a final division here, to maintain precision */
+  for (i = 0; i < *rows; i++){
+    row_mean[i] /= (double)*cols;
+  }
+  pthread_attr_destroy(&attr);  
+  pthread_mutex_destroy(&mutex_R);
+  Free(threads);
+  Free(args);  
+
+#else
+  normalize_determine_target(data,row_mean,rows,cols,0,*cols-1);
+#endif
   
   if (*rows == *targetrows){
     for (i =0; i < *rows; i++){
@@ -1680,7 +1943,6 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
   }
 
   Free(row_mean);
-  Free(datvec);
   return 0;
 }
 

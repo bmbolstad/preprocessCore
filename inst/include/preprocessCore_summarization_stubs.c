@@ -1130,3 +1130,308 @@ void ColMedian_noSE(double *data, int rows, int cols, int *cur_rows, double *res
   return;
 }
 
+
+/*! \brief robust linear regression fit row-colum model using PLM-r
+ *
+ * Fits the model y = cols + rows + errors with constraint sum rows = 0. PLM-r (Probe Level Model-robust) attempts
+ * to dyamically downweight entire rows and/or columns when a siginficant number of probes are poorly performing
+ *
+ * @param y  dependent variable: length y_rows*y_cols
+ * @param y_rows  dimension of input
+ * @param y_cols  dimension of input
+ * @param out_beta  place to output beta estimates: length (y_rows + y_cols -1)
+ * @param out_resids  place to output residuals: length y_rows*y_cols
+ * @param out_weights  place to output weights: length y_rows*y_cols
+ * @param PsiFn  a function used to determine weights based on standardized residuals
+ * @param psi_k  a tuning parameter for the PsiFn
+ * @param max_iter  maximum number of iterations (if don't converge before)
+ * @param initialized  do we have initial estimates of beta 
+ *
+ */
+
+
+
+void plmr_fit(double *y, int y_rows, int y_cols,double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+
+
+  static void(*fun)(double *, int, int, double *, double *, double *, double (*)(double, double, int), double, int, int) = NULL;
+
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *, double *, double *, double (*)(double, double, int), double, int, int))R_GetCCallable("preprocessCore","plmr_fit");
+
+  fun(y, y_rows, y_cols, out_beta, out_resids,out_weights, PsiFn, psi_k, max_iter, initialized);
+  return;
+
+}
+
+/*! \brief robust linear regression fit row-colum model using PLM-r
+ *
+ * Fits the model y = cols + rows + errors with constraint sum rows = 0. PLM-r (Probe Level Model-robust) attempts
+ * to dyamically downweight entire rows and/or columns when a siginficant number of probes are poorly performing
+ *
+ *
+ * @param y  dependent variable: length y_rows*y_cols
+ * @param y_rows  dimension of input
+ * @param y_cols  dimension of input
+ * @param w  weights for each observation: length y_rows*y_cols
+ * @param out_beta  place to output beta estimates: length (y_rows + y_cols -1)
+ * @param out_resids  place to output residuals: length y_rows*y_cols
+ * @param out_weights  place to output weights: length y_rows*y_cols
+ * @param PsiFn  a function used to determine weights based on standardized residuals
+ * @param psi_k  a tuning parameter for the PsiFn
+ * @param max_iter  maximum number of iterations (if don't converge before)
+ * @param initialized  do we have initial estimates of beta 
+ *
+ */
+
+
+void plmr_wfit(double *y, int y_rows, int y_cols, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+
+
+  
+  static void(*fun)(double *, int, int, double *, double *, double *, double *, double (*)(double, double, int), double, int, int) = NULL;
+
+  
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *, double *, double *, double *, double (*)(double, double, int), double, int, int))R_GetCCallable("preprocessCore","plmr_wfit");
+  
+  fun(y, y_rows, y_cols, w, out_beta, out_resids,out_weights, PsiFn, psi_k, max_iter, initialized);
+  return;
+
+}
+
+
+
+
+/*! \brief robust linear regression fit row-colum model using PLM-rr
+ *
+ * Fits the model y = cols + rows + errors with constraint sum rows = 0. PLM-r (Probe Level Model-robust) attempts
+ * to dyamically downweight entire rows when a significant number of probes are poorly performing
+ *
+ * @param y  dependent variable: length y_rows*y_cols
+ * @param y_rows  dimension of input
+ * @param y_cols  dimension of input
+ * @param out_beta  place to output beta estimates: length (y_rows + y_cols -1)
+ * @param out_resids  place to output residuals: length y_rows*y_cols
+ * @param out_weights  place to output weights: length y_rows*y_cols
+ * @param PsiFn  a function used to determine weights based on standardized residuals
+ * @param psi_k  a tuning parameter for the PsiFn
+ * @param max_iter  maximum number of iterations (if don't converge before)
+ * @param initialized  do we have initial estimates of beta 
+ *
+ */
+
+void plmrr_fit(double *y, int y_rows, int y_cols,double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+
+
+  static void(*fun)(double *, int, int, double *, double *, double *, double (*)(double, double, int), double, int, int) = NULL;
+
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *, double *, double *, double (*)(double, double, int), double, int, int))R_GetCCallable("preprocessCore","plmrr_fit");
+
+  fun(y, y_rows, y_cols, out_beta, out_resids,out_weights, PsiFn, psi_k, max_iter, initialized);
+  return;
+
+}
+
+
+/*! \brief robust linear regression fit row-colum model using PLM-rc
+ *
+ * Fits the model y = cols + rows + errors with constraint sum rows = 0. PLM-r (Probe Level Model-robust) attempts
+ * to dyamically downweight entire rows when a significant number of probes are poorly performing
+ *
+ * @param y  dependent variable: length y_rows*y_cols
+ * @param y_rows  dimension of input
+ * @param y_cols  dimension of input
+ * @param out_beta  place to output beta estimates: length (y_rows + y_cols -1)
+ * @param out_resids  place to output residuals: length y_rows*y_cols
+ * @param out_weights  place to output weights: length y_rows*y_cols
+ * @param PsiFn  a function used to determine weights based on standardized residuals
+ * @param psi_k  a tuning parameter for the PsiFn
+ * @param max_iter  maximum number of iterations (if don't converge before)
+ * @param initialized  do we have initial estimates of beta 
+ *
+ */
+
+void plmrc_fit(double *y, int y_rows, int y_cols,double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+  
+  static void(*fun)(double *, int, int, double *, double *, double *, double (*)(double, double, int), double, int, int) = NULL;
+
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *, double *, double *, double (*)(double, double, int), double, int, int))R_GetCCallable("preprocessCore","plmrc_fit");
+  
+  fun(y, y_rows, y_cols, out_beta, out_resids,out_weights, PsiFn, psi_k, max_iter, initialized);
+  return;
+
+}
+
+
+/*! \brief robust linear regression fit row-colum model using PLM-rr
+ *
+ * Fits the model y = cols + rows + errors with constraint sum rows = 0. PLM-r (Probe Level Model-robust) attempts
+ * to dyamically downweight entire rows when a significant number of probes are poorly performing
+ *
+ * @param y  dependent variable: length y_rows*y_cols
+ * @param y_rows  dimension of input
+ * @param y_cols  dimension of input
+ * @param w  weights for each observation: length y_rows*y_cols
+ * @param out_beta  place to output beta estimates: length (y_rows + y_cols -1)
+ * @param out_resids  place to output residuals: length y_rows*y_cols
+ * @param out_weights  place to output weights: length y_rows*y_cols
+ * @param PsiFn  a function used to determine weights based on standardized residuals
+ * @param psi_k  a tuning parameter for the PsiFn
+ * @param max_iter  maximum number of iterations (if don't converge before)
+ * @param initialized  do we have initial estimates of beta 
+ *
+ */
+
+void plmrr_wfit(double *y, int y_rows, int y_cols, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+
+  static void(*fun)(double *, int, int, double *, double *, double *, double *, double (*)(double, double, int), double, int, int) = NULL;
+
+  
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *, double *, double *, double *, double (*)(double, double, int), double, int, int))R_GetCCallable("preprocessCore","plmrr_wfit");
+  
+  fun(y, y_rows, y_cols, w, out_beta, out_resids,out_weights, PsiFn, psi_k, max_iter, initialized);
+  return;
+
+}
+
+
+
+/*! \brief robust linear regression fit row-colum model using PLM-rc
+ *
+ * Fits the model y = cols + rows + errors with constraint sum rows = 0. PLM-r (Probe Level Model-robust) attempts
+ * to dyamically downweight entire columns when a significant number of probes are poorly performing
+ *
+ * @param y  dependent variable: length y_rows*y_cols
+ * @param y_rows  dimension of input
+ * @param y_cols  dimension of input
+ * @param w  weights for each observation: length y_rows*y_cols
+ * @param out_beta  place to output beta estimates: length (y_rows + y_cols -1)
+ * @param out_resids  place to output residuals: length y_rows*y_cols
+ * @param out_weights  place to output weights: length y_rows*y_cols
+ * @param PsiFn  a function used to determine weights based on standardized residuals
+ * @param psi_k  a tuning parameter for the PsiFn
+ * @param max_iter  maximum number of iterations (if don't converge before)
+ * @param initialized  do we have initial estimates of beta 
+ *
+ */
+
+void plmrc_wfit(double *y, int y_rows, int y_cols, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+  
+  static void(*fun)(double *, int, int, double *, double *, double *, double *, double (*)(double, double, int), double, int, int) = NULL;
+
+  
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *, double *, double *, double *, double (*)(double, double, int), double, int, int))R_GetCCallable("preprocessCore","plmrc_wfit");
+  
+  fun(y, y_rows, y_cols, w, out_beta, out_resids,out_weights, PsiFn, psi_k, max_iter, initialized);
+  return;
+
+}
+
+
+/*! \brief apply row effects of a robust linear regression fit row-colum model
+ *
+ * Using pre-computed row effects from the model y = cols + rows + errors with constraint sum rows = 0
+ * apply on a single column by column basis to robustly estimate col effects for each column
+ *
+ * @param y  dependent variable: length y_rows*y_cols
+ * @param y_rows  dimension of input
+ * @param y_cols  dimension of input
+ * @param probe_effects  previously computed row effects with length y_rows. Assumed that it sums to 0.
+ * @param out_beta  place to output beta estimates: length y_cols
+ * @param out_resids  place to output residuals: length y_rows*y_cols
+ * @param out_weights  place to output weights: length y_rows*y_cols
+ * @param PsiFn  a function used to determine weights based on standardized residuals
+ * @param psi_k  a tuning parameter for the PsiFn
+ * @param max_iter  maximum number of iterations (if don't converge before)
+ * @param initialized  do we have initial estimates of beta 
+ *
+ */
+
+void rlm_fit_anova_given_probe_effects(double *y, int y_rows, int y_cols, double *probe_effects, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double,double, int), double psi_k,int max_iter, int initialized){
+
+  static void(*fun)(double *, int, int, double *, double *, double *, double *, double (*)(double, double, int), double, int, int) = NULL;
+
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *, double *, double *, double *, double (*)(double, double, int), double, int, int))R_GetCCallable("preprocessCore","rlm_fit_anova_given_probe_effects");
+  
+  fun(y, y_rows, y_cols, probe_effects, out_beta, out_resids,out_weights, PsiFn, psi_k, max_iter, initialized);
+  return;
+
+}
+
+/*! \brief Estimate SE for robust linear regression fit using iteratively reweighted least squares
+ *
+ * Specialized to the model y = cols + rows + error model where the rows parameters are previously specified
+ * designed to work independently for each column so can be applied "chip by chip"
+ * 
+ * @param Y  dependent variable: length y_rows*y_cols
+ * @param y_rows  dimension of input
+ * @param y_cols  dimension of input
+ * @param probe_effects previously computed row effects with length y_rows. Assumed that it sums to 0.
+ * @param beta  fitted parameter estimates: length y_rows + y_cols -1
+ * @param resids estimated residuals: length y_rows*y_cols
+ * @param weights  estimated weights: length y_rows*y_cols
+ * @param se_estimates on output contains standard error estimates : y_rows + y_cols -1
+ * @param varcov a place to store estimated variance covariance matrix: dimension (y_rows + y_cols -1)*(y_rows + y_cols -1) (or set to NULL)
+ * @param residSE estimated residual standard error
+ * @param method should be integer 1,2,3 or 4 (4 is the default). Currently ignored.
+ * @param PsiFn  a function used to determine weights based on standardized residuals
+ * @param psi_k  a tuning parameter for the PsiFn
+ *
+ */
+
+
+
+
+void rlm_compute_se_anova_given_probe_effects(double *Y, int y_rows,int y_cols, double *probe_effects,double *beta, double *resids,double *weights,double *se_estimates, double *varcov, double *residSE, int method,double (* PsiFn)(double, double, int), double psi_k){
+
+  static void(*fun)(double *, int, int,  double *, double *, double *,double *,double *, double *, double *, int, double (*)(double, double, int), double) = NULL;
+  
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *,double *, double *,double *,double *, double *, double *, int, double (*)(double, double, int), double))R_GetCCallable("preprocessCore","rlm_compute_se_anova_given_probe_effects");
+
+  fun(Y, y_rows, y_cols, probe_effects, beta, resids, weights, se_estimates, varcov, residSE, method, PsiFn, psi_k);
+  return;
+
+}
+
+
+
+
+
+/*! \brief apply row effects of a robust linear regression fit row-colum model
+ *
+ * Using pre-computed row effects from the model y = cols + rows + errors with constraint sum rows = 0
+ * apply on a single column by column basis to robustly estimate col effects for each column
+ *
+ * @param y  dependent variable: length y_rows*y_cols
+ * @param y_rows  dimension of input
+ * @param y_cols  dimension of input
+ * @param probe_effects  previously computed row effects with length y_rows. Assumed that it sums to 0.
+ * @param w  weights for each observation: length y_rows*y_cols
+ * @param out_beta  place to output beta estimates: length y_cols
+ * @param out_resids  place to output residuals: length y_rows*y_cols
+ * @param out_weights  place to output weights: length y_rows*y_cols
+ * @param PsiFn  a function used to determine weights based on standardized residuals
+ * @param psi_k  a tuning parameter for the PsiFn
+ * @param max_iter  maximum number of iterations (if don't converge before)
+ * @param initialized  do we have initial estimates of beta 
+ *
+ */
+
+void rlm_wfit_anova_given_probe_effects(double *y, int y_rows, int y_cols, double *probe_effects, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double,double, int), double psi_k,int max_iter, int initialized){
+
+  static void(*fun)(double *, int, int, double *, double *, double *, double *, double *, double (*)(double, double, int), double, int, int) = NULL;
+
+  if (fun == NULL)
+    fun = (void(*)(double *, int, int, double *, double *, double *, double *, double *, double (*)(double, double, int), double, int, int))R_GetCCallable("preprocessCore","rlm_wfit_anova_given_probe_effects");
+  
+  fun(y, y_rows, y_cols, probe_effects, w, out_beta, out_resids,out_weights, PsiFn, psi_k, max_iter, initialized);
+  return;
+
+}
