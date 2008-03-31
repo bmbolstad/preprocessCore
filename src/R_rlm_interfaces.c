@@ -346,3 +346,183 @@ SEXP R_medianpolish_rma_default_model(SEXP Y){
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SEXP R_rlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SEXP PsiK){
+
+
+  SEXP R_return_value;
+  SEXP R_weights;
+  SEXP R_residuals;
+  SEXP R_beta;
+  SEXP R_SE;
+  
+  SEXP R_return_value_names;
+
+  SEXP dim1;
+
+  double *beta;
+  double *residuals;
+  double *weights;
+  double *se;
+
+  double *probeeffects;
+  
+  double residSE;
+
+  double *Ymat;
+
+  int rows;
+  int cols;
+
+  int i;
+  
+  PROTECT(dim1 = getAttrib(Y,R_DimSymbol));
+  rows = INTEGER(dim1)[0];
+  cols = INTEGER(dim1)[1];
+  UNPROTECT(1);
+
+  PROTECT(R_return_value = allocVector(VECSXP,4));
+  PROTECT(R_beta = allocVector(REALSXP, cols));
+  PROTECT(R_weights = allocMatrix(REALSXP,rows,cols));
+  PROTECT(R_residuals = allocMatrix(REALSXP,rows,cols));
+  PROTECT(R_SE = allocVector(REALSXP,cols));
+
+  SET_VECTOR_ELT(R_return_value,0,R_beta);
+  SET_VECTOR_ELT(R_return_value,1,R_weights);
+  SET_VECTOR_ELT(R_return_value,2,R_residuals);
+  SET_VECTOR_ELT(R_return_value,3,R_SE);
+
+  UNPROTECT(4);
+
+  beta = NUMERIC_POINTER(R_beta);
+  residuals = NUMERIC_POINTER(R_residuals);
+  weights = NUMERIC_POINTER(R_weights);
+  se = NUMERIC_POINTER(R_SE);
+
+  probeeffects = NUMERIC_POINTER(probe_effects);
+
+
+  Ymat = NUMERIC_POINTER(Y);
+  
+  
+  
+
+  
+  rlm_fit_anova_given_probe_effects(Ymat, rows, cols, probeeffects, beta, residuals, weights, PsiFunc(asInteger(PsiCode)),asReal(PsiK), 20, 0);
+  
+  rlm_compute_se_anova_given_probe_effects(Ymat, rows, cols, probeeffects, beta, residuals, weights,se, (double *)NULL, &residSE, 4, PsiFunc(asInteger(PsiCode)),asReal(PsiK));
+
+
+  
+  PROTECT(R_return_value_names= allocVector(STRSXP,4));
+  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_VECTOR_ELT(R_return_value_names,1,mkChar("Weights"));
+  SET_VECTOR_ELT(R_return_value_names,2,mkChar("Residuals"));
+  SET_VECTOR_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
+  UNPROTECT(2);
+  return R_return_value;
+
+}
+
+
+
+
+
+SEXP R_wrlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SEXP PsiK, SEXP Weights){
+
+
+  SEXP R_return_value;
+  SEXP R_weights;
+  SEXP R_residuals;
+  SEXP R_beta;
+  SEXP R_SE;
+  
+  SEXP R_return_value_names;
+
+  SEXP dim1;
+
+  double *beta;
+  double *residuals;
+  double *weights;
+  double *se; 
+
+  double *w;
+
+  double *probeeffects;
+  
+  double residSE;
+
+  double *Ymat;
+
+  int rows;
+  int cols;
+
+  int i;
+  
+  PROTECT(dim1 = getAttrib(Y,R_DimSymbol));
+  rows = INTEGER(dim1)[0];
+  cols = INTEGER(dim1)[1];
+  UNPROTECT(1);
+
+  PROTECT(R_return_value = allocVector(VECSXP,4));
+  PROTECT(R_beta = allocVector(REALSXP, cols));
+  PROTECT(R_weights = allocMatrix(REALSXP,rows,cols));
+  PROTECT(R_residuals = allocMatrix(REALSXP,rows,cols));
+  PROTECT(R_SE = allocVector(REALSXP,cols));
+
+  SET_VECTOR_ELT(R_return_value,0,R_beta);
+  SET_VECTOR_ELT(R_return_value,1,R_weights);
+  SET_VECTOR_ELT(R_return_value,2,R_residuals);
+  SET_VECTOR_ELT(R_return_value,3,R_SE);
+
+  UNPROTECT(4);
+
+  beta = NUMERIC_POINTER(R_beta);
+  residuals = NUMERIC_POINTER(R_residuals);
+  weights = NUMERIC_POINTER(R_weights);
+  se = NUMERIC_POINTER(R_SE);
+
+  probeeffects = NUMERIC_POINTER(probe_effects);
+
+
+  Ymat = NUMERIC_POINTER(Y);
+  
+   
+  w = NUMERIC_POINTER(Weights);
+  
+  
+
+  
+  rlm_wfit_anova_given_probe_effects(Ymat, rows, cols, probeeffects, w, beta, residuals, weights, PsiFunc(asInteger(PsiCode)),asReal(PsiK), 20, 0);
+  
+  rlm_compute_se_anova_given_probe_effects(Ymat, rows, cols, probeeffects, beta, residuals, weights,se, (double *)NULL, &residSE, 4, PsiFunc(asInteger(PsiCode)),asReal(PsiK));
+
+
+  
+  PROTECT(R_return_value_names= allocVector(STRSXP,4));
+  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_VECTOR_ELT(R_return_value_names,1,mkChar("Weights"));
+  SET_VECTOR_ELT(R_return_value_names,2,mkChar("Residuals"));
+  SET_VECTOR_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
+  UNPROTECT(2);
+  return R_return_value;
+
+}
+

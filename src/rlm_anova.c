@@ -18,6 +18,9 @@
  ** Mar 1, 2006 - change comment style to ansi
  ** Apr 10, 2007 - add rlm_wfit_anova
  ** May 19, 2007 - branch out of affyPLM into a new package preprocessCore, then restructure the code. Add doxygen style documentation
+ ** Mar 9. 2008 - Add rlm_fit_anova_given_probeeffects
+ ** Mar 10, 2008 - make rlm_fit_anova_given_probeeffects etc purely single chip
+ ** Mar 12, 2008 - Add rlm_wfit_anova_given_probeeffects
  **
  *********************************************************************/
 
@@ -1125,5 +1128,452 @@ void rlm_compute_se_anova(double *Y, int y_rows,int y_cols, double *beta, double
   Free(work);
   Free(XTX);
   Free(W);
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+static void colonly_XTWX(int y_rows, int y_cols, double *wts, double *xtwx){
+
+  int Msize = y_cols;
+  int i,j;
+
+  /* diagonal elements of first part of matrix ie upper partition */
+  for (j =0; j < y_cols;j++){
+    for (i=0; i < y_rows; i++){
+      xtwx[j*Msize + j]+=wts[j*y_rows + i];
+    }
+  }
+}
+
+
+static void colonly_XTWXinv(int y_rows, int y_cols,double *xtwx){
+  int j;
+  int Msize = y_cols;
+
+  for (j=0;j < y_cols;j++){
+    xtwx[j*Msize+j]= 1.0/xtwx[j*Msize+j];
+  } 
+}
+
+
+
+
+static void colonly_XTWY(int y_rows, int y_cols, double *wts,double *y, double *xtwy){
+
+  int i,j;
+  /* sweep columns (ie chip effects) */
+   
+  for (j=0; j < y_cols; j++){
+    xtwy[j] = 0.0;
+    for (i=0; i < y_rows; i++){
+      xtwy[j] += wts[j*y_rows + i]* y[j*y_rows + i];
+    }
+  }
+}
+
+
+
+void rlm_fit_anova_given_probe_effects(double *y, int y_rows, int y_cols, double *probe_effects, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+
+  int i,j,iter;
+  /* double tol = 1e-7; */
+  double acc = 1e-4;
+  double scale =0.0;
+  double conv;
+  double endprobe;
+
+  double *wts = out_weights; 
+
+  double *resids = out_resids; 
+  double *old_resids = Calloc(y_rows*y_cols,double);
+  
+  double *rowmeans = Calloc(y_rows,double);
+
+  double *xtwx = Calloc((y_cols)*(y_cols),double);
+  double *xtwy = Calloc((y_cols),double);
+
+  double sumweights, rows;
+  
+  rows = y_rows*y_cols;
+  
+  if (!initialized){
+    
+    /* intially use equal weights */
+    for (i=0; i < rows; i++){
+      wts[i] = 1.0;
+    }
+  }
+
+  /* starting matrix */
+  
+  for (i=0; i < y_rows; i++){
+    for (j=0; j < y_cols; j++){
+      resids[j*y_rows + i] = y[j*y_rows + i] - probe_effects[i];
+    }
+  }
+  
+  /* sweep columns (ie chip effects) */
+
+  for (j=0; j < y_cols; j++){
+    out_beta[j] = 0.0;
+    sumweights = 0.0;
+    for (i=0; i < y_rows; i++){
+      out_beta[j] += wts[j*y_rows + i]* resids[j*y_rows + i];
+      sumweights +=  wts[j*y_rows + i];
+    }
+    out_beta[j]/=sumweights;
+    for (i=0; i < y_rows; i++){
+      resids[j*y_rows + i] = resids[j*y_rows + i] -  out_beta[j];
+    }
+  }
+  
+  for (iter = 0; iter < max_iter; iter++){
+    
+   
+    /*
+    ** This is the previous multi-chip code 
+    scale = med_abs(resids,rows)/0.6745;
+    
+    if (fabs(scale) < 1e-10){
+    break;
+    }
+    for (i =0; i < rows; i++){
+      old_resids[i] = resids[i];
+    }
+
+    for (i=0; i < rows; i++){
+      wts[i] = PsiFn(resids[i]/scale,psi_k,0);
+    }
+    */
+
+    /* The new single-chip code */
+
+    for (i =0; i < rows; i++){
+      old_resids[i] = resids[i];
+    }
+
+
+    for (j = 0; j < y_cols; j++){
+      scale = med_abs(&resids[j*y_rows],y_rows)/0.6745;
+      for (i=0; i < y_rows; i++){ 
+	if (fabs(scale) < 1e-10){
+	  break;
+	}
+	wts[j*y_rows + i] = PsiFn(resids[j*y_rows + i]/scale,psi_k,0);
+      }
+    }
+
+
+    /* printf("%f\n",scale); */
+
+
+    /* weighted least squares */
+    
+    memset(xtwx,0,(y_cols)*(y_cols)*sizeof(double));
+
+
+    colonly_XTWX(y_rows,y_cols,wts,xtwx);
+    colonly_XTWXinv(y_rows, y_cols,xtwx);
+    colonly_XTWY(y_rows, y_cols, wts,y, xtwy);
+
+    
+    for (i=0;i < y_cols; i++){
+      out_beta[i] = 0.0;
+       for (j=0;j < y_cols; j++){
+    	 out_beta[i] += xtwx[j*y_cols + i]*xtwy[j];
+       }
+    }
+
+    /* residuals */
+    
+    for (i=0; i < y_rows; i++){
+      for (j=0; j < y_cols; j++){
+	resids[j*y_rows +i] = y[j*y_rows + i] - probe_effects[i] - (out_beta[j]); 
+      }
+    }
+
+    /*check convergence  based on residuals */
+    
+    conv = irls_delta(old_resids,resids, rows);
+    
+    if (conv < acc){
+      /*    printf("Converged \n");*/
+      break; 
+
+    }
+  }
+
+  Free(xtwx);
+  Free(xtwy);
+  Free(old_resids);
+  Free(rowmeans);
+
+
+}
+
+
+
+
+
+void rlm_fit_anova_given_probe_effects_R(double *y, int *rows, int *cols, double *probe_effects,double *out_beta, double *out_resids, double *out_weights, int *its){
+
+  rlm_fit_anova_given_probe_effects(y, *rows, *cols, probe_effects,out_beta, out_resids,out_weights,psi_huber,1.345, *its,0);
+}
+
+
+/* Internal testing code (not an example that should ever be run)
+
+   row.effects <- c(4,3,2,1,0,-1,-2,-3,-4)
+   chip.effects <- c(10,11,12,10.5,11,9.5)
+
+   y <- outer(row.effects,chip.effects,"+") + rnorm(54,sd=0.01)
+
+
+   .C("rlm_fit_anova_given_probe_effects_R",as.double(y),as.integer(9),as.integer(6),as.double(row.effects),double(6),double(54),double(54),as.integer(20))
+
+
+
+ */
+
+
+
+
+void rlm_compute_se_anova_given_probe_effects(double *Y, int y_rows,int y_cols, double *probe_effects,double *beta, double *resids,double *weights,double *se_estimates, double *varcov, double *residSE, int method,double (* PsiFn)(double, double, int), double psi_k){
+  
+  int i,j; /* counter/indexing variables */
+  double k1 = psi_k;   /*  was 1.345; */
+  double sumpsi2=0.0;  /* sum of psi(r_i)^2 */
+  /*  double sumpsi=0.0; */
+  double sumderivpsi=0.0; /* sum of psi'(r_i) */
+  double Kappa=0.0;      /* A correction factor */
+  double scale=0.0;
+  int n = y_rows*y_cols;
+  int p = y_cols;
+  double *XTX = Calloc(p*p,double);
+  double *W = Calloc(p*p,double);
+  double *work = Calloc(p*p,double);
+  double RMSEw = 0.0;
+  double vs=0.0,m,varderivpsi=0.0; 
+  double *W_tmp=Calloc(n,double);
+
+  /*
+  ** The previous multi-chip code 
+  
+  if (method == 4){
+    for (i=0; i < n; i++){
+      RMSEw+= weights[i]*resids[i]*resids[i];
+    }
+    
+    RMSEw = sqrt(RMSEw/(double)(n-p));
+
+    residSE[0] =  RMSEw;
+
+
+    colonly_XTWX(y_rows,y_cols,weights,XTX);
+    if (y_rows > 1){
+      colonly_XTWXinv(y_rows, y_cols,XTX);
+    } else {
+      for (i=0; i < p; i++){
+	XTX[i*p + i] = 1.0/XTX[i*p + i];
+      }
+    }
+    
+    for (i =0; i < p; i++){
+      se_estimates[i] = RMSEw*sqrt(XTX[i*p + i]);
+    }
+    
+    
+    if (varcov != NULL)
+      for (i = 0; i < p; i++)
+	for (j = i; j < p; j++)
+	  varcov[j*p + i] =  RMSEw*RMSEw*XTX[j*p + i];
+    
+
+	  }
+  */
+
+  /* the new single chip code */
+  colonly_XTWX(y_rows,y_cols,weights,XTX);
+  if (y_rows > 1){
+    colonly_XTWXinv(y_rows, y_cols,XTX);
+  } else {
+    for (i=0; i < p; i++){
+      XTX[i*p + i] = 1.0/XTX[i*p + i];
+    }
+  }
+  
+  for (j=0; j < y_cols; j++){
+    RMSEw = 0.0;
+    for (i=0; i < y_rows; i++){
+      RMSEw+= weights[j*y_rows + i]*resids[j*y_rows + i]*resids[j*y_rows + i];
+    }
+    RMSEw = sqrt(RMSEw/(double)(y_rows-1));
+
+    se_estimates[j] = RMSEw*sqrt(XTX[j*p + j]);
+
+  }
+
+
+  
+
+  Free(W_tmp);
+  Free(work);
+  Free(XTX);
+  Free(W);
+
+}
+
+
+
+void rlm_wfit_anova_given_probe_effects(double *y, int y_rows, int y_cols, double *probe_effects, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+
+  int i,j,iter;
+  /* double tol = 1e-7; */
+  double acc = 1e-4;
+  double scale =0.0;
+  double conv;
+  double endprobe;
+
+  double *wts = out_weights; 
+
+  double *resids = out_resids; 
+  double *old_resids = Calloc(y_rows*y_cols,double);
+  
+  double *rowmeans = Calloc(y_rows,double);
+
+  double *xtwx = Calloc((y_cols)*(y_cols),double);
+  double *xtwy = Calloc((y_cols),double);
+
+  double sumweights, rows;
+  
+  rows = y_rows*y_cols;
+  
+  if (!initialized){
+    
+    /* intially use equal weights */
+    for (i=0; i < rows; i++){
+      wts[i] =  w[i]*1.0;
+    }
+  }
+
+  /* starting matrix */
+  
+  for (i=0; i < y_rows; i++){
+    for (j=0; j < y_cols; j++){
+      resids[j*y_rows + i] = y[j*y_rows + i] - probe_effects[i];
+    }
+  }
+  
+  /* sweep columns (ie chip effects) */
+
+  for (j=0; j < y_cols; j++){
+    out_beta[j] = 0.0;
+    sumweights = 0.0;
+    for (i=0; i < y_rows; i++){
+      out_beta[j] += wts[j*y_rows + i]* resids[j*y_rows + i];
+      sumweights +=  wts[j*y_rows + i];
+    }
+    out_beta[j]/=sumweights;
+    for (i=0; i < y_rows; i++){
+      resids[j*y_rows + i] = resids[j*y_rows + i] -  out_beta[j];
+    }
+  }
+  
+  for (iter = 0; iter < max_iter; iter++){
+    
+   
+    /*
+    ** This is the previous multi-chip code 
+    scale = med_abs(resids,rows)/0.6745;
+    
+    if (fabs(scale) < 1e-10){
+    break;
+    }
+    for (i =0; i < rows; i++){
+      old_resids[i] = resids[i];
+    }
+
+    for (i=0; i < rows; i++){
+      wts[i] = PsiFn(resids[i]/scale,psi_k,0);
+    }
+    */
+
+    /* The new single-chip code */
+
+    for (i =0; i < rows; i++){
+      old_resids[i] = resids[i];
+    }
+
+
+    for (j = 0; j < y_cols; j++){
+      scale = med_abs(&resids[j*y_rows],y_rows)/0.6745;
+      for (i=0; i < y_rows; i++){ 
+	if (fabs(scale) < 1e-10){
+	  break;
+	}
+	wts[j*y_rows + i] = w[j*y_rows + i]*PsiFn(resids[j*y_rows + i]/scale,psi_k,0);
+      }
+    }
+
+
+    /* printf("%f\n",scale); */
+
+
+    /* weighted least squares */
+    
+    memset(xtwx,0,(y_cols)*(y_cols)*sizeof(double));
+
+
+    colonly_XTWX(y_rows,y_cols,wts,xtwx);
+    colonly_XTWXinv(y_rows, y_cols,xtwx);
+    colonly_XTWY(y_rows, y_cols, wts,y, xtwy);
+
+    
+    for (i=0;i < y_cols; i++){
+      out_beta[i] = 0.0;
+       for (j=0;j < y_cols; j++){
+    	 out_beta[i] += xtwx[j*y_cols + i]*xtwy[j];
+       }
+    }
+
+    /* residuals */
+    
+    for (i=0; i < y_rows; i++){
+      for (j=0; j < y_cols; j++){
+	resids[j*y_rows +i] = y[j*y_rows + i] - probe_effects[i] - (out_beta[j]); 
+      }
+    }
+
+    /*check convergence  based on residuals */
+    
+    conv = irls_delta(old_resids,resids, rows);
+    
+    if (conv < acc){
+      /*    printf("Converged \n");*/
+      break; 
+
+    }
+  }
+
+  Free(xtwx);
+  Free(xtwy);
+  Free(old_resids);
+  Free(rowmeans);
+
 
 }
