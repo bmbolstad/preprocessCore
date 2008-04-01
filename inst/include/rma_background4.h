@@ -8,6 +8,12 @@
 #define RMA_BACKGROUND4_H
 
 
+#include <R.h> 
+#include <Rdefines.h>
+#include <Rmath.h>
+#include <Rinternals.h>
+
+
 /*! \brief Compute the parameters for the RMA background correction model
  *
  *

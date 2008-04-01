@@ -1,3 +1,8 @@
+1.1.7
+-----
+Fix background function bindings (for use by other packages). The implementation themselves is unchanged.
+
+
 1.1.6
 -----
 Addition of PLM-r and PLM-d
