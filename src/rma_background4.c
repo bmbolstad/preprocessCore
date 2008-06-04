@@ -26,6 +26,7 @@
  ** History
  ** Mar 15, 2008 - Initial version of rma_background4.c
  ** Mar 16, 2008 - 
+ ** Jun 4, 2008 - fix bug with R interface, was not correctly returning value when copy ==TRUE
  **
  **
  *****************************************************************************/
@@ -477,8 +478,11 @@ SEXP R_rma_bg_correct(SEXP PMmat,SEXP copy){
   } else {
     UNPROTECT(1);
   }
- 
-  return PMmat;
+  if (asInteger(copy)){
+    return PMcopy;
+  } else {
+    return PMmat;
+  }
 }
 
 
