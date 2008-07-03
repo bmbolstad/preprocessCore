@@ -193,4 +193,18 @@ void R_init_preprocessCore(DllInfo *info){
   R_RegisterCCallable("preprocessCore","rma_bg_correct", (DL_FUNC)&rma_bg_correct);
 
 
+  /* R_subColSummary functions */
+  
+  R_RegisterCCallable("preprocessCore","R_subColSummarize_avg_log", (DL_FUNC)&R_subColSummarize_avg_log);
+  R_RegisterCCallable("preprocessCore","R_subColSummarize_log_avg", (DL_FUNC)&R_subColSummarize_log_avg);
+  R_RegisterCCallable("preprocessCore","R_subColSummarize_avg", (DL_FUNC)&R_subColSummarize_avg);
+  R_RegisterCCallable("preprocessCore","R_subColSummarize_biweight_log", (DL_FUNC)&R_subColSummarize_biweight_log);
+  R_RegisterCCallable("preprocessCore","R_subColSummarize_biweight", (DL_FUNC)&R_subColSummarize_biweight);
+  R_RegisterCCallable("preprocessCore","R_subColSummarize_median_log", (DL_FUNC)&R_subColSummarize_median_log);
+  R_RegisterCCallable("preprocessCore","R_subColSummarize_log_median", (DL_FUNC)&R_subColSummarize_log_median);
+  R_RegisterCCallable("preprocessCore","R_subColSummarize_median",(DL_FUNC)&R_subColSummarize_median);
+  R_RegisterCCallable("preprocessCore","R_subColSummarize_medianpolish_log",(DL_FUNC)&R_subColSummarize_medianpolish_log);
+  R_RegisterCCallable("preprocessCore","R_subColSummarize_medianpolish",(DL_FUNC)&R_subColSummarize_medianpolish);
+  
+
 }
