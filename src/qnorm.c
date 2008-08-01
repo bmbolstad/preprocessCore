@@ -60,6 +60,7 @@
  ** Oct 9, 2007 - modify how columns are partioned to threads (when less columns than threads)
  ** Mar 14, 2008 - multithreaded qnorm_c_determine_target based on pthreads
  ** Mar 15, 2008 - multithreaded qnorm_c_using_target based on pthreads
+ ** Jul 31, 2008 - Fix memory leak in use_target
  **
  ***********************************************************/
 
@@ -1497,7 +1498,7 @@ void using_target(double *data, int *rows, int *cols, double *target, int *targe
   }
   Free(dimat[0]);
   Free(dimat);
-
+  Free(ranks);
 }
 
 
@@ -1557,6 +1558,8 @@ int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int
   pthread_t *threads;
   struct loop_data *args;
   void *status;
+  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+
 #endif
   
   row_mean = (double *)Calloc(*targetrows,double);
@@ -1584,8 +1587,10 @@ int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int
   threads = (pthread_t *) Calloc(num_threads, pthread_t);
 
   /* Initialize and set thread detached attribute */
+
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+  pthread_attr_setstacksize (&attr, stacksize);
 
   /* this code works out how many threads to use and allocates ranges of columns to each thread */
   /* The aim is to try to be as fair as possible in dividing up the matrix */
