@@ -1,3 +1,9 @@
+1.3.4
+-----
+Fix memory leak in determine_target
+Set pthread stack size where appropriate
+
+
 1.3.3
 -----
 Fix memory leak in use_target

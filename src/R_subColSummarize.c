@@ -108,6 +108,7 @@ SEXP R_subColSummarize_avg_log(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_t *threads;
   struct loop_data *args;
   void *status;
+  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));
@@ -131,7 +132,7 @@ SEXP R_subColSummarize_avg_log(SEXP RMatrix, SEXP R_rowIndexList){
   /* Initialize and set thread detached attribute */
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
+  pthread_attr_setstacksize (&attr, stacksize);
   /* this code works out how many threads to use and allocates ranges of subColumns to each thread */
   /* The aim is to try to be as fair as possible in dividing up the matrix */
   /* A special cases to be aware of: 
@@ -270,7 +271,8 @@ SEXP R_subColSummarize_log_avg(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_attr_t attr;
   pthread_t *threads;
   struct loop_data *args;
-  void *status;
+  void *status; 
+  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));
@@ -294,7 +296,8 @@ SEXP R_subColSummarize_log_avg(SEXP RMatrix, SEXP R_rowIndexList){
   /* Initialize and set thread detached attribute */
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
+  pthread_attr_setstacksize (&attr, stacksize);
+  
   /* this code works out how many threads to use and allocates ranges of subColumns to each thread */
   /* The aim is to try to be as fair as possible in dividing up the matrix */
   /* A special cases to be aware of: 
@@ -435,7 +438,8 @@ SEXP R_subColSummarize_avg(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_attr_t attr;
   pthread_t *threads;
   struct loop_data *args;
-  void *status;
+  void *status; 
+  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));
@@ -459,7 +463,8 @@ SEXP R_subColSummarize_avg(SEXP RMatrix, SEXP R_rowIndexList){
   /* Initialize and set thread detached attribute */
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
+  pthread_attr_setstacksize (&attr, stacksize);
+  
   /* this code works out how many threads to use and allocates ranges of subColumns to each thread */
   /* The aim is to try to be as fair as possible in dividing up the matrix */
   /* A special cases to be aware of: 
@@ -602,6 +607,7 @@ SEXP R_subColSummarize_biweight_log(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_t *threads;
   struct loop_data *args;
   void *status;
+  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
 #endif
 
 
@@ -626,7 +632,7 @@ SEXP R_subColSummarize_biweight_log(SEXP RMatrix, SEXP R_rowIndexList){
   /* Initialize and set thread detached attribute */
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
+  pthread_attr_setstacksize (&attr, stacksize);
   /* this code works out how many threads to use and allocates ranges of subColumns to each thread */
   /* The aim is to try to be as fair as possible in dividing up the matrix */
   /* A special cases to be aware of: 
@@ -768,6 +774,7 @@ SEXP R_subColSummarize_biweight(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_t *threads;
   struct loop_data *args;
   void *status;
+  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));
@@ -791,7 +798,8 @@ SEXP R_subColSummarize_biweight(SEXP RMatrix, SEXP R_rowIndexList){
   /* Initialize and set thread detached attribute */
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
+  pthread_attr_setstacksize (&attr, stacksize);
+  
   /* this code works out how many threads to use and allocates ranges of subColumns to each thread */
   /* The aim is to try to be as fair as possible in dividing up the matrix */
   /* A special cases to be aware of: 
@@ -934,6 +942,7 @@ SEXP R_subColSummarize_median_log(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_t *threads;
   struct loop_data *args;
   void *status;
+  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));
@@ -957,7 +966,8 @@ SEXP R_subColSummarize_median_log(SEXP RMatrix, SEXP R_rowIndexList){
   /* Initialize and set thread detached attribute */
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
+  pthread_attr_setstacksize (&attr, stacksize);
+  
   /* this code works out how many threads to use and allocates ranges of subColumns to each thread */
   /* The aim is to try to be as fair as possible in dividing up the matrix */
   /* A special cases to be aware of: 
@@ -1097,7 +1107,8 @@ SEXP R_subColSummarize_log_median(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_attr_t attr;
   pthread_t *threads;
   struct loop_data *args;
-  void *status;
+  void *status; 
+  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));
@@ -1121,7 +1132,8 @@ SEXP R_subColSummarize_log_median(SEXP RMatrix, SEXP R_rowIndexList){
   /* Initialize and set thread detached attribute */
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
+  pthread_attr_setstacksize (&attr, stacksize);
+  
   /* this code works out how many threads to use and allocates ranges of subColumns to each thread */
   /* The aim is to try to be as fair as possible in dividing up the matrix */
   /* A special cases to be aware of: 
@@ -1260,7 +1272,8 @@ SEXP R_subColSummarize_median(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_attr_t attr;
   pthread_t *threads;
   struct loop_data *args;
-  void *status;
+  void *status; 
+  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));
@@ -1284,7 +1297,8 @@ SEXP R_subColSummarize_median(SEXP RMatrix, SEXP R_rowIndexList){
   /* Initialize and set thread detached attribute */
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
+  pthread_attr_setstacksize (&attr, stacksize);
+  
   /* this code works out how many threads to use and allocates ranges of subColumns to each thread */
   /* The aim is to try to be as fair as possible in dividing up the matrix */
   /* A special cases to be aware of: 
@@ -1427,7 +1441,8 @@ SEXP R_subColSummarize_medianpolish_log(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_attr_t attr;
   pthread_t *threads;
   struct loop_data *args;
-  void *status;
+  void *status; 
+  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
 #endif
 
 
@@ -1455,7 +1470,8 @@ SEXP R_subColSummarize_medianpolish_log(SEXP RMatrix, SEXP R_rowIndexList){
   /* Initialize and set thread detached attribute */
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
+  pthread_attr_setstacksize (&attr, stacksize);
+  
   /* this code works out how many threads to use and allocates ranges of subColumns to each thread */
   /* The aim is to try to be as fair as possible in dividing up the matrix */
   /* A special cases to be aware of: 
@@ -1595,7 +1611,8 @@ SEXP R_subColSummarize_medianpolish(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_attr_t attr;
   pthread_t *threads;
   struct loop_data *args;
-  void *status;
+  void *status; 
+  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));
@@ -1619,7 +1636,8 @@ SEXP R_subColSummarize_medianpolish(SEXP RMatrix, SEXP R_rowIndexList){
   /* Initialize and set thread detached attribute */
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
+  pthread_attr_setstacksize (&attr, stacksize);
+  
   /* this code works out how many threads to use and allocates ranges of subColumns to each thread */
   /* The aim is to try to be as fair as possible in dividing up the matrix */
   /* A special cases to be aware of: 
