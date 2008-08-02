@@ -61,6 +61,7 @@
  ** Mar 14, 2008 - multithreaded qnorm_c_determine_target based on pthreads
  ** Mar 15, 2008 - multithreaded qnorm_c_using_target based on pthreads
  ** Jul 31, 2008 - Fix memory leak in use_target
+ ** Aug 1, 2008 - Fix memory leak in determine_target
  **
  ***********************************************************/
 
@@ -407,6 +408,7 @@ void normalize_determine_target(double *data, double *row_mean, int *rows, int *
     row_mean[i] += (double) row_submean[i];
   }
   pthread_mutex_unlock (&mutex_R);
+  Free(row_submean);
 #endif
 }
   
@@ -476,6 +478,7 @@ int qnorm_c(double *data, int *rows, int *cols){
   pthread_t *threads;
   struct loop_data *args;
   void *status;
+  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
 #endif
 
   for (i =0; i < *rows; i++){
@@ -495,7 +498,8 @@ int qnorm_c(double *data, int *rows, int *cols){
   /* Initialize and set thread detached attribute */
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
+  pthread_attr_setstacksize (&attr, stacksize);
+  
   /* this code works out how many threads to use and allocates ranges of columns to each thread */
   /* The aim is to try to be as fair as possible in dividing up the matrix */
   /* A special cases to be aware of: 
@@ -1812,6 +1816,7 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
   pthread_t *threads;
   struct loop_data *args;
   void *status;
+  int stacksize=PTHREAD_STACK_MIN + 0x4000;
 #endif
 
 #if defined(USE_PTHREADS)
@@ -1827,6 +1832,7 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
   /* Initialize and set thread detached attribute */
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+  pthread_attr_setstacksize (&attr, stacksize);
 
   /* this code works out how many threads to use and allocates ranges of columns to each thread */
   /* The aim is to try to be as fair as possible in dividing up the matrix */

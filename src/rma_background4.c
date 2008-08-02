@@ -345,6 +345,7 @@ void rma_bg_correct(double *PM, int rows, int cols){
   pthread_t *threads;
   struct loop_data *args;
   void *status;
+  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
 #endif
 
 
@@ -362,7 +363,7 @@ void rma_bg_correct(double *PM, int rows, int cols){
   /* Initialize and set thread detached attribute */
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
+  pthread_attr_setstacksize (&attr, stacksize);
   /* this code works out how many threads to use and allocates ranges of columns to each thread */
   /* The aim is to try to be as fair as possible in dividing up the matrix */
   /* A special cases to be aware of: 
