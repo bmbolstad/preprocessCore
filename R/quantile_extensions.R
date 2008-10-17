@@ -32,6 +32,31 @@ normalize.quantiles.determine.target <- function(x,target.length=NULL){
 
 
 normalize.quantiles.use.target <- function(x,target,copy=TRUE){
+
+  if (!is.matrix(x)){
+    stop("This function expects supplied argument to be matrix")
+  }
+  if (!is.numeric(x)){
+    stop("Supplied argument should be a numeric matrix")
+  }
+  rows <- dim(x)[1]
+  cols <- dim(x)[2]
+
+  if (is.integer(x)){
+    x <- matrix(as.double(x), rows, cols)
+  }
+  
+  if (!is.vector(target)){
+     stop("This function expects target to be vector")
+  }
+  if (!is.numeric(target)){
+    stop("Supplied target argument should be a numeric vector")
+  }
+
+  if (is.integer(target)){
+     target <- as.double(target)
+  }
+  
   return(.Call("R_qnorm_using_target",x,target,copy,PACKAGE="preprocessCore"))
 }
 
