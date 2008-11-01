@@ -119,8 +119,7 @@ SEXP R_rlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK){
   
 
   beta[rows+cols -1] = 0.0;
-  se[rows+cols -1] = 0.0;
-
+  
 
   for (i = cols; i < rows + cols -1; i++)
     beta[rows+cols -1]-=beta[i];
