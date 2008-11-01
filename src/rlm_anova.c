@@ -4,7 +4,7 @@
  **
  ** Aim: implement robust linear models specialized to samples + probes model.
  **
- ** Copyright (C) 2004-2007 Ben Bolstad
+ ** Copyright (C) 2004-2008 Ben Bolstad
  **
  ** created by: B. M. Bolstad <bmb@bmbolstad.com>
  ** 
@@ -21,6 +21,7 @@
  ** Mar 9. 2008 - Add rlm_fit_anova_given_probeeffects
  ** Mar 10, 2008 - make rlm_fit_anova_given_probeeffects etc purely single chip
  ** Mar 12, 2008 - Add rlm_wfit_anova_given_probeeffects
+ ** Nov 1, 2008 - modify rlm_fit_anova_rlm_compute_se_anova() so that se of constrained probe effect (last one) is returned)
  **
  *********************************************************************/
 
@@ -1044,7 +1045,13 @@ void rlm_compute_se_anova(double *Y, int y_rows,int y_cols, double *beta, double
 	for (j = i; j < p; j++)
 	  varcov[j*p + i] =  RMSEw*RMSEw*XTX[j*p + i];
     
+    se_estimates[p] = 0.0;
 
+    for (i=y_cols; i < p; i++)
+      for (j = y_cols; j < p; j++)
+    se_estimates[p]+= -1*RMSEw*RMSEw*XTX[j*p + i];
+    
+    se_estimates[p] = sqrt(-1*se_estimates[p]);
 
     /*     if (varcov != NULL){
 	   copy across varcov matrix in right order 
