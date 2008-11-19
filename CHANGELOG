@@ -1,3 +1,8 @@
+1.5.2
+-----
+normalize.quantiles.determine.target() and normalize.quantiles.use.target() now have a "subset" argument
+
+
 1.5.1
 -----
 Default rcModelPLM() returns both probe coef and se for constraint row (previously SE was not properly returned)
