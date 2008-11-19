@@ -8,8 +8,8 @@
   normalization distribution
 }
 \usage{
-  normalize.quantiles.use.target(x,target,copy=TRUE)
-  normalize.quantiles.determine.target(x,target.length=NULL)
+  normalize.quantiles.use.target(x,target,copy=TRUE,subset=NULL)
+  normalize.quantiles.determine.target(x,target.length=NULL,subset=NULL)
 }
 \arguments{
   \item{x}{A matrix of intensities where each column corresponds to a
@@ -21,6 +21,7 @@
   \item{target.length}{number of datapoints to return in target
     distribution vector. If \code{NULL} then this will be taken to be
     equal to the number of rows in the matrix.} 
+  \item{subset}{A logical variable indexing whether corresponding row should be used in reference distribution determination}
 }
 \details{This method is based upon the concept of a quantile-quantile
   plot extended to n dimensions. No special allowances are made for
