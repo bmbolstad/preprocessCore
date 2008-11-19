@@ -1,6 +1,6 @@
 
 
-normalize.quantiles.determine.target <- function(x,target.length=NULL){
+normalize.quantiles.determine.target <- function(x,target.length=NULL,subset=NULL){
 
   if (!is.matrix(x)){
     stop("This function expects supplied argument to be matrix")
@@ -23,15 +23,21 @@ normalize.quantiles.determine.target <- function(x,target.length=NULL){
     stop("Need positive length for target.length")
   }
 
-
-  return(.Call("R_qnorm_determine_target",x,target.length,PACKAGE="preprocessCore"))
-  
+  if (is.null(subset)){
+    return(.Call("R_qnorm_determine_target",x,target.length,PACKAGE="preprocessCore"))
+  } else {
+    if (length(subset) != rows){
+       stop("subset should have same length as nrows(x)")
+    }
+    subset <- as.integer(subset)
+    return(.Call("R_qnorm_determine_target_via_subset",x, subset,target.length,PACKAGE="preprocessCore"))			
+  }
 
 }
 
 
 
-normalize.quantiles.use.target <- function(x,target,copy=TRUE){
+normalize.quantiles.use.target <- function(x,target,copy=TRUE,subset=NULL){
 
   if (!is.matrix(x)){
     stop("This function expects supplied argument to be matrix")
@@ -56,8 +62,17 @@ normalize.quantiles.use.target <- function(x,target,copy=TRUE){
   if (is.integer(target)){
      target <- as.double(target)
   }
-  
-  return(.Call("R_qnorm_using_target",x,target,copy,PACKAGE="preprocessCore"))
+  if (is.null(subset)){	
+     return(.Call("R_qnorm_using_target",x,target,copy,PACKAGE="preprocessCore"))
+  } else {
+    if (length(subset) != rows){
+       stop("subset should have same length as nrows(x)")
+    }
+    subset <- as.integer(subset)
+    return(.Call("R_qnorm_using_target_via_subset",x, subset, target, copy, PACKAGE="preprocessCore"))			
+  }
+
+
 }
 
 
