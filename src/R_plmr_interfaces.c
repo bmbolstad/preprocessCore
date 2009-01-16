@@ -12,6 +12,7 @@
  **
  ** History
  ** Jan 28, 2008 - Initial version
+ ** Jan 15, 2009 - fix issues with VECTOR_ELT/SET_VECTOR_ELT
  **
  **
  *********************************************************************/
@@ -111,10 +112,10 @@ SEXP R_plmr_model(SEXP Y, SEXP PsiCode, SEXP PsiK){
 
 
   PROTECT(R_return_value_names= allocVector(STRSXP,4));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("Weights"));
-  SET_VECTOR_ELT(R_return_value_names,2,mkChar("Residuals"));
-  SET_VECTOR_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
+  SET_STRING_ELT(R_return_value_names,2,mkChar("Residuals"));
+  SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(2);
   return R_return_value;
@@ -207,10 +208,10 @@ SEXP R_plmrr_model(SEXP Y, SEXP PsiCode, SEXP PsiK){
 
 
   PROTECT(R_return_value_names= allocVector(STRSXP,4));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("Weights"));
-  SET_VECTOR_ELT(R_return_value_names,2,mkChar("Residuals"));
-  SET_VECTOR_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
+  SET_STRING_ELT(R_return_value_names,2,mkChar("Residuals"));
+  SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(2);
   return R_return_value;
@@ -301,10 +302,10 @@ SEXP R_plmrc_model(SEXP Y, SEXP PsiCode, SEXP PsiK){
 
 
   PROTECT(R_return_value_names= allocVector(STRSXP,4));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("Weights"));
-  SET_VECTOR_ELT(R_return_value_names,2,mkChar("Residuals"));
-  SET_VECTOR_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
+  SET_STRING_ELT(R_return_value_names,2,mkChar("Residuals"));
+  SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(2);
   return R_return_value;
@@ -384,10 +385,10 @@ SEXP R_wplmr_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Weights){
 
 
   PROTECT(R_return_value_names= allocVector(STRSXP,4));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("Weights"));
-  SET_VECTOR_ELT(R_return_value_names,2,mkChar("Residuals"));
-  SET_VECTOR_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
+  SET_STRING_ELT(R_return_value_names,2,mkChar("Residuals"));
+  SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(2);
   return R_return_value;
@@ -469,10 +470,10 @@ SEXP R_wplmrr_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Weights){
 
 
   PROTECT(R_return_value_names= allocVector(STRSXP,4));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("Weights"));
-  SET_VECTOR_ELT(R_return_value_names,2,mkChar("Residuals"));
-  SET_VECTOR_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
+  SET_STRING_ELT(R_return_value_names,2,mkChar("Residuals"));
+  SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(2);
   return R_return_value;
@@ -555,10 +556,10 @@ SEXP R_wplmrc_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Weights){
 
 
   PROTECT(R_return_value_names= allocVector(STRSXP,4));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("Weights"));
-  SET_VECTOR_ELT(R_return_value_names,2,mkChar("Residuals"));
-  SET_VECTOR_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
+  SET_STRING_ELT(R_return_value_names,2,mkChar("Residuals"));
+  SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(2);
   return R_return_value;

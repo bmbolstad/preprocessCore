@@ -12,6 +12,7 @@
  **
  ** History
  ** Jan 30, 2008 - Initial version
+ ** Jan 15, 2009 - Fix issues with STRING_ELT/VECTOR_ELT
  **
  **
  *********************************************************************/
@@ -188,11 +189,11 @@ SEXP R_plmd_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Groups, SEXP Ngroups){
   UNPROTECT(2);
   
   PROTECT(R_return_value_names= allocVector(STRSXP,5));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("Weights"));
-  SET_VECTOR_ELT(R_return_value_names,2,mkChar("Residuals"));
-  SET_VECTOR_ELT(R_return_value_names,3,mkChar("StdErrors"));
-  SET_VECTOR_ELT(R_return_value_names,4,mkChar("WasSplit"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
+  SET_STRING_ELT(R_return_value_names,2,mkChar("Residuals"));
+  SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,4,mkChar("WasSplit"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(2);
   return R_return_value;
