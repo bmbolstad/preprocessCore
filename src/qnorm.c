@@ -63,6 +63,7 @@
  ** Jul 31, 2008 - Fix memory leak in use_target
  ** Aug 1, 2008 - Fix memory leak in determine_target
  ** Nov 19, 2008 - add *_via_subset code
+ ** Jan 15, 2009 - fix VECTOR_ELT/STRING_ELT issues
  **
  ***********************************************************/
 
@@ -1328,15 +1329,15 @@ SEXP R_qnorm_robust_weights(SEXP X, SEXP remove_extreme, SEXP n_remove){
     REAL(weights)[j] = 1.0;
   }
 
-  if (strcmp(CHAR(VECTOR_ELT(remove_extreme,0)),"variance") == 0){
+  if (strcmp(CHAR(STRING_ELT(remove_extreme,0)),"variance") == 0){
     remove_order_variance(REAL(X), rows, cols, INTEGER(n_remove)[0], REAL(weights));
   }
 
-  if (strcmp(CHAR(VECTOR_ELT(remove_extreme,0)),"mean") == 0){
+  if (strcmp(CHAR(STRING_ELT(remove_extreme,0)),"mean") == 0){
     remove_order_mean(REAL(X), rows, cols, INTEGER(n_remove)[0], REAL(weights));
   }
 
-  if (strcmp(CHAR(VECTOR_ELT(remove_extreme,0)),"both") == 0){
+  if (strcmp(CHAR(STRING_ELT(remove_extreme,0)),"both") == 0){
     remove_order_both(REAL(X), rows, cols, INTEGER(n_remove)[0], REAL(weights));
   }
 

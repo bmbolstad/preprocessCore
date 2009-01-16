@@ -16,7 +16,7 @@
  ** Sep 13, 2007 - Make the value of the constrained parameters something more sensible
  ** Sep 14, 2007 - Add medianpolish code interface (yes it is not really an rlm method, 
  **                but it is analogous enough in the format presented here)
- **
+ ** Jan 15, 2009 - fix STRING_ELT/VECTOR_ELT issues
  **
  *********************************************************************/
 
@@ -131,10 +131,10 @@ SEXP R_rlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK){
 
 
   PROTECT(R_return_value_names= allocVector(STRSXP,4));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("Weights"));
-  SET_VECTOR_ELT(R_return_value_names,2,mkChar("Residuals"));
-  SET_VECTOR_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
+  SET_STRING_ELT(R_return_value_names,2,mkChar("Residuals"));
+  SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(2);
   return R_return_value;
@@ -225,10 +225,10 @@ SEXP R_wrlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Weights){
 
 
   PROTECT(R_return_value_names= allocVector(STRSXP,4));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("Weights"));
-  SET_VECTOR_ELT(R_return_value_names,2,mkChar("Residuals"));
-  SET_VECTOR_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
+  SET_STRING_ELT(R_return_value_names,2,mkChar("Residuals"));
+  SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(2);
   return R_return_value;
@@ -328,10 +328,10 @@ SEXP R_medianpolish_rma_default_model(SEXP Y){
 
 
   PROTECT(R_return_value_names= allocVector(STRSXP,4));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("Weights"));
-  SET_VECTOR_ELT(R_return_value_names,2,mkChar("Residuals"));
-  SET_VECTOR_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
+  SET_STRING_ELT(R_return_value_names,2,mkChar("Residuals"));
+  SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(2);
   return R_return_value;
@@ -429,10 +429,10 @@ SEXP R_rlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SEX
 
   
   PROTECT(R_return_value_names= allocVector(STRSXP,4));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("Weights"));
-  SET_VECTOR_ELT(R_return_value_names,2,mkChar("Residuals"));
-  SET_VECTOR_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
+  SET_STRING_ELT(R_return_value_names,2,mkChar("Residuals"));
+  SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(2);
   return R_return_value;
@@ -515,10 +515,10 @@ SEXP R_wrlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SE
 
   
   PROTECT(R_return_value_names= allocVector(STRSXP,4));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("Weights"));
-  SET_VECTOR_ELT(R_return_value_names,2,mkChar("Residuals"));
-  SET_VECTOR_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
+  SET_STRING_ELT(R_return_value_names,2,mkChar("Residuals"));
+  SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(2);
   return R_return_value;

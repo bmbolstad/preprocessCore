@@ -1,3 +1,8 @@
+1.5.3
+------
+fix VECTOR_ELT/STRING_ELT issues
+
+
 1.5.2
 -----
 normalize.quantiles.determine.target() and normalize.quantiles.use.target() now have a "subset" argument

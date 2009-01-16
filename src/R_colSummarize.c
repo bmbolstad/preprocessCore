@@ -13,6 +13,7 @@
  **
  ** History
  ** Sep 15, 2007 - Initial version
+ ** Jan 15, 2009 - Fix issues with VECTOR_ELT/STRING_ELT
  **
  **
  *********************************************************************/
@@ -73,8 +74,8 @@ SEXP R_colSummarize_avg_log(SEXP RMatrix){
   averagelog(matrix, rows, cols, results, resultsSE);
   
   PROTECT(R_return_value_names= allocVector(STRSXP,2));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(1);
 
@@ -122,8 +123,8 @@ SEXP R_colSummarize_log_avg(SEXP RMatrix){
   logaverage(matrix, rows, cols, results, resultsSE);
   
   PROTECT(R_return_value_names= allocVector(STRSXP,2));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(1);
 
@@ -170,8 +171,8 @@ SEXP R_colSummarize_avg(SEXP RMatrix){
   colaverage(matrix, rows, cols, results, resultsSE);
   
   PROTECT(R_return_value_names= allocVector(STRSXP,2));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(1);
 
@@ -233,8 +234,8 @@ SEXP R_colSummarize_log_median(SEXP RMatrix){
   logmedian(matrix, rows, cols, results, resultsSE);
   
   PROTECT(R_return_value_names= allocVector(STRSXP,2));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(1);
 
@@ -280,8 +281,8 @@ SEXP R_colSummarize_median_log(SEXP RMatrix){
   medianlog(matrix, rows, cols, results, resultsSE);
   
   PROTECT(R_return_value_names= allocVector(STRSXP,2));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(1);
 
@@ -328,8 +329,8 @@ SEXP R_colSummarize_median(SEXP RMatrix){
   colmedian(matrix, rows, cols, results, resultsSE);
   
   PROTECT(R_return_value_names= allocVector(STRSXP,2));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(1);
 
@@ -376,8 +377,8 @@ SEXP R_colSummarize_biweight_log(SEXP RMatrix){
   tukeybiweight(matrix, rows, cols, results, resultsSE);
   
   PROTECT(R_return_value_names= allocVector(STRSXP,2));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(1);
 
@@ -422,8 +423,8 @@ SEXP R_colSummarize_biweight(SEXP RMatrix){
   tukeybiweight_no_log(matrix, rows, cols, results, resultsSE);
   
   PROTECT(R_return_value_names= allocVector(STRSXP,2));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(1);
 
@@ -486,8 +487,8 @@ SEXP R_colSummarize_medianpolish_log(SEXP RMatrix){
   
 
   PROTECT(R_return_value_names= allocVector(STRSXP,2));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(1);
 
@@ -544,8 +545,8 @@ SEXP R_colSummarize_medianpolish(SEXP RMatrix){
   
 
   PROTECT(R_return_value_names= allocVector(STRSXP,2));
-  SET_VECTOR_ELT(R_return_value_names,0,mkChar("Estimates"));
-  SET_VECTOR_ELT(R_return_value_names,1,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
+  SET_STRING_ELT(R_return_value_names,1,mkChar("StdErrors"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(1);
 
