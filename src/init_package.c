@@ -59,8 +59,8 @@ static const R_CallMethodDef callMethods[]  = {
   {"R_qnorm_determine_target",(DL_FUNC)&R_qnorm_determine_target,2},
   {"R_qnorm_using_target",(DL_FUNC)&R_qnorm_using_target,3},
   {"R_qnorm_within_blocks",(DL_FUNC)&R_qnorm_within_blocks,3},
-  {"R_rlm_rma_default_model",(DL_FUNC)&R_rlm_rma_default_model,3},
-  {"R_wrlm_rma_default_model", (DL_FUNC)&R_wrlm_rma_default_model,4},
+  {"R_rlm_rma_default_model",(DL_FUNC)&R_rlm_rma_default_model,4},
+  {"R_wrlm_rma_default_model", (DL_FUNC)&R_wrlm_rma_default_model,5},
   {"R_medianpolish_rma_default_model", (DL_FUNC)&R_medianpolish_rma_default_model,1},
   {"R_colSummarize_avg_log", (DL_FUNC)&R_colSummarize_avg_log,1},  
   {"R_colSummarize_log_avg", (DL_FUNC)&R_colSummarize_log_avg,1},
@@ -88,8 +88,8 @@ static const R_CallMethodDef callMethods[]  = {
   {"R_wplmrr_model", (DL_FUNC)&R_wplmrr_model,4},
   {"R_plmrc_model",(DL_FUNC)&R_plmrc_model,3},
   {"R_wplmrc_model", (DL_FUNC)&R_wplmrc_model,4},
-  {"R_rlm_rma_given_probe_effects", (DL_FUNC)&R_rlm_rma_given_probe_effects,4},
-  {"R_rlm_rma_given_probe_effects", (DL_FUNC)&R_wrlm_rma_given_probe_effects,5},
+  {"R_rlm_rma_given_probe_effects", (DL_FUNC)&R_rlm_rma_given_probe_effects,5},
+  {"R_wrlm_rma_given_probe_effects", (DL_FUNC)&R_wrlm_rma_given_probe_effects,6},
   {"R_rma_bg_correct",(DL_FUNC)&R_rma_bg_correct,2},
   {NULL, NULL, 0}
   };

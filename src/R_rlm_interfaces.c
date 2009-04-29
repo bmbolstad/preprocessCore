@@ -17,6 +17,8 @@
  ** Sep 14, 2007 - Add medianpolish code interface (yes it is not really an rlm method, 
  **                but it is analogous enough in the format presented here)
  ** Jan 15, 2009 - fix STRING_ELT/VECTOR_ELT issues
+ ** Apr 23, 2009 - R_rlm_rma_default_model now returns scale estimate
+ ** Apr 28, 2009 - R_wrlm_rma_default_model now returns scale estimate
  **
  *********************************************************************/
 
@@ -55,7 +57,7 @@
 
 
 
-SEXP R_rlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK){
+SEXP R_rlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Scales){
 
 
   SEXP R_return_value;
@@ -63,6 +65,7 @@ SEXP R_rlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK){
   SEXP R_residuals;
   SEXP R_beta;
   SEXP R_SE;
+  SEXP R_scale;
   
   SEXP R_return_value_names;
 
@@ -72,6 +75,9 @@ SEXP R_rlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK){
   double *residuals;
   double *weights;
   double *se;
+
+  double scale=-1.0;
+  double *scaleptr;
 
   double residSE;
 
@@ -87,23 +93,33 @@ SEXP R_rlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK){
   cols = INTEGER(dim1)[1];
   UNPROTECT(1);
 
-  PROTECT(R_return_value = allocVector(VECSXP,4));
+  PROTECT(R_return_value = allocVector(VECSXP,5));
   PROTECT(R_beta = allocVector(REALSXP, rows + cols));
   PROTECT(R_weights = allocMatrix(REALSXP,rows,cols));
   PROTECT(R_residuals = allocMatrix(REALSXP,rows,cols));
   PROTECT(R_SE = allocVector(REALSXP,rows+cols));
+  PROTECT(R_scale = allocVector(REALSXP,1.0));
 
   SET_VECTOR_ELT(R_return_value,0,R_beta);
   SET_VECTOR_ELT(R_return_value,1,R_weights);
   SET_VECTOR_ELT(R_return_value,2,R_residuals);
   SET_VECTOR_ELT(R_return_value,3,R_SE);
+  SET_VECTOR_ELT(R_return_value,4,R_scale);
 
-  UNPROTECT(4);
+  UNPROTECT(5);
 
   beta = NUMERIC_POINTER(R_beta);
   residuals = NUMERIC_POINTER(R_residuals);
   weights = NUMERIC_POINTER(R_weights);
   se = NUMERIC_POINTER(R_SE);
+  scaleptr = NUMERIC_POINTER(R_scale);
+
+  if (isNull(Scales)){
+    scaleptr[i] = -1.0;
+  } else if (length(Scales) != cols) {
+    scaleptr[i] = NUMERIC_POINTER(Scales)[0];
+  }
+
 
   Ymat = NUMERIC_POINTER(Y);
   
@@ -111,7 +127,7 @@ SEXP R_rlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK){
   
 
   
-  rlm_fit_anova(Ymat, rows, cols, beta, residuals, weights, PsiFunc(asInteger(PsiCode)),asReal(PsiK), 20, 0);
+  rlm_fit_anova_scale(Ymat, rows, cols, scaleptr, beta, residuals, weights, PsiFunc(asInteger(PsiCode)),asReal(PsiK), 20, 0);
   
   rlm_compute_se_anova(Ymat, rows, cols, beta, residuals, weights,se, (double *)NULL, &residSE, 4, PsiFunc(asInteger(PsiCode)),asReal(PsiK));
 
@@ -129,12 +145,12 @@ SEXP R_rlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK){
 
 
 
-
-  PROTECT(R_return_value_names= allocVector(STRSXP,4));
+  PROTECT(R_return_value_names= allocVector(STRSXP,5));
   SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
   SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
   SET_STRING_ELT(R_return_value_names,2,mkChar("Residuals"));
   SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,4,mkChar("Scale"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(2);
   return R_return_value;
@@ -151,7 +167,7 @@ SEXP R_rlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK){
 
 
 
-SEXP R_wrlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Weights){
+SEXP R_wrlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Weights, SEXP Scales){
 
 
   SEXP R_return_value;
@@ -159,7 +175,8 @@ SEXP R_wrlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Weights){
   SEXP R_residuals;
   SEXP R_beta;
   SEXP R_SE;
-  
+  SEXP R_scale;
+ 
   SEXP R_return_value_names;
 
   SEXP dim1;
@@ -168,6 +185,9 @@ SEXP R_wrlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Weights){
   double *residuals;
   double *weights;
   double *se;
+
+  double scale=-1.0;
+  double *scaleptr;
 
   double residSE;
 
@@ -184,23 +204,34 @@ SEXP R_wrlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Weights){
   cols = INTEGER(dim1)[1];
   UNPROTECT(1);
 
-  PROTECT(R_return_value = allocVector(VECSXP,4));
+  PROTECT(R_return_value = allocVector(VECSXP,5));
   PROTECT(R_beta = allocVector(REALSXP, rows + cols));
   PROTECT(R_weights = allocMatrix(REALSXP,rows,cols));
   PROTECT(R_residuals = allocMatrix(REALSXP,rows,cols));
   PROTECT(R_SE = allocVector(REALSXP,rows+cols));
-
+  PROTECT(R_scale = allocVector(REALSXP,1.0));
+  
   SET_VECTOR_ELT(R_return_value,0,R_beta);
   SET_VECTOR_ELT(R_return_value,1,R_weights);
   SET_VECTOR_ELT(R_return_value,2,R_residuals);
   SET_VECTOR_ELT(R_return_value,3,R_SE);
-
-  UNPROTECT(4);
+  SET_VECTOR_ELT(R_return_value,4,R_scale);
+  
+  UNPROTECT(5);
 
   beta = NUMERIC_POINTER(R_beta);
   residuals = NUMERIC_POINTER(R_residuals);
   weights = NUMERIC_POINTER(R_weights);
   se = NUMERIC_POINTER(R_SE);
+  scaleptr = NUMERIC_POINTER(R_scale);
+
+  if (isNull(Scales)){
+    scaleptr[i] = -1.0;
+  } else if (length(Scales) != cols) {
+    scaleptr[i] = NUMERIC_POINTER(Scales)[0];
+  }
+
+
 
   Ymat = NUMERIC_POINTER(Y);
   
@@ -208,7 +239,7 @@ SEXP R_wrlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Weights){
   
 
   
-  rlm_wfit_anova(Ymat, rows, cols, w, beta, residuals, weights, PsiFunc(asInteger(PsiCode)),asReal(PsiK), 20, 0);
+  rlm_wfit_anova_scale(Ymat, rows, cols, scaleptr, w, beta, residuals, weights, PsiFunc(asInteger(PsiCode)),asReal(PsiK), 20, 0);
   rlm_compute_se_anova(Ymat, rows, cols, beta, residuals, weights,se, (double *)NULL, &residSE, 4, PsiFunc(asInteger(PsiCode)),asReal(PsiK));
 
 
@@ -224,11 +255,13 @@ SEXP R_wrlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Weights){
 
 
 
-  PROTECT(R_return_value_names= allocVector(STRSXP,4));
+
+  PROTECT(R_return_value_names= allocVector(STRSXP,5));
   SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
   SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
   SET_STRING_ELT(R_return_value_names,2,mkChar("Residuals"));
   SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,4,mkChar("Scale"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(2);
   return R_return_value;
@@ -361,7 +394,7 @@ SEXP R_medianpolish_rma_default_model(SEXP Y){
 
 
 
-SEXP R_rlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SEXP PsiK){
+SEXP R_rlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SEXP PsiK, SEXP Scales){
 
 
   SEXP R_return_value;
@@ -369,6 +402,7 @@ SEXP R_rlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SEX
   SEXP R_residuals;
   SEXP R_beta;
   SEXP R_SE;
+  SEXP R_scale;
   
   SEXP R_return_value_names;
 
@@ -378,6 +412,8 @@ SEXP R_rlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SEX
   double *residuals;
   double *weights;
   double *se;
+
+  double *scaleptr;
 
   double *probeeffects;
   
@@ -395,23 +431,41 @@ SEXP R_rlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SEX
   cols = INTEGER(dim1)[1];
   UNPROTECT(1);
 
-  PROTECT(R_return_value = allocVector(VECSXP,4));
+  PROTECT(R_return_value = allocVector(VECSXP,5));
   PROTECT(R_beta = allocVector(REALSXP, cols));
   PROTECT(R_weights = allocMatrix(REALSXP,rows,cols));
   PROTECT(R_residuals = allocMatrix(REALSXP,rows,cols));
   PROTECT(R_SE = allocVector(REALSXP,cols));
-
+  PROTECT(R_scale = allocVector(REALSXP,cols));
+  
   SET_VECTOR_ELT(R_return_value,0,R_beta);
   SET_VECTOR_ELT(R_return_value,1,R_weights);
   SET_VECTOR_ELT(R_return_value,2,R_residuals);
   SET_VECTOR_ELT(R_return_value,3,R_SE);
-
-  UNPROTECT(4);
+  SET_VECTOR_ELT(R_return_value,4,R_scale);
+  UNPROTECT(5);
 
   beta = NUMERIC_POINTER(R_beta);
   residuals = NUMERIC_POINTER(R_residuals);
   weights = NUMERIC_POINTER(R_weights);
   se = NUMERIC_POINTER(R_SE);
+ 
+  scaleptr = NUMERIC_POINTER(R_scale);
+  if (isNull(Scales)){
+    for (i =0; i < cols; i++){
+      scaleptr[i] = -1.0;
+    }
+  } else if (length(Scales) != cols) {
+    for (i =0; i < cols; i++){
+      scaleptr[i] = NUMERIC_POINTER(Scales)[0];
+    }
+  } else if (length(Scales) == cols){
+    for (i =0; i < cols; i++){
+      scaleptr[i] = NUMERIC_POINTER(Scales)[i];
+    }
+  }
+
+
 
   probeeffects = NUMERIC_POINTER(probe_effects);
 
@@ -419,20 +473,18 @@ SEXP R_rlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SEX
   Ymat = NUMERIC_POINTER(Y);
   
   
-  
-
-  
-  rlm_fit_anova_given_probe_effects(Ymat, rows, cols, probeeffects, beta, residuals, weights, PsiFunc(asInteger(PsiCode)),asReal(PsiK), 20, 0);
+  rlm_fit_anova_given_probe_effects_scale(Ymat, rows, cols, scaleptr, probeeffects, beta, residuals, weights, PsiFunc(asInteger(PsiCode)),asReal(PsiK), 20, 0);
   
   rlm_compute_se_anova_given_probe_effects(Ymat, rows, cols, probeeffects, beta, residuals, weights,se, (double *)NULL, &residSE, 4, PsiFunc(asInteger(PsiCode)),asReal(PsiK));
 
 
   
-  PROTECT(R_return_value_names= allocVector(STRSXP,4));
+  PROTECT(R_return_value_names= allocVector(STRSXP,5));
   SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
   SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
   SET_STRING_ELT(R_return_value_names,2,mkChar("Residuals"));
   SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,4,mkChar("Scale"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(2);
   return R_return_value;
@@ -443,7 +495,7 @@ SEXP R_rlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SEX
 
 
 
-SEXP R_wrlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SEXP PsiK, SEXP Weights){
+SEXP R_wrlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SEXP PsiK, SEXP Weights, SEXP Scales){
 
 
   SEXP R_return_value;
@@ -451,7 +503,8 @@ SEXP R_wrlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SE
   SEXP R_residuals;
   SEXP R_beta;
   SEXP R_SE;
-  
+  SEXP R_scale;
+    
   SEXP R_return_value_names;
 
   SEXP dim1;
@@ -460,6 +513,8 @@ SEXP R_wrlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SE
   double *residuals;
   double *weights;
   double *se; 
+  
+  double *scaleptr;
 
   double *w;
 
@@ -479,18 +534,20 @@ SEXP R_wrlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SE
   cols = INTEGER(dim1)[1];
   UNPROTECT(1);
 
-  PROTECT(R_return_value = allocVector(VECSXP,4));
+  PROTECT(R_return_value = allocVector(VECSXP,5));
   PROTECT(R_beta = allocVector(REALSXP, cols));
   PROTECT(R_weights = allocMatrix(REALSXP,rows,cols));
   PROTECT(R_residuals = allocMatrix(REALSXP,rows,cols));
   PROTECT(R_SE = allocVector(REALSXP,cols));
+  PROTECT(R_scale = allocVector(REALSXP,cols));
+
 
   SET_VECTOR_ELT(R_return_value,0,R_beta);
   SET_VECTOR_ELT(R_return_value,1,R_weights);
   SET_VECTOR_ELT(R_return_value,2,R_residuals);
   SET_VECTOR_ELT(R_return_value,3,R_SE);
-
-  UNPROTECT(4);
+  SET_VECTOR_ELT(R_return_value,4,R_scale);
+  UNPROTECT(5);
 
   beta = NUMERIC_POINTER(R_beta);
   residuals = NUMERIC_POINTER(R_residuals);
@@ -498,6 +555,24 @@ SEXP R_wrlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SE
   se = NUMERIC_POINTER(R_SE);
 
   probeeffects = NUMERIC_POINTER(probe_effects);
+
+  scaleptr = NUMERIC_POINTER(R_scale);
+  
+  if (isNull(Scales)){
+    for (i =0; i < cols; i++){
+      scaleptr[i] = -1.0;
+    }
+  } else if (length(Scales) != cols) {
+    for (i =0; i < cols; i++){
+      scaleptr[i] = NUMERIC_POINTER(Scales)[0];
+    }
+  } else if (length(Scales) == cols){
+    for (i =0; i < cols; i++){
+      scaleptr[i] = NUMERIC_POINTER(Scales)[i];
+    }
+  }
+
+
 
 
   Ymat = NUMERIC_POINTER(Y);
@@ -508,17 +583,18 @@ SEXP R_wrlm_rma_given_probe_effects(SEXP Y, SEXP probe_effects, SEXP PsiCode, SE
   
 
   
-  rlm_wfit_anova_given_probe_effects(Ymat, rows, cols, probeeffects, w, beta, residuals, weights, PsiFunc(asInteger(PsiCode)),asReal(PsiK), 20, 0);
+  rlm_wfit_anova_given_probe_effects_scale(Ymat, rows, cols, scaleptr, probeeffects, w, beta, residuals, weights, PsiFunc(asInteger(PsiCode)),asReal(PsiK), 20, 0);
   
   rlm_compute_se_anova_given_probe_effects(Ymat, rows, cols, probeeffects, beta, residuals, weights,se, (double *)NULL, &residSE, 4, PsiFunc(asInteger(PsiCode)),asReal(PsiK));
 
 
   
-  PROTECT(R_return_value_names= allocVector(STRSXP,4));
+  PROTECT(R_return_value_names= allocVector(STRSXP,5));
   SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
   SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
   SET_STRING_ELT(R_return_value_names,2,mkChar("Residuals"));
   SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
+  SET_STRING_ELT(R_return_value_names,4,mkChar("Scale"));
   setAttrib(R_return_value, R_NamesSymbol,R_return_value_names);
   UNPROTECT(2);
   return R_return_value;

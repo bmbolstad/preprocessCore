@@ -1,3 +1,9 @@
+1.7.1
+-----
+
+rcModelPLM, rcModelWPLM now accept an "input.scale" argument (and also return scale value)
+
+
 1.5.3
 ------
 fix VECTOR_ELT/STRING_ELT issues
