@@ -6,14 +6,17 @@
 \description{These functions fit row-column effect models to matrices
 }
 \usage{
-rcModelPLM(y,row.effects=NULL)
-rcModelWPLM(y, w,row.effects=NULL)
+rcModelPLM(y,row.effects=NULL,input.scale=NULL)
+rcModelWPLM(y, w,row.effects=NULL,input.scale=NULL)
 rcModelMedianPolish(y)
 }
 \arguments{
   \item{y}{A numeric matrix}
   \item{w}{A matrix or vector of weights. These should be non-negative.}
-  \item{row.effects}{If these are supplied then the fitting procedure uses these (and analyzes individual columns separately)}
+  \item{row.effects}{If these are supplied then the fitting procedure
+    uses these (and analyzes individual columns separately)}
+  \item{input.scale}{If supplied will be used rather than estimating the
+    scale from the data}
 }
 \value{
   A list with following items:
@@ -23,6 +26,7 @@ rcModelMedianPolish(y)
   \item{Residuals}{The residuals}
   \item{StdErrors}{Standard error estimates. Stored in column effect
     then row effect order}
+  \item{Scale}{Scale Estimates}
 }
 \details{
   These functions fit row-column models to the specified input
@@ -63,6 +67,14 @@ rcModelMedianPolish(y)
 
 rcModelPLM(y,row.effects=row.effects)
 rcModelWPLM(y,w,row.effects=row.effects)
+
+rcModelPLM(y,input.scale=1.0)
+rcModelWPLM(y, w,input.scale=1.0)
+rcModelPLM(y,row.effects=row.effects,input.scale=1.0)
+rcModelWPLM(y,w,row.effects=row.effects,input.scale=1.0)
+
+
+
 
 }
 \author{B. M. Bolstad \email{bmb@bmbolstad.com}}

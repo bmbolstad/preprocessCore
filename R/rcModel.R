@@ -1,13 +1,13 @@
 
 
 
-rcModelPLM <- function(y,row.effects=NULL){
+rcModelPLM <- function(y,row.effects=NULL, input.scale=NULL){
   if (!is.matrix(y))
     stop("argument should be matrix")
   PsiCode <- 0
   PsiK <- 1.345
   if (is.null(row.effects)){
-    .Call("R_rlm_rma_default_model",y,PsiCode,PsiK,PACKAGE="preprocessCore")
+    .Call("R_rlm_rma_default_model",y,PsiCode,PsiK,input.scale,PACKAGE="preprocessCore")
   } else {
     if (length(row.effects) != nrow(y)){
        stop("row.effects parameter should be same length as number of rows")
@@ -15,13 +15,13 @@ rcModelPLM <- function(y,row.effects=NULL){
     if (abs(sum(row.effects)) > 10*.Machine$double.eps){
        stop("row.effects should sum to zero")
     }
-    .Call("R_rlm_rma_given_probe_effects",y,as.double(row.effects),PsiCode,PsiK,PACKAGE="preprocessCore") 
+    .Call("R_rlm_rma_given_probe_effects",y,as.double(row.effects),PsiCode,PsiK,input.scale,PACKAGE="preprocessCore") 
   }	
 }
 
 
 
-rcModelWPLM <- function(y, w, row.effects=NULL){
+rcModelWPLM <- function(y, w, row.effects=NULL, input.scale=NULL){
   if (!is.matrix(y))
     stop("argument should be matrix")
   if (is.vector(w)){
@@ -43,7 +43,7 @@ rcModelWPLM <- function(y, w, row.effects=NULL){
   PsiCode <- 0
   PsiK <- 1.345 
   if (is.null(row.effects)){
-     .Call("R_wrlm_rma_default_model",y,PsiCode,PsiK,as.double(w),PACKAGE="preprocessCore")
+     .Call("R_wrlm_rma_default_model",y,PsiCode,PsiK,as.double(w),input.scale,PACKAGE="preprocessCore")
   } else {
     if (length(row.effects) != nrow(y)){
        stop("row.effects parameter should be same length as number of rows")
@@ -51,7 +51,7 @@ rcModelWPLM <- function(y, w, row.effects=NULL){
     if (abs(sum(row.effects)) > 10*.Machine$double.eps){
        stop("row.effects should sum to zero")
     }
-    .Call("R_wrlm_rma_given_probe_effects",y,as.double(row.effects),PsiCode,PsiK,as.double(w),PACKAGE="preprocessCore") 
+    .Call("R_wrlm_rma_given_probe_effects",y,as.double(row.effects),PsiCode,PsiK,as.double(w),input.scale,PACKAGE="preprocessCore") 
   }	
 
 }

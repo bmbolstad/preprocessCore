@@ -4,7 +4,7 @@
  **
  ** Aim: implement robust linear models specialized to samples + probes model.
  **
- ** Copyright (C) 2004-2008 Ben Bolstad
+ ** Copyright (C) 2004-2009 Ben Bolstad
  **
  ** created by: B. M. Bolstad <bmb@bmbolstad.com>
  ** 
@@ -22,6 +22,8 @@
  ** Mar 10, 2008 - make rlm_fit_anova_given_probeeffects etc purely single chip
  ** Mar 12, 2008 - Add rlm_wfit_anova_given_probeeffects
  ** Nov 1, 2008 - modify rlm_fit_anova_rlm_compute_se_anova() so that se of constrained probe effect (last one) is returned)
+ ** Apr 23, 2009 - Allow scale estimate to be specified or returned in rlm_fit_anova
+ ** Apr 24, 2009 - Allow scale estimate to be specified or returned in rlm_wfit_anova, rlm_fit_anova_given_probe_effects
  **
  *********************************************************************/
 
@@ -330,25 +332,8 @@ R%*%solve(P)
 
 
 
-/**********************************************************************************
- **
- ** void rlm_fit_anova(double *y, int rows, int cols,double *out_beta, 
- **                double *out_resids, double *out_weights,
- **                double (* PsiFn)(double, double, int), double psi_k,int max_iter, 
- **                int initialized))
- **
- ** double *y - matrix of response variables (stored by column, with rows probes, columns chips
- ** int rows - dimensions of y
- ** int cols - dimensions of y
- **
- ** specializes procedure so decomposes matrix more efficiently
- ** note that routine is not as numerically stable as above.
- **
- ** fits a row + columns model
- **
- **********************************************************************************/
+static void rlm_fit_anova_engine(double *y, int y_rows, int y_cols, double *input_scale, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
 
-void rlm_fit_anova(double *y, int y_rows, int y_cols,double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
 
   int i,j,iter;
   /* double tol = 1e-7; */
@@ -424,9 +409,13 @@ void rlm_fit_anova(double *y, int y_rows, int y_cols,double *out_beta, double *o
 
 
   for (iter = 0; iter < max_iter; iter++){
-    
-    scale = med_abs(resids,rows)/0.6745;
-    
+    if (*input_scale < 0){
+      scale = med_abs(resids,rows)/0.6745;
+    } else {
+      scale = *input_scale;
+    }
+
+
     if (fabs(scale) < 1e-10){
       /*printf("Scale too small \n"); */
       break;
@@ -484,32 +473,49 @@ void rlm_fit_anova(double *y, int y_rows, int y_cols,double *out_beta, double *o
       break; 
 
     }
-
-
-
   }
     
-  /* order output in probes, samples order */
-  /*
-    for (i=0;i < y_rows+y_cols-1; i++){
-    old_resids[i] = out_beta[i];
-    }  
-    for (i=0; i <y_rows-1;i++){
-    out_beta[i] = old_resids[i+y_cols];
-    }
-    for (i=0; i < y_cols; i++){
-    out_beta[i+(y_rows-1)] = old_resids[i];
-    }
-  */
-
-
 
   Free(xtwx);
   Free(xtwy);
   Free(old_resids);
   Free(rowmeans);
+  input_scale[0] = scale;
+
+}
 
 
+
+void rlm_fit_anova_scale(double *y, int y_rows, int y_cols,double *scale, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+  
+  rlm_fit_anova_engine(y, y_rows, y_cols, scale, out_beta, out_resids, out_weights,PsiFn, psi_k, max_iter, initialized);
+}
+
+
+
+
+/**********************************************************************************
+ **
+ ** void rlm_fit_anova(double *y, int rows, int cols,double *out_beta, 
+ **                double *out_resids, double *out_weights,
+ **                double (* PsiFn)(double, double, int), double psi_k,int max_iter, 
+ **                int initialized))
+ **
+ ** double *y - matrix of response variables (stored by column, with rows probes, columns chips
+ ** int rows - dimensions of y
+ ** int cols - dimensions of y
+ **
+ ** specializes procedure so decomposes matrix more efficiently
+ ** note that routine is not as numerically stable as above.
+ **
+ ** fits a row + columns model
+ **
+ **********************************************************************************/
+
+void rlm_fit_anova(double *y, int y_rows, int y_cols,double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+  
+  double scale = -1.0;
+  rlm_fit_anova_engine(y, y_rows, y_cols, &scale, out_beta, out_resids, out_weights,PsiFn, psi_k, max_iter, initialized);
 }
 
 
@@ -551,7 +557,7 @@ abs(resid(rlm(as.vector(log2(y)) ~ -1 + as.factor(samples) + C(as.factor(probes)
 */
 
 
-void rlm_wfit_anova(double *y, int y_rows, int y_cols, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+void rlm_wfit_anova_engine(double *y, int y_rows, int y_cols, double *input_scale, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
 
   int i,j,iter;
   /* double tol = 1e-7; */
@@ -627,8 +633,11 @@ void rlm_wfit_anova(double *y, int y_rows, int y_cols, double *w, double *out_be
 
 
   for (iter = 0; iter < max_iter; iter++){
-    
-    scale = med_abs(resids,rows)/0.6745;
+    if (*input_scale < 0){
+      scale = med_abs(resids,rows)/0.6745;
+    } else {
+      scale = *input_scale;
+    }
     
     if (fabs(scale) < 1e-10){
       /*printf("Scale too small \n"); */
@@ -692,28 +701,37 @@ void rlm_wfit_anova(double *y, int y_rows, int y_cols, double *w, double *out_be
 
   }
     
-  /* order output in probes, samples order */
-  /*
-    for (i=0;i < y_rows+y_cols-1; i++){
-    old_resids[i] = out_beta[i];
-    }  
-    for (i=0; i <y_rows-1;i++){
-    out_beta[i] = old_resids[i+y_cols];
-    }
-    for (i=0; i < y_cols; i++){
-    out_beta[i+(y_rows-1)] = old_resids[i];
-    }
-  */
-
-
-
   Free(xtwx);
   Free(xtwy);
   Free(old_resids);
   Free(rowmeans);
-
+  input_scale[0] = scale;
 
 }
+
+
+
+
+
+void rlm_wfit_anova(double *y, int y_rows, int y_cols, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+
+  double scale = -1.0;
+  rlm_wfit_anova_engine(y, y_rows, y_cols, &scale, w, out_beta, out_resids, out_weights, PsiFn , psi_k, max_iter, initialized);
+
+}
+
+
+
+
+
+void rlm_wfit_anova_scale(double *y, int y_rows, int y_cols,double *scale, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+  
+  rlm_wfit_anova_engine(y, y_rows, y_cols, scale, w, out_beta, out_resids, out_weights,PsiFn, psi_k, max_iter, initialized);
+}
+
+
+
+
 
 
 /*************************************************************************
@@ -1195,12 +1213,12 @@ static void colonly_XTWY(int y_rows, int y_cols, double *wts,double *y, double *
 
 
 
-void rlm_fit_anova_given_probe_effects(double *y, int y_rows, int y_cols, double *probe_effects, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+void rlm_fit_anova_given_probe_effects_engine(double *y, int y_rows, int y_cols, double *input_scale, double *probe_effects, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
 
   int i,j,iter;
   /* double tol = 1e-7; */
   double acc = 1e-4;
-  double scale =0.0;
+  double *scale =Calloc((y_cols),double);;
   double conv;
   double endprobe;
 
@@ -1251,23 +1269,6 @@ void rlm_fit_anova_given_probe_effects(double *y, int y_rows, int y_cols, double
   
   for (iter = 0; iter < max_iter; iter++){
     
-   
-    /*
-    ** This is the previous multi-chip code 
-    scale = med_abs(resids,rows)/0.6745;
-    
-    if (fabs(scale) < 1e-10){
-    break;
-    }
-    for (i =0; i < rows; i++){
-      old_resids[i] = resids[i];
-    }
-
-    for (i=0; i < rows; i++){
-      wts[i] = PsiFn(resids[i]/scale,psi_k,0);
-    }
-    */
-
     /* The new single-chip code */
 
     for (i =0; i < rows; i++){
@@ -1276,12 +1277,16 @@ void rlm_fit_anova_given_probe_effects(double *y, int y_rows, int y_cols, double
 
 
     for (j = 0; j < y_cols; j++){
-      scale = med_abs(&resids[j*y_rows],y_rows)/0.6745;
+      if (input_scale[j] < 0.0){
+	scale[j] = med_abs(&resids[j*y_rows],y_rows)/0.6745;
+      } else {
+	scale[j] = input_scale[j];
+      }
       for (i=0; i < y_rows; i++){ 
-	if (fabs(scale) < 1e-10){
+	if (fabs(scale[j]) < 1e-10){
 	  break;
 	}
-	wts[j*y_rows + i] = PsiFn(resids[j*y_rows + i]/scale,psi_k,0);
+	wts[j*y_rows + i] = PsiFn(resids[j*y_rows + i]/scale[j],psi_k,0);
       }
     }
 
@@ -1330,10 +1335,33 @@ void rlm_fit_anova_given_probe_effects(double *y, int y_rows, int y_cols, double
   Free(old_resids);
   Free(rowmeans);
 
-
+  for (j = 0; j < y_cols; j++){
+    input_scale[j] = scale[j];
+  }
+  Free(scale);
 }
 
 
+void rlm_fit_anova_given_probe_effects(double *y, int y_rows, int y_cols, double *probe_effects, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+
+  double *scale=Calloc((y_cols),double);
+  int j;
+
+  for (j=0; j < y_cols; j++){
+    scale[j] = -1.0;
+  }
+  rlm_fit_anova_given_probe_effects_engine(y, y_rows, y_cols, scale, probe_effects, out_beta, out_resids, out_weights, PsiFn, psi_k, max_iter, initialized);
+
+  Free(scale);
+}
+
+void rlm_fit_anova_given_probe_effects_scale(double *y, int y_rows, int y_cols, double *input_scale, double *probe_effects, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+
+
+  rlm_fit_anova_given_probe_effects_engine(y, y_rows, y_cols, input_scale, probe_effects, out_beta, out_resids, out_weights, PsiFn, psi_k, max_iter, initialized);
+
+
+}
 
 
 
@@ -1447,12 +1475,12 @@ void rlm_compute_se_anova_given_probe_effects(double *Y, int y_rows,int y_cols, 
 
 
 
-void rlm_wfit_anova_given_probe_effects(double *y, int y_rows, int y_cols, double *probe_effects, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+void rlm_wfit_anova_given_probe_effects_engine(double *y, int y_rows, int y_cols, double *input_scale, double *probe_effects, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
 
   int i,j,iter;
   /* double tol = 1e-7; */
   double acc = 1e-4;
-  double scale =0.0;
+  double *scale  =Calloc((y_cols),double);
   double conv;
   double endprobe;
 
@@ -1503,23 +1531,6 @@ void rlm_wfit_anova_given_probe_effects(double *y, int y_rows, int y_cols, doubl
   
   for (iter = 0; iter < max_iter; iter++){
     
-   
-    /*
-    ** This is the previous multi-chip code 
-    scale = med_abs(resids,rows)/0.6745;
-    
-    if (fabs(scale) < 1e-10){
-    break;
-    }
-    for (i =0; i < rows; i++){
-      old_resids[i] = resids[i];
-    }
-
-    for (i=0; i < rows; i++){
-      wts[i] = PsiFn(resids[i]/scale,psi_k,0);
-    }
-    */
-
     /* The new single-chip code */
 
     for (i =0; i < rows; i++){
@@ -1527,13 +1538,18 @@ void rlm_wfit_anova_given_probe_effects(double *y, int y_rows, int y_cols, doubl
     }
 
 
-    for (j = 0; j < y_cols; j++){
-      scale = med_abs(&resids[j*y_rows],y_rows)/0.6745;
+    for (j = 0; j < y_cols; j++){ 
+      if (input_scale[j] < 0.0){
+	scale[j] = med_abs(&resids[j*y_rows],y_rows)/0.6745;
+      } else {
+	scale[j] = input_scale[j];
+      }
+   
       for (i=0; i < y_rows; i++){ 
-	if (fabs(scale) < 1e-10){
+	if (fabs(scale[j]) < 1e-10){
 	  break;
 	}
-	wts[j*y_rows + i] = w[j*y_rows + i]*PsiFn(resids[j*y_rows + i]/scale,psi_k,0);
+	wts[j*y_rows + i] = w[j*y_rows + i]*PsiFn(resids[j*y_rows + i]/scale[j],psi_k,0);
       }
     }
 
@@ -1582,5 +1598,29 @@ void rlm_wfit_anova_given_probe_effects(double *y, int y_rows, int y_cols, doubl
   Free(old_resids);
   Free(rowmeans);
 
+  for (j = 0; j < y_cols; j++){
+    input_scale[j] = scale[j];
+  }
+  Free(scale);
+}
 
+
+
+void rlm_wfit_anova_given_probe_effects(double *y, int y_rows, int y_cols, double *probe_effects, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+  double *scale=Calloc((y_cols),double);
+  int j;
+
+  for (j=0; j < y_cols; j++){
+    scale[j] = -1.0;
+  }
+
+  rlm_wfit_anova_given_probe_effects_engine(y, y_rows, y_cols, scale, probe_effects, w, out_beta, out_resids, out_weights, PsiFn, psi_k, max_iter, initialized);
+
+  Free(scale);
+}
+
+
+
+void rlm_wfit_anova_given_probe_effects_scale(double *y, int y_rows, int y_cols, double *scale, double *probe_effects, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
+  rlm_wfit_anova_given_probe_effects_engine(y, y_rows, y_cols, scale, probe_effects, w, out_beta, out_resids, out_weights, PsiFn, psi_k, max_iter, initialized);
 }
