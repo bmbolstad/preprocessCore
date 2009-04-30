@@ -98,7 +98,7 @@ SEXP R_rlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Scales){
   PROTECT(R_weights = allocMatrix(REALSXP,rows,cols));
   PROTECT(R_residuals = allocMatrix(REALSXP,rows,cols));
   PROTECT(R_SE = allocVector(REALSXP,rows+cols));
-  PROTECT(R_scale = allocVector(REALSXP,1.0));
+  PROTECT(R_scale = allocVector(REALSXP,1));
 
   SET_VECTOR_ELT(R_return_value,0,R_beta);
   SET_VECTOR_ELT(R_return_value,1,R_weights);
@@ -115,7 +115,7 @@ SEXP R_rlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Scales){
   scaleptr = NUMERIC_POINTER(R_scale);
 
   if (isNull(Scales)){
-    scaleptr[i] = -1.0;
+    scaleptr[0] = -1.0;
   } else if (length(Scales) != cols) {
     scaleptr[i] = NUMERIC_POINTER(Scales)[0];
   }
@@ -209,7 +209,7 @@ SEXP R_wrlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Weights, SEX
   PROTECT(R_weights = allocMatrix(REALSXP,rows,cols));
   PROTECT(R_residuals = allocMatrix(REALSXP,rows,cols));
   PROTECT(R_SE = allocVector(REALSXP,rows+cols));
-  PROTECT(R_scale = allocVector(REALSXP,1.0));
+  PROTECT(R_scale = allocVector(REALSXP,1));
   
   SET_VECTOR_ELT(R_return_value,0,R_beta);
   SET_VECTOR_ELT(R_return_value,1,R_weights);
@@ -226,7 +226,7 @@ SEXP R_wrlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Weights, SEX
   scaleptr = NUMERIC_POINTER(R_scale);
 
   if (isNull(Scales)){
-    scaleptr[i] = -1.0;
+    scaleptr[0] = -1.0;
   } else if (length(Scales) != cols) {
     scaleptr[i] = NUMERIC_POINTER(Scales)[0];
   }
