@@ -24,6 +24,7 @@
  ** Nov 1, 2008 - modify rlm_fit_anova_rlm_compute_se_anova() so that se of constrained probe effect (last one) is returned)
  ** Apr 23, 2009 - Allow scale estimate to be specified or returned in rlm_fit_anova
  ** Apr 24, 2009 - Allow scale estimate to be specified or returned in rlm_wfit_anova, rlm_fit_anova_given_probe_effects
+ ** Apr 29, 2009 - Ensure that compute scale corresponds to final computed scale estimate
  **
  *********************************************************************/
 
@@ -475,6 +476,11 @@ static void rlm_fit_anova_engine(double *y, int y_rows, int y_cols, double *inpu
     }
   }
     
+  if (*input_scale < 0){
+    scale = med_abs(resids,rows)/0.6745;
+  } else {
+    scale = *input_scale;
+  }
 
   Free(xtwx);
   Free(xtwy);
@@ -700,7 +706,13 @@ void rlm_wfit_anova_engine(double *y, int y_rows, int y_cols, double *input_scal
 
 
   }
-    
+        
+  if (*input_scale < 0){
+    scale = med_abs(resids,rows)/0.6745;
+  } else {
+    scale = *input_scale;
+  }
+
   Free(xtwx);
   Free(xtwy);
   Free(old_resids);
@@ -1330,6 +1342,14 @@ void rlm_fit_anova_given_probe_effects_engine(double *y, int y_rows, int y_cols,
     }
   }
 
+  for (j = 0; j < y_cols; j++){
+    if (input_scale[j] < 0.0){
+      scale[j] = med_abs(&resids[j*y_rows],y_rows)/0.6745;
+    } else {
+      scale[j] = input_scale[j];
+    }
+  }
+
   Free(xtwx);
   Free(xtwy);
   Free(old_resids);
@@ -1592,7 +1612,14 @@ void rlm_wfit_anova_given_probe_effects_engine(double *y, int y_rows, int y_cols
 
     }
   }
-
+  
+  for (j = 0; j < y_cols; j++){
+    if (input_scale[j] < 0.0){
+      scale[j] = med_abs(&resids[j*y_rows],y_rows)/0.6745;
+    } else {
+      scale[j] = input_scale[j];
+    }
+  }
   Free(xtwx);
   Free(xtwy);
   Free(old_resids);
