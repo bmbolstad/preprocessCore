@@ -1,3 +1,9 @@
+1.7.3/1.7.4
+-----------
+
+Fix bug with floating point argument provided where integer expected. Use of non intialized value.
+
+
 1.7.2
 -----
 
