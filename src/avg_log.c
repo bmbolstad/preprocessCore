@@ -9,7 +9,7 @@
  **
  ** last modified: Jan 7, 2003
  **
- ** License: GPL V2 or later (same as the rest of the Affy package)
+ ** License: LGPL V2 (same as the rest of the preprocessCore package)
  **
  ** General discussion
  **

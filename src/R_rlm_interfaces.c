@@ -19,6 +19,7 @@
  ** Jan 15, 2009 - fix STRING_ELT/VECTOR_ELT issues
  ** Apr 23, 2009 - R_rlm_rma_default_model now returns scale estimate
  ** Apr 28, 2009 - R_wrlm_rma_default_model now returns scale estimate
+ ** Aug 22, 2009 - fix issue with input scales
  **
  *********************************************************************/
 
@@ -117,7 +118,7 @@ SEXP R_rlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Scales){
   if (isNull(Scales)){
     scaleptr[0] = -1.0;
   } else if (length(Scales) != cols) {
-    scaleptr[i] = NUMERIC_POINTER(Scales)[0];
+    scaleptr[0] = NUMERIC_POINTER(Scales)[0];
   }
 
 
@@ -228,7 +229,7 @@ SEXP R_wrlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Weights, SEX
   if (isNull(Scales)){
     scaleptr[0] = -1.0;
   } else if (length(Scales) != cols) {
-    scaleptr[i] = NUMERIC_POINTER(Scales)[0];
+    scaleptr[0] = NUMERIC_POINTER(Scales)[0];
   }
 
 
