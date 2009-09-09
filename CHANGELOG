@@ -1,3 +1,8 @@
+1.7.7
+-----
+Include <limits.h> on pthreads builds
+
+
 1.7.5
 -----
 
