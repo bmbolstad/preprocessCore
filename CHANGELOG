@@ -1,3 +1,8 @@
+1.7.8
+-----
+Attempt to check if PTHREAD_STACK_MIN is defined
+
+
 1.7.7
 -----
 Include <limits.h> on pthreads builds
