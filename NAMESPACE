@@ -1,4 +1,6 @@
- useDynLib("preprocessCore")
+useDynLib("preprocessCore")
 
- ##export everything that does not start with a .
- exportPattern("^[^\\.]")
+importFrom(stats, var)
+
+##export everything that does not start with a .
+exportPattern("^[^\\.]")
