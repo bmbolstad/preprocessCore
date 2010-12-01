@@ -134,7 +134,7 @@ void medianlog(double *data, int rows, int cols, double *results, double *result
   
   for (j=0; j < cols; j++){
     for (i = 0; i < rows; i++){
-      buffer[i] = log2(data[j*rows + i]);
+      buffer[i] = log(data[j*rows + i])/log(2.0);
     }
     results[j] = median_log(buffer,rows); 
     resultsSE[j] = R_NaReal;
@@ -151,7 +151,7 @@ void medianlog_no_copy(double *data, int rows, int cols, double *results, double
     
   for (j=0; j < cols; j++){
     for (i = 0; i < rows; i++){
-      data[j*rows + i]= log2(data[j*rows + i]);
+      data[j*rows + i]= log(data[j*rows + i])/log(2.0);
     }
     results[j] = median_log(&data[j*rows],rows); 
     resultsSE[j] = R_NaReal;
