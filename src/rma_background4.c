@@ -27,6 +27,7 @@
  ** Mar 15, 2008 - Initial version of rma_background4.c
  ** Mar 16, 2008 - 
  ** Jun 4, 2008 - fix bug with R interface, was not correctly returning value when copy ==TRUE
+ ** Dec 1, 2010 - change how PTHREAD_STACK_MIN is used
  **
  **
  *****************************************************************************/
@@ -347,7 +348,11 @@ void rma_bg_correct(double *PM, int rows, int cols){
   pthread_t *threads;
   struct loop_data *args;
   void *status;
+#ifdef PTHREAD_STACK_MIN
   size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#else
+  size_t stacksize = 0x8000;
+#endif
 #endif
 
 
