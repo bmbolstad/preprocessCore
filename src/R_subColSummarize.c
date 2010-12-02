@@ -16,6 +16,7 @@
  ** Mar 24, 2008 - Add multi-threaded implementation based on pthreads
  **                for each R_subColSummarize_*
  **
+ ** Dec 1, 2010 - change how PTHREAD_STACK_MIN is used
  **
  *********************************************************************/
 
@@ -110,7 +111,11 @@ SEXP R_subColSummarize_avg_log(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_t *threads;
   struct loop_data *args;
   void *status;
+#ifdef PTHREAD_STACK_MIN
   size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#else
+  size_t stacksize = 0x8000;
+#endif
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));
@@ -274,7 +279,11 @@ SEXP R_subColSummarize_log_avg(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_t *threads;
   struct loop_data *args;
   void *status; 
+#ifdef PTHREAD_STACK_MIN
   size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#else
+  size_t stacksize = 0x8000;
+#endif
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));
@@ -441,7 +450,11 @@ SEXP R_subColSummarize_avg(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_t *threads;
   struct loop_data *args;
   void *status; 
+#ifdef PTHREAD_STACK_MIN
   size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#else
+  size_t stacksize = 0x8000;
+#endif
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));
@@ -609,7 +622,11 @@ SEXP R_subColSummarize_biweight_log(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_t *threads;
   struct loop_data *args;
   void *status;
+#ifdef PTHREAD_STACK_MIN
   size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#else
+  size_t stacksize = 0x8000;
+#endif
 #endif
 
 
@@ -776,7 +793,11 @@ SEXP R_subColSummarize_biweight(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_t *threads;
   struct loop_data *args;
   void *status;
+#ifdef PTHREAD_STACK_MIN
   size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#else
+  size_t stacksize = 0x8000;
+#endif
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));
@@ -944,7 +965,11 @@ SEXP R_subColSummarize_median_log(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_t *threads;
   struct loop_data *args;
   void *status;
+#ifdef PTHREAD_STACK_MIN
   size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#else
+  size_t stacksize = 0x8000;
+#endif
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));
@@ -1110,7 +1135,11 @@ SEXP R_subColSummarize_log_median(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_t *threads;
   struct loop_data *args;
   void *status; 
+#ifdef PTHREAD_STACK_MIN
   size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#else
+  size_t stacksize = 0x8000;
+#endif
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));
@@ -1275,7 +1304,11 @@ SEXP R_subColSummarize_median(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_t *threads;
   struct loop_data *args;
   void *status; 
+#ifdef PTHREAD_STACK_MIN
   size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#else
+  size_t stacksize = 0x8000;
+#endif
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));
@@ -1444,7 +1477,11 @@ SEXP R_subColSummarize_medianpolish_log(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_t *threads;
   struct loop_data *args;
   void *status; 
+#ifdef PTHREAD_STACK_MIN
   size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#else
+  size_t stacksize = 0x8000;
+#endif
 #endif
 
 
@@ -1614,7 +1651,11 @@ SEXP R_subColSummarize_medianpolish(SEXP RMatrix, SEXP R_rowIndexList){
   pthread_t *threads;
   struct loop_data *args;
   void *status; 
+#ifdef PTHREAD_STACK_MIN
   size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#else
+  size_t stacksize = 0x8000;
+#endif
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));

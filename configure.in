@@ -15,12 +15,21 @@ dnl
 dnl Are things (still) the same ?
 dnl (taken from the 'writing R extensions manual')
 
-AC_CHECK_LIB(pthread, pthread_create)
 
-AC_TRY_LINK_FUNC(pthread_create, [use_pthreads=yes], [use_pthreads=no])
+# Checks for libraries.
+use_pthreads=no
+AC_SEARCH_LIBS([pthread_create], [pthread],
+  [use_pthreads=yes])
 
-AC_MSG_CHECKING([if we can use pthreads])
-AC_MSG_RESULT($use_pthreads)
+# Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS([stdlib.h])
+
+if test "x${have_pthreads}" = xyes; then
+  AC_CHECK_HEADERS([pthread.h], [],
+    [use_pthreads=no])
+fi
+
 
 AC_MSG_CHECKING([if PTHREAD_STACK_MIN is defined])
 AC_COMPILE_IFELSE([
@@ -32,13 +41,21 @@ AC_COMPILE_IFELSE([
     ],[use_pthread_stack_min=yes], [use_pthread_stack_min=no])
 AC_MSG_RESULT($use_pthread_stack_min)
 
-if test "x$use_pthreads" = "xyes"
-then
-if test "x$use_pthread_stack_min" = "xyes"
-    then
-	LIBS="$LIBS -lpthread"
-    	AC_DEFINE(USE_PTHREADS, 1)
-    fi
+if test "x$use_pthread_stack_min" = xno; then
+	use_pthreads=no
+fi
+
+
+
+if test "x${use_pthreads}" = "xno"; then
+  echo "------------------------------------------"
+  echo " Unable to find pthreads on this system.  "
+  echo " Building a single-threaded version.      "
+  echo "------------------------------------------"
+fi
+
+if test "x${use_pthreads}" = "xyes"; then
+  AC_DEFINE(USE_PTHREADS, 1)
 fi
 
 

@@ -64,6 +64,7 @@
  ** Aug 1, 2008 - Fix memory leak in determine_target
  ** Nov 19, 2008 - add *_via_subset code
  ** Jan 15, 2009 - fix VECTOR_ELT/STRING_ELT issues
+ ** Dec 1, 2010 - change how  PTHREAD_STACK_MIN is used
  **
  ***********************************************************/
 
@@ -483,7 +484,11 @@ int qnorm_c(double *data, int *rows, int *cols){
   pthread_t *threads;
   struct loop_data *args;
   void *status;
+#ifdef PTHREAD_STACK_MIN
   size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#else
+  size_t stacksize = 0x8000;
+#endif
 #endif
 
   for (i =0; i < *rows; i++){
@@ -1567,8 +1572,11 @@ int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int
   pthread_t *threads;
   struct loop_data *args;
   void *status;
+#ifdef PTHREAD_STACK_MIN
   size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
-
+#else
+  size_t stacksize = 0x8000;
+#endif
 #endif
   
   row_mean = (double *)Calloc(*targetrows,double);
@@ -1821,7 +1829,11 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
   pthread_t *threads;
   struct loop_data *args;
   void *status;
-  int stacksize=PTHREAD_STACK_MIN + 0x4000;
+#ifdef PTHREAD_STACK_MIN
+  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#else
+  size_t stacksize = 0x8000;
+#endif
 #endif
 
 #if defined(USE_PTHREADS)
@@ -2404,7 +2416,11 @@ int qnorm_c_determine_target_via_subset(double *data, int *rows, int *cols, int 
   pthread_t *threads;
   struct loop_data *args;
   void *status;
-  int stacksize=PTHREAD_STACK_MIN + 0x4000;
+#ifdef PTHREAD_STACK_MIN
+  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#else
+  size_t stacksize = 0x8000;
+#endif
 #endif
 
 #if defined(USE_PTHREADS)
@@ -2859,8 +2875,11 @@ int qnorm_c_using_target_via_subset(double *data, int *rows, int *cols, int *in_
   pthread_t *threads;
   struct loop_data *args;
   void *status;
+#ifdef PTHREAD_STACK_MIN
   size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
-
+#else
+  size_t stacksize = 0x8000;
+#endif
 #endif
   
   row_mean = (double *)Calloc(*targetrows,double);
