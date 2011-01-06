@@ -65,6 +65,7 @@
  ** Nov 19, 2008 - add *_via_subset code
  ** Jan 15, 2009 - fix VECTOR_ELT/STRING_ELT issues
  ** Dec 1, 2010 - change how  PTHREAD_STACK_MIN is used
+ ** Jan 5, 2011 - use_target issue when target distribution length != nrow(x) fixed
  **
  ***********************************************************/
 
@@ -2612,7 +2613,7 @@ static double linear_interpolate_helper(double v, double *x, double *y, int n)
 
 
 
-void using_target_via_subset(double *data, int *rows, int *cols, int *in_subset, double *target, int *targetrows, int start_col, int end_col){
+static void using_target_via_subset_part1(double *data, int *rows, int *cols, int *in_subset, double *target, int *targetrows, int start_col, int end_col, int subset_count){
 
   int i,j,ind,target_ind;
   
@@ -2627,91 +2628,94 @@ void using_target_via_subset(double *data, int *rows, int *cols, int *in_subset,
   int targetnon_na = *targetrows;
   int non_na = 0;
   
-  int subset_count = 0;
-
   double *sample_percentiles;
   double *datvec;
   
-
-  /* Two parts to the algorithm */
-  /* Part 1: Adjust the elements not in the "subset" */
-  for (i = 0; i <  *rows; i++){
-    if (in_subset[i] == 1){
-      subset_count++;
-    }
-  }
   
-  if (*rows > subset_count){
-    /* We have non subset elements to deal with */
-    sample_percentiles = (double *)Calloc(subset_count, double);
-    datvec = (double *)Calloc(*rows,double);
-    dimat = (dataitem **)Calloc(1,dataitem *);
-    dimat[0] = (dataitem *)Calloc(*rows,dataitem);
+  sample_percentiles = (double *)Calloc(subset_count, double);
+  datvec = (double *)Calloc(*rows,double);
+  dimat = (dataitem **)Calloc(1,dataitem *);
+  dimat[0] = (dataitem *)Calloc(*rows,dataitem);
    
-    for (j = start_col; j <= end_col; j++){
-      non_na = 0;
-      for (i =0; i < *rows; i++){
-	if (ISNA(data[j*(*rows) + i]) || (in_subset[i] == 0)){
-	  
-	} else {
-	  dimat[0][non_na].data = data[j*(*rows) + i];
-	  dimat[0][non_na].rank = i;
-	  non_na++;
-	}
-      }	   
-      qsort(dimat[0],non_na,sizeof(dataitem),sort_fn);
-      get_ranks(ranks,dimat[0],non_na);
-      
-      for (i=0; i < non_na; i++){
-	sample_percentiles[i] = (double)(ranks[i] - 1)/(double)(non_na-1);
-	datvec[i] = dimat[0][i].data;
+  for (j = start_col; j <= end_col; j++){
+    
+    /* First figure out percentiles of the "subset" data */
+    non_na = 0;
+    for (i =0; i < *rows; i++){
+      if (!ISNA(data[j*(*rows) + i]) && (in_subset[i] == 1)){
+	dimat[0][non_na].data = data[j*(*rows) + i];
+	dimat[0][non_na].rank = i;
+	non_na++;
       }
-      
-      for  (i =0; i < *rows; i++){
+    }	   
+    qsort(dimat[0],non_na,sizeof(dataitem),sort_fn);
+    get_ranks(ranks,dimat[0],non_na);
+    
+    for (i=0; i < non_na; i++){
+      sample_percentiles[i] = (double)(ranks[i] - 1)/(double)(non_na-1);
+      datvec[i] = dimat[0][i].data;
+    }
+    
+    /* Now try to estimate what percentile of the "subset" data each datapoint in the "non-subset" data falls */
+    for  (i =0; i < *rows; i++){
       /*Linear interpolate to get sample percentile */
-	if (in_subset[i] == 0 && !ISNA(data[j*(*rows) + i])){
-	  samplepercentile = linear_interpolate_helper(data[j*(*rows) + i], datvec, sample_percentiles, non_na);
-	  target_ind_double = 1.0 + ((double)(targetnon_na) - 1.0) * samplepercentile;
-	  target_ind_double_floor = floor(target_ind_double + 4*DOUBLE_EPS);
-	  
-	  target_ind_double = target_ind_double - target_ind_double_floor;
-	  
-	  if (fabs(target_ind_double) <=  4*DOUBLE_EPS){
-	    target_ind_double = 0.0;
-	  }
-	  
-	  
-	  if (target_ind_double  == 0.0){
-	    target_ind = (int)floor(target_ind_double_floor + 0.5); /* nearbyint(target_ind_double_floor); */	
-	    ind = dimat[0][i].rank;
-	    data[j*(*rows) +i] = row_mean[target_ind-1];
-	  } else if (target_ind_double == 1.0){
-	    target_ind = (int)floor(target_ind_double_floor + 1.5); /* (int)nearbyint(target_ind_double_floor + 1.0); */ 
-	    ind = dimat[0][i].rank;
-	    data[j*(*rows) +i] = row_mean[target_ind-1];
+      if (in_subset[i] == 0 && !ISNA(data[j*(*rows) + i])){
+	samplepercentile = linear_interpolate_helper(data[j*(*rows) + i], datvec, sample_percentiles, non_na);
+	target_ind_double = 1.0 + ((double)(targetnon_na) - 1.0) * samplepercentile;
+	target_ind_double_floor = floor(target_ind_double + 4*DOUBLE_EPS);
+	
+	target_ind_double = target_ind_double - target_ind_double_floor;
+	
+	if (fabs(target_ind_double) <=  4*DOUBLE_EPS){
+	  target_ind_double = 0.0;
+	}
+	if (target_ind_double  == 0.0){
+	  target_ind = (int)floor(target_ind_double_floor + 0.5); /* nearbyint(target_ind_double_floor); */	
+	  ind = dimat[0][i].rank;
+	  data[j*(*rows) +i] = row_mean[target_ind-1];
+	} else if (target_ind_double == 1.0){
+	  target_ind = (int)floor(target_ind_double_floor + 1.5); /* (int)nearbyint(target_ind_double_floor + 1.0); */ 
+	  ind = dimat[0][i].rank;
+	  data[j*(*rows) +i] = row_mean[target_ind-1];
+	} else {
+	  target_ind = (int)floor(target_ind_double_floor + 0.5); /* nearbyint(target_ind_double_floor); */	
+	  ind = dimat[0][i].rank;
+	  if ((target_ind < *targetrows) && (target_ind > 0)){
+	    data[j*(*rows) +i] = (1.0- target_ind_double)*row_mean[target_ind-1] + target_ind_double*row_mean[target_ind];
+	  } else if (target_ind >= *targetrows){
+	    data[j*(*rows) +i] = row_mean[*targetrows-1];
 	  } else {
-	    target_ind = (int)floor(target_ind_double_floor + 0.5); /* nearbyint(target_ind_double_floor); */	
-	    ind = dimat[0][i].rank;
-	    if ((target_ind < *targetrows) && (target_ind > 0)){
-	      data[j*(*rows) +i] = (1.0- target_ind_double)*row_mean[target_ind-1] + target_ind_double*row_mean[target_ind];
-	    } else if (target_ind >= *targetrows){
-	      data[j*(*rows) +i] = row_mean[*targetrows-1];
-	    } else {
-	      data[j*(*rows) +i] = row_mean[0];
-	    }
+	    data[j*(*rows) +i] = row_mean[0];
 	  }
 	}
       }
-    } 
-    Free(dimat[0]);
-    Free(dimat);
-    Free(datvec);
-    Free(sample_percentiles);
+    }
+  } 
+  Free(dimat[0]);
+  Free(dimat);
+  Free(datvec);
+  Free(sample_percentiles);
+}
 
-  }
 
+static void using_target_via_subset_part2(double *data, int *rows, int *cols, int *in_subset, double *target, int *targetrows, int start_col, int end_col, int subset_count){
 
-  /* Part 2: Adjust the elements in the subset*/
+  int i,j,ind,target_ind;
+  
+  dataitem **dimat;
+
+  double *row_mean = target;
+
+  double *ranks = (double *)Calloc((*rows),double);
+  double samplepercentile;
+  double target_ind_double,target_ind_double_floor;
+
+  int targetnon_na = *targetrows;
+  int non_na = 0;
+  
+  double *sample_percentiles;
+  double *datvec;
+
   if (*rows == targetnon_na){
     /* now assign back distribution */
     /* this is basically the standard story */
@@ -2722,9 +2726,7 @@ void using_target_via_subset(double *data, int *rows, int *cols, int *in_subset,
     for (j = start_col; j <= end_col; j++){
       non_na = 0;
       for (i =0; i < *rows; i++){
-	if (ISNA(data[j*(*rows) + i]) || (in_subset[i] == 0)){
-	  
-	} else {
+	if (!ISNA(data[j*(*rows) + i]) && (in_subset[i] == 1)){
 	  dimat[0][non_na].data = data[j*(*rows) + i];
 	  dimat[0][non_na].rank = i;
 	  non_na++;
@@ -2790,9 +2792,7 @@ void using_target_via_subset(double *data, int *rows, int *cols, int *in_subset,
     for (j = start_col; j <= end_col; j++){
       non_na = 0;
       for (i =0; i < *rows; i++){	
-	if (ISNA(data[j*(*rows) + i])){
-
-	} else {
+	if (!ISNA(data[j*(*rows) + i]) && (in_subset[i] == 1)){
 	  dimat[0][non_na].data = data[j*(*rows) + i];
 	  dimat[0][non_na].rank = i;
 	  non_na++;
@@ -2841,6 +2841,47 @@ void using_target_via_subset(double *data, int *rows, int *cols, int *in_subset,
   Free(dimat[0]);
   Free(dimat);
   Free(ranks);
+
+
+}
+
+void using_target_via_subset(double *data, int *rows, int *cols, int *in_subset, double *target, int *targetrows, int start_col, int end_col){
+
+  int i,j,ind,target_ind;
+  
+  dataitem **dimat;
+
+  double *row_mean = target;
+
+  double *ranks = (double *)Calloc((*rows),double);
+  double samplepercentile;
+  double target_ind_double,target_ind_double_floor;
+
+  int targetnon_na = *targetrows;
+  int non_na = 0;
+  
+  int subset_count = 0;
+
+  double *sample_percentiles;
+  double *datvec;
+  
+
+  /* Two parts to the algorithm */
+ 
+  /* First find out if the enitirety of the data is in the subset */
+  for (i = 0; i <  *rows; i++){
+    if (in_subset[i] == 1){
+      subset_count++;
+    }
+  }
+   /* Part 1: Adjust the elements not in the "subset" */
+  if (*rows > subset_count){
+     /* We have non subset elements to deal with */	
+     using_target_via_subset_part1(data, rows, cols, in_subset, target, targetrows, start_col, end_col,subset_count);
+  }
+
+  /* Part 2: Adjust the elements in the "subset"*/
+  using_target_via_subset_part2(data, rows, cols, in_subset, target, targetrows, start_col, end_col,subset_count);
 }
 
 
