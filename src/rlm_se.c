@@ -425,3 +425,8 @@ void rlm_compute_se(double *X,double *Y, int n, int p, double *beta, double *res
   Free(W);
 }
 
+void rlm_compute_se_R(double *X, double *Y, int *n, int *p, double *beta, double *resids, double *weights, double *se_estimates, double *varcov, double *residSE, int *method){
+
+  rlm_compute_se(X, Y, *n, *p, beta, resids, weights, se_estimates, varcov, residSE, *method, psi_huber, 1.345);
+
+}
