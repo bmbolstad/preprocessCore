@@ -40,6 +40,8 @@
 
 #include "rma_background4.h"
 
+#include "weightedkerneldensity.h"
+
 
 #include <R_ext/Rdynload.h>
 #include <Rdefines.h>
@@ -206,5 +208,6 @@ void R_init_preprocessCore(DllInfo *info){
   R_RegisterCCallable("preprocessCore","R_subColSummarize_medianpolish_log",(DL_FUNC)&R_subColSummarize_medianpolish_log);
   R_RegisterCCallable("preprocessCore","R_subColSummarize_medianpolish",(DL_FUNC)&R_subColSummarize_medianpolish);
   
-
+  /* KernelDensity */
+  R_RegisterCCallable("preprocessCore","KernelDensity",  (DL_FUNC)&KernelDensity);
 }

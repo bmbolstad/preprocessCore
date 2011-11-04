@@ -25,15 +25,20 @@
  ** Apr 5, 2004 - all calloc/free are now Calloc/Free
  ** Mar 24, 2005 - Add in IQR function to handle obscure cases.
  ** Mar 15, 2008 - add KernelDensity_lowmem. weightedkerneldensity.c is ported from affyPLM to preprocessCore
+ ** Oct 31, 2011 - Add additional kernels. Allow non-power of 2 nout in KernelDensity. Fix error in bandwidth calculation
  **
  ****************************************************************************/
 
 #include <R_ext/Arith.h>
 #include <R_ext/Applic.h>
+#include <Rmath.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h> /* For memcpy */
 #include "rma_common.h"
+
+#include "weightedkerneldensity.h"
+
 
 
 /*****************************************************************************
@@ -351,7 +356,7 @@ static void fft_density_convolve(double *y, double *kords, int n){
  ** int kernel - an integer specifying which kernel to use 
  **              1 is gaussian, 2 is Epanechnikov,
  **              3 is ...........
- **
+  **
  **
  ***************************************************************/
 
@@ -359,11 +364,13 @@ static void kernelize(double *data, int n, double bw, int kernel){
   
   double a = 0.0;
   int i;
-
+  double pi = 3.14159265358979323846; 
 
   if (kernel == 1){
-    /* Gaussian Kernel */
-     
+    /* Gaussian Kernel */ 
+   for (i =0; i < n; i++){
+     data[i] = dnorm4(data[i],0.0,bw,0);
+   }
   } else if (kernel == 2){
     /* Epanechnikov Kernel */
     a = bw * sqrt(5.0);
@@ -374,6 +381,48 @@ static void kernelize(double *data, int n, double bw, int kernel){
 	data[i] = 0.0;
       }
     }
+  }  else if (kernel == 3){
+    /* Rectangular */
+    a = bw*sqrt(3.0);
+    for (i =0; i < n; i++){
+      if (fabs(data[i]) < a){
+	data[i] = 0.5/a;
+      } else {
+	data[i] = 0.0;
+      }
+    }	   
+  } else if (kernel == 4){
+    /* biweight */
+    a = bw*sqrt(7.0);
+    for (i =0; i < n; i++){
+      if (fabs(data[i]) < a){
+	data[i] = 15.0/(16.0*a)*(1-(fabs(data[i])/a)*  (fabs(data[i])/a))*(1-(fabs(data[i])/a)*  (fabs(data[i])/a));
+      } else {
+	data[i] = 0.0;
+      }
+    }	   
+  } else if (kernel == 5){
+    /* cosine */
+    a = bw/sqrt(1.0/3.0 - 2/(pi*pi));
+    for (i =0; i < n; i++){
+      if (fabs(data[i]) < a){
+	data[i] = (1.0 + cos(pi*data[i]/a))/(2.0*a);
+      } else {
+	data[i] = 0.0;
+      }
+    }	   
+  } else if (kernel == 6){
+    /* optcosine */
+    a = bw/sqrt(1.0 - 8.0/(pi*pi));
+    for (i =0; i < n; i++){
+      if (fabs(data[i]) < a){
+	data[i] = pi/4.0*cos(pi*data[i]/(2*a))/a;
+      } else {
+	data[i] = 0.0;
+      }
+    }	   
+  
+	
   }
 
 }
@@ -409,24 +458,24 @@ static double compute_sd(double *x, int length){
 
 /*****************************************************************
  **
- ** static double bandwidth(double *x, int length, double iqr)
+ ** static double bandwidth_nrd0(double *x, int length, double iqr)
  **
  ** double *x - data vector
  ** int length - length of x
  ** double iqr - IQR of *x
  **
- ** compute the kernel bandwidth
+ ** compute the kernel bandwidth using nrd0
  **
  *****************************************************************/
 
-static double bandwidth(double *x, int length, double iqr){
+static double bandwidth_nrd0(double *x, int length, double iqr){
 
   double hi;
   double lo;
   
   hi = compute_sd(x, length);
   
-  if (hi > iqr){
+  if (hi > iqr/1.34){
     lo = iqr/1.34;
   } else {
     lo = hi;
@@ -435,8 +484,8 @@ static double bandwidth(double *x, int length, double iqr){
   if (lo == 0){
     if (hi !=0){
       lo = hi;
-    } else if (fabs(x[1]) != 0){
-      lo = fabs(x[1]);
+    } else if (fabs(x[0]) != 0){
+      lo = fabs(x[0]);
     } else {
       lo = 1.0;
     }
@@ -445,6 +494,66 @@ static double bandwidth(double *x, int length, double iqr){
   return (0.9*lo*pow((double)length, -0.2));
 
 }  
+
+
+/*****************************************************************
+ **
+ ** static double bandwidth_nrd(double *x, int length, double iqr)
+ **
+ ** double *x - data vector
+ ** int length - length of x
+ ** double iqr - IQR of *x
+ **
+ ** compute the kernel bandwidth using nrd
+ **
+ *****************************************************************/
+
+static double bandwidth_nrd(double *x, int length, double iqr){
+
+   double sd;
+   double hi = iqr/1.34;             
+   double lo;
+
+   sd = compute_sd(x, length);
+
+   if (sd > hi){
+     lo = hi;
+   } else {
+     lo = sd;
+   }
+
+   return(1.06*lo*pow((double)length, -0.2));
+
+}
+
+
+/*****************************************************************
+ **
+ ** static double bandwidth(double *x, int length, double iqr, int bw_fn)
+ **
+ ** double *x - data vector
+ ** int length - length of x
+ ** double iqr - IQR of *x
+ ** int bw_fn - 0 for nrd0, 1 for nrd  
+ **
+ ** compute the kernel bandwidth using nrd
+ **
+ *****************************************************************/
+
+static double bandwidth(double *x, int length, double iqr, int bw_fn){
+
+    if (bw_fn == 0){
+        return(bandwidth_nrd0(x, length, iqr));
+    } else if (bw_fn == 1){
+	return(bandwidth_nrd(x, length, iqr));
+    }
+
+}
+
+
+
+
+
 
 /******************************************************************
  **
@@ -507,11 +616,11 @@ static double linear_interpolate_helper(double v, double *x, double *y, int n)
 
 
 
-static void linear_interpolate(double *x, double *y, double *xout, double *yout, int length){
+static void linear_interpolate(double *x, double *y, double *xout, double *yout, int length, int length_out){
 
    int i;
    
-   for(i=0 ; i < length; i++)
+   for(i=0 ; i < length_out; i++)
      yout[i] = linear_interpolate_helper(xout[i], x, y, length);
 }
 
@@ -532,23 +641,32 @@ static double IQR(double *x, int length);
  **
  **********************************************************************/
 
-void KernelDensity(double *x, int *nxxx, double *weights, double *output, double *output_x, int *nout){
+void KernelDensity(double *x, int *nxxx, double *weights, double *output, double *output_x, int *nout, int *kernel_fn, int *bandwidth_fn, double *bandwidth_adj){
 
   int nx = *nxxx;
 
-  int n = *nout;
-  int n2= 2*n;
+  int nuser = *nout;
+  int n;  /* = *nout;  */
+  int n2;  /* == 2*n;  */
   int i;
-  double low, high,iqr,bw,to,from;
-  double *kords = Calloc(2*n,double);
-  double *buffer = Calloc(nx,double);
-  double *y = Calloc(2*n,double);
-  double *xords = Calloc(n,double);
+  double low, high, iqr, bw, to, from;
+  double *kords;  /*  = Calloc(2*n,double);*/
+  double *buffer;  /*  = Calloc(nx,double);*/
+  double *y;  /*   = Calloc(2*n,double);*/
+  double *xords;  /*    = Calloc(n,double);*/
 
-  /* for (i =0; i < nx; i++){
-    buffer[i] = x[i];
-    }
-  */
+  int kern_fn=*kernel_fn;
+  int bw_fn=*bandwidth_fn;
+  double bw_adj = *bandwidth_adj;
+	
+  n = (int)pow(2.0,ceil(log2(nuser))); 
+  n2 = 2*n;
+
+  kords = Calloc(n2,double);
+  buffer = Calloc(nx,double);
+  y = Calloc(n2,double);
+  xords  = Calloc(n,double);
+
   memcpy(buffer,x,nx*sizeof(double));
 
 
@@ -559,11 +677,11 @@ void KernelDensity(double *x, int *nxxx, double *weights, double *output, double
   iqr =  IQR(buffer,nx);  /* buffer[(int)(0.75*nx + 0.5)] - buffer[(int)(0.25*nx+0.5)]; */
   
 
-  bw = bandwidth(x,nx,iqr);
+  bw =bw_adj*bandwidth(x,nx,iqr,bw_fn);
   
   low = low - 7*bw;
   high = high + 7*bw;
-    
+  
 
   for (i=0; i <= n; i++){
     kords[i] = (double)i/(double)(2*n -1)*2*(high - low);
@@ -574,9 +692,9 @@ void KernelDensity(double *x, int *nxxx, double *weights, double *output, double
   
   /* bw = bandwidth(x,nx,iqr); */
   
-  /* printf("iqr: %f bw: %f\n",iqr,bw); */
+  /* printf("iqr: %f bw: %f\n",iqr,bw);  */
   
-  kernelize(kords, 2*n,bw,2);
+  kernelize(kords, 2*n,bw,kern_fn);
 
   weighted_massdist(x, &nx, weights, &low, &high, y, &n);
 
@@ -585,7 +703,10 @@ void KernelDensity(double *x, int *nxxx, double *weights, double *output, double
   from = low + 4* bw;
   for (i=0; i < n; i++){
     xords[i] = (double)i/(double)(n -1)*(high - low)  + low;
-    output_x[i] = (double)i/(double)(n -1)*(to - from)  + from;
+  }
+
+  for (i=0; i < nuser; i++){
+    output_x[i] = (double)i/(double)(nuser -1)*(to - from)  + from;
   }
 
   for (i =0; i < n; i++){
@@ -594,7 +715,7 @@ void KernelDensity(double *x, int *nxxx, double *weights, double *output, double
 
   /* to get results that agree with R really need to do linear interpolation */
 
-  linear_interpolate(xords, kords, output_x, output,n);
+  linear_interpolate(xords, kords, output_x, output, n, nuser);
 
   Free(xords);
   Free(y);
@@ -687,7 +808,7 @@ void KernelDensity_lowmem(double *x, int *nxxx, double *output, double *output_x
   iqr =  IQR(buffer,nx); //buffer[(int)(0.75*nx+0.5)] - buffer[(int)(0.25*nx+0.5)];
   
 
-  bw = bandwidth(x,nx,iqr);
+  bw = bandwidth_nrd0(x,nx,iqr);
   
   low = low - 7*bw;
   high = high + 7*bw;
@@ -725,10 +846,14 @@ void KernelDensity_lowmem(double *x, int *nxxx, double *output, double *output_x
 
   // to get results that agree with R really need to do linear interpolation
 
-  linear_interpolate(xords, kords, output_x, output,n);
+  linear_interpolate(xords, kords, output_x, output, n, n);
   
   Free(xords);
   Free(y);
   Free(kords);
 
 }
+
+
+
+
