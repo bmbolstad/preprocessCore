@@ -86,7 +86,8 @@ static void *sub_rcModelSummarize_medianpolish_group(void *data){
   for (j = args->start_row; j <= args->end_row;  j++){    
     ncur_rows = LENGTH(VECTOR_ELT(*(args->R_rowIndexList),j)); 
     cur_rows = INTEGER_POINTER(VECTOR_ELT(*(args->R_rowIndexList),j));
-
+    
+    pthread_mutex_lock(&mutex_R);
     PROTECT(R_return_value_cur = allocVector(VECSXP,4));
     PROTECT(R_beta = allocVector(REALSXP, ncur_rows + cols));
     /* PROTECT(R_weights = allocMatrix(REALSXP,ncur_rows,cols));*/
@@ -103,6 +104,8 @@ static void *sub_rcModelSummarize_medianpolish_group(void *data){
     SET_VECTOR_ELT(R_return_value_cur,3,R_SE);
 
     UNPROTECT(2);
+    pthread_mutex_unlock(&mutex_R);
+
 
     beta = NUMERIC_POINTER(R_beta);
     residuals = NUMERIC_POINTER(R_residuals);
@@ -123,16 +126,19 @@ static void *sub_rcModelSummarize_medianpolish_group(void *data){
     for (i=0; i < cols; i++)
         beta[i]+=intercept;
 
+    pthread_mutex_lock (&mutex_R);
     PROTECT(R_return_value_names= allocVector(STRSXP,4));
     SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
     SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
     SET_STRING_ELT(R_return_value_names,2,mkChar("Residuals"));
     SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
     setAttrib(R_return_value_cur, R_NamesSymbol,R_return_value_names);
-    UNPROTECT(2);
-   
+    UNPROTECT(1);
+    pthread_mutex_unlock (&mutex_R);
+
     pthread_mutex_lock (&mutex_R);
-    SET_VECTOR_ELT(*(args->R_return_value),j,R_return_value_cur);
+    SET_VECTOR_ELT(*(args->R_return_value),j,R_return_value_cur); 
+    UNPROTECT(1);
     pthread_mutex_unlock (&mutex_R);
   }
 }
@@ -383,7 +389,8 @@ static void *sub_rcModelSummarize_plm_group(void *data){
   for (j = args->start_row; j <= args->end_row;  j++){    
     ncur_rows = LENGTH(VECTOR_ELT(*(args->R_rowIndexList),j)); 
     cur_rows = INTEGER_POINTER(VECTOR_ELT(*(args->R_rowIndexList),j));
-
+  
+    pthread_mutex_lock(&mutex_R);
     PROTECT(R_return_value_cur = allocVector(VECSXP,5));
     PROTECT(R_beta = allocVector(REALSXP, ncur_rows + cols));
     PROTECT(R_weights = allocMatrix(REALSXP,ncur_rows,cols));
@@ -398,6 +405,8 @@ static void *sub_rcModelSummarize_plm_group(void *data){
     SET_VECTOR_ELT(R_return_value_cur,4,R_scale);
 
     UNPROTECT(5);
+    pthread_mutex_unlock(&mutex_R);	
+  
 
     beta = NUMERIC_POINTER(R_beta);
     residuals = NUMERIC_POINTER(R_residuals);
@@ -438,6 +447,8 @@ static void *sub_rcModelSummarize_plm_group(void *data){
         beta[ncur_rows+cols -1]-=beta[i];
 
      Free(Ymat);
+     
+     pthread_mutex_lock(&mutex_R);
      PROTECT(R_return_value_names= allocVector(STRSXP,5));
      SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
      SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));
@@ -445,11 +456,13 @@ static void *sub_rcModelSummarize_plm_group(void *data){
      SET_STRING_ELT(R_return_value_names,3,mkChar("StdErrors"));
      SET_STRING_ELT(R_return_value_names,4,mkChar("Scale"));
      setAttrib(R_return_value_cur, R_NamesSymbol,R_return_value_names);
-     UNPROTECT(2);
-   
-     pthread_mutex_lock (&mutex_R);
+     UNPROTECT(1);
+     pthread_mutex_unlock(&mutex_R);
+
+     pthread_mutex_lock(&mutex_R);
      SET_VECTOR_ELT(*(args->R_return_value),j,R_return_value_cur);
-     pthread_mutex_unlock (&mutex_R);
+     UNPROTECT(1);
+     pthread_mutex_unlock(&mutex_R);
   }
 }
 #endif
