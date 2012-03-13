@@ -135,7 +135,7 @@ static void unweighted_massdist(double *x, int *nx, double *xlow, double *xhigh,
   }
 
   for(i=0; i < *nx ; i++) {
-    if(finite(x[i])) {
+    if(R_FINITE(x[i])) {
       xpos = (x[i] - *xlow) / xdelta;
       ix = (int)floor(xpos);
       fx = xpos - ix;
