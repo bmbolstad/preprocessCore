@@ -189,6 +189,8 @@ SEXP R_sub_rcModelSummarize_medianpolish(SEXP RMatrix, SEXP R_rowIndexList){
   double *se;
 
   double intercept;
+
+  int k;
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));
@@ -508,6 +510,7 @@ SEXP R_sub_rcModelSummarize_plm(SEXP RMatrix, SEXP R_rowIndexList, SEXP PsiCode,
 
   double residSE;
 
+  int k;
 #endif
 
   PROTECT(dim1 = getAttrib(RMatrix,R_DimSymbol));
@@ -647,7 +650,7 @@ SEXP R_sub_rcModelSummarize_plm(SEXP RMatrix, SEXP R_rowIndexList, SEXP PsiCode,
     
     for (k = 0; k < cols; k++){
         for (i =0; i < ncur_rows; i++){
-     	    Ymat[k*ncur_rows + i] = args->matrix[k*args->rows + cur_rows[i]];  
+     	    Ymat[k*ncur_rows + i] = matrix[k*rows + cur_rows[i]];  
         }
     } 
 
