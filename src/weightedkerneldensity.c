@@ -660,6 +660,11 @@ void KernelDensity(double *x, int *nxxx, double *weights, double *output, double
   double bw_adj = *bandwidth_adj;
 	
   n = (int)pow(2.0,ceil(log2(nuser))); 
+
+  if (n < 512){
+    n = 512;
+  }
+
   n2 = 2*n;
 
   kords = Calloc(n2,double);
