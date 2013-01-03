@@ -46,7 +46,6 @@
 #include <R_ext/Rdynload.h>
 #include <Rdefines.h>
 #include <Rinternals.h>
-#include <R_ext/RConverters.h>
 
 
 #if _MSC_VER >= 1000
