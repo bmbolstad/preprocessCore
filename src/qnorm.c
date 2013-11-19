@@ -76,6 +76,8 @@
  **               int's. This is mostly legacy for when the functions were called via .C() in R rather
  **               than via the .Call() interface.
  **
+ **               These interfaces will be deprecated at some future point. 
+ **
  *****************************************************************************************************
  *****************************************************************************************************/
 
@@ -101,9 +103,9 @@ pthread_mutex_t mutex_R;
 struct loop_data{
   double *data;
   double *row_mean;
-  int *rows;
-  int *cols;
-  int *row_meanlength;
+  size_t rows;
+  size_t cols;
+  size_t row_meanlength;
   int *in_subset;
   int start_col;
   int end_col;
@@ -237,7 +239,7 @@ static dataitem **get_di_matrix(double *data, int rows, int cols){
   dimat = (dataitem **)Calloc((cols),dataitem *);
   
   if (dimat == NULL){
-    printf("\nERROR - Sorry the normalization routine could not allocate adequate memory\n       You probably need more memory to work with a dataset this large\n");
+    Rprintf("\nERROR - Sorry the normalization routine could not allocate adequate memory\n       You probably need more memory to work with a dataset this large\n");
   }
 
   /* xtmp = malloc(cols*rows*sizeof(dataitem));
@@ -380,13 +382,13 @@ static double med_abs(double *x, int length){
  *****************************************************************************************************
  *****************************************************************************************************/
 
-void normalize_determine_target(double *data, double *row_mean, int *rows, int *cols, int start_col, int end_col){
-  int i, j;
-  double *datvec = (double *)Calloc((*rows),double);
+void normalize_determine_target(double *data, double *row_mean, size_t rows, size_t cols, int start_col, int end_col){
+  size_t i, j;
+  double *datvec = (double *)Calloc((rows),double);
   
 #ifdef USE_PTHREADS
-  long double *row_submean = (long double *)Calloc((*rows), long double);
-  for (i =0; i < *rows; i++){
+  long double *row_submean = (long double *)Calloc((rows), long double);
+  for (i =0; i < rows; i++){
     row_submean[i] = 0.0;
   }
 #endif
@@ -394,15 +396,15 @@ void normalize_determine_target(double *data, double *row_mean, int *rows, int *
   for (j = start_col; j <= end_col; j++){
 
     /* first find the normalizing distribution */
-    for (i = 0; i < *rows; i++){
-      datvec[i] = data[j*(*rows) + i];
+    for (i = 0; i < rows; i++){
+      datvec[i] = data[j*(rows) + i];
     }
-    qsort(datvec,*rows,sizeof(double),(int(*)(const void*, const void*))sort_double);
-    for (i = 0; i < *rows; i++){
+    qsort(datvec,rows,sizeof(double),(int(*)(const void*, const void*))sort_double);
+    for (i = 0; i < rows; i++){
 #ifdef USE_PTHREADS
       row_submean[i] += datvec[i];
 #else
-      row_mean[i] += datvec[i]/((double)*cols);
+      row_mean[i] += datvec[i]/((double)cols);
 #endif
     }
   }
@@ -411,7 +413,7 @@ void normalize_determine_target(double *data, double *row_mean, int *rows, int *
 #ifdef USE_PTHREADS
   /* add to the global running total, will do the division after all threads finish (for precision of the result) */
   pthread_mutex_lock (&mutex_R);
-  for (i = 0; i < *rows; i++){
+  for (i = 0; i < rows; i++){
     row_mean[i] += (double) row_submean[i];
   }
   pthread_mutex_unlock (&mutex_R);
@@ -419,27 +421,27 @@ void normalize_determine_target(double *data, double *row_mean, int *rows, int *
 #endif
 }
   
-void normalize_distribute_target(double *data, double *row_mean, int *rows, int *cols, int start_col, int end_col){ 
-  int i, j, ind;
+void normalize_distribute_target(double *data, double *row_mean, size_t rows, size_t cols, int start_col, int end_col){ 
+  size_t i, j, ind;
   dataitem **dimat;
-  double *ranks = (double *)Calloc((*rows),double);
+  double *ranks = (double *)Calloc((rows),double);
 
   dimat = (dataitem **)Calloc(1,dataitem *);
-  dimat[0] = (dataitem *)Calloc(*rows,dataitem);
+  dimat[0] = (dataitem *)Calloc(rows,dataitem);
 
   for (j = start_col; j <= end_col; j++){
-    for (i = 0; i < *rows; i++){
-      dimat[0][i].data = data[j*(*rows) + i];
+    for (i = 0; i < rows; i++){
+      dimat[0][i].data = data[j*(rows) + i];
       dimat[0][i].rank = i;
     }
-    qsort(dimat[0],*rows,sizeof(dataitem),sort_fn);
-    get_ranks(ranks,dimat[0],*rows);
-    for (i = 0; i < *rows; i++){
+    qsort(dimat[0],rows,sizeof(dataitem),sort_fn);
+    get_ranks(ranks,dimat[0],rows);
+    for (i = 0; i < rows; i++){
       ind = dimat[0][i].rank;
       if (ranks[i] - floor(ranks[i]) > 0.4){
-	data[j*(*rows) +ind] = 0.5*(row_mean[(int)floor(ranks[i])-1] + row_mean[(int)floor(ranks[i])]);
+	data[j*(rows) +ind] = 0.5*(row_mean[(size_t)floor(ranks[i])-1] + row_mean[(size_t)floor(ranks[i])]);
       } else { 
-	data[j*(*rows) +ind] = row_mean[(int)floor(ranks[i])-1];
+	data[j*(rows) +ind] = row_mean[(size_t)floor(ranks[i])-1];
       }
     }
   }
@@ -474,9 +476,9 @@ void *distribute_group(void *data){
  **
  ********************************************************/
 
-int qnorm_c(double *data, int *rows, int *cols){
-  int i;
-  double *row_mean = (double *)Calloc((*rows),double);
+int qnorm_c_l(double *data, size_t rows, size_t cols){
+  size_t i;
+  double *row_mean = (double *)Calloc(rows,double);
 #ifdef USE_PTHREADS
   int t, returnCode, chunk_size, num_threads = 1;
   double chunk_size_d, chunk_tot_d;
@@ -492,7 +494,7 @@ int qnorm_c(double *data, int *rows, int *cols){
 #endif
 #endif
 
-  for (i =0; i < *rows; i++){
+  for (i =0; i < rows; i++){
     row_mean[i] = 0.0;
   }
 
@@ -517,9 +519,9 @@ int qnorm_c(double *data, int *rows, int *cols){
     1) Number of columns is less than the number of threads
   */
   
-  if (num_threads < *cols){
-    chunk_size = *cols/num_threads;
-    chunk_size_d = ((double) *cols)/((double) num_threads);
+  if (num_threads < cols){
+    chunk_size = cols/num_threads;
+    chunk_size_d = ((double) cols)/((double) num_threads);
   } else {
     chunk_size = 1;
     chunk_size_d = 1;
@@ -528,7 +530,7 @@ int qnorm_c(double *data, int *rows, int *cols){
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((*cols < num_threads ? *cols : num_threads), struct loop_data);
+  args = (struct loop_data *) Calloc((cols < num_threads ? cols : num_threads), struct loop_data);
 
   args[0].data = data;
   args[0].row_mean = row_mean;
@@ -539,7 +541,7 @@ int qnorm_c(double *data, int *rows, int *cols){
 
   t = 0; /* t = number of actual threads doing work */
   chunk_tot_d = 0;
-  for (i=0; floor(chunk_tot_d+0.00001) < *cols; i+=chunk_size){
+  for (i=0; floor(chunk_tot_d+0.00001) < cols; i+=chunk_size){
      if(t != 0){
        memcpy(&(args[t]), &(args[0]), sizeof(struct loop_data));
      }
@@ -575,8 +577,8 @@ int qnorm_c(double *data, int *rows, int *cols){
   }
 
   /* When in threaded mode, row_mean is the sum, waiting for a final division here, to maintain precision */
-  for (i = 0; i < *rows; i++){
-    row_mean[i] /= (double)*cols;
+  for (i = 0; i < rows; i++){
+    row_mean[i] /= (double)cols;
   }
 
   /* now assign back the target normalization distribution to a given set of columns */
@@ -599,14 +601,36 @@ int qnorm_c(double *data, int *rows, int *cols){
   Free(threads);
   Free(args);  
 #else
-  normalize_determine_target(data, row_mean, rows, cols, 0, *cols-1);
-  normalize_distribute_target(data, row_mean, rows, cols, 0, *cols-1); 
+  normalize_determine_target(data, row_mean, rows, cols, 0, cols-1);
+  normalize_distribute_target(data, row_mean, rows, cols, 0, cols-1); 
 #endif
 
   Free(row_mean);
 
   return 0;
 }
+
+
+
+
+/*********************************************************
+ **
+ ** void qnorm_c(double *data, int *rows, int *cols)
+ **
+ **  this is the function that actually implements the
+ ** quantile normalization algorithm. It is called from R.
+ **
+ ** returns 1 if there is a problem, 0 otherwise
+ **
+ ** Note that this function does not handle missing data (ie NA)
+ **
+ ********************************************************/
+
+int qnorm_c(double *data, int *rows, int *cols){
+  return qnorm_c_l(data, (size_t)(*rows), (size_t)(*cols));
+}
+
+
 
 
 
@@ -632,7 +656,7 @@ SEXP R_qnorm_c(SEXP X, SEXP copy){
 
   SEXP Xcopy,dim1;
   double *Xptr;
-  int rows,cols;
+  size_t rows,cols;
   
   PROTECT(dim1 = getAttrib(X,R_DimSymbol));
   rows = INTEGER(dim1)[0];
@@ -645,7 +669,7 @@ SEXP R_qnorm_c(SEXP X, SEXP copy){
   }
   Xptr = NUMERIC_POINTER(AS_NUMERIC(Xcopy));
   
-  qnorm_c(Xptr, &rows, &cols);
+  qnorm_c_l(Xptr, rows, cols);
   if (asInteger(copy)){
     UNPROTECT(2);
   } else {
@@ -1368,50 +1392,50 @@ SEXP R_qnorm_robust_weights(SEXP X, SEXP remove_extreme, SEXP n_remove){
  *****************************************************************************************************/
 
 
-void using_target(double *data, int *rows, int *cols, double *target, int *targetrows, int start_col, int end_col){
+void using_target(double *data, size_t rows, size_t cols, double *target, size_t targetrows, int start_col, int end_col){
 
-  int i,j,ind,target_ind;
+  size_t i,j,ind,target_ind;
   
   dataitem **dimat;
 
   double *row_mean = target;
 
-  double *ranks = (double *)Calloc((*rows),double);
+  double *ranks = (double *)Calloc((rows),double);
   double samplepercentile;
   double target_ind_double,target_ind_double_floor;
 
-  int targetnon_na = *targetrows;
+  size_t targetnon_na = targetrows;
   int non_na = 0;
   
 
 
-  if (*rows == targetnon_na){
+  if (rows == targetnon_na){
     /* now assign back distribution */
     /* this is basically the standard story */
     
     dimat = (dataitem **)Calloc(1,dataitem *);
-    dimat[0] = (dataitem *)Calloc(*rows,dataitem);
+    dimat[0] = (dataitem *)Calloc(rows,dataitem);
     
     for (j = start_col; j <= end_col; j++){
       non_na = 0;
-      for (i =0; i < *rows; i++){
-	if (ISNA(data[j*(*rows) + i])){
+      for (i =0; i < rows; i++){
+	if (ISNA(data[j*(rows) + i])){
 	  
 	} else {
-	  dimat[0][non_na].data = data[j*(*rows) + i];
+	  dimat[0][non_na].data = data[j*(rows) + i];
 	  dimat[0][non_na].rank = i;
 	  non_na++;
 	}
       }
-      if (non_na == *rows){
-	qsort(dimat[0],*rows,sizeof(dataitem),sort_fn);
-	get_ranks(ranks,dimat[0],*rows);
-	for (i =0; i < *rows; i++){
+      if (non_na == rows){
+	qsort(dimat[0],rows,sizeof(dataitem),sort_fn);
+	get_ranks(ranks,dimat[0],rows);
+	for (i =0; i < rows; i++){
 	  ind = dimat[0][i].rank;
 	  if (ranks[i] - floor(ranks[i]) > 0.4){
-	    data[j*(*rows) +ind] = 0.5*(row_mean[(int)floor(ranks[i])-1] + row_mean[(int)floor(ranks[i])]);
+	    data[j*(rows) +ind] = 0.5*(row_mean[(int)floor(ranks[i])-1] + row_mean[(int)floor(ranks[i])]);
 	  } else { 
-	    data[j*(*rows) +ind] = row_mean[(int)floor(ranks[i])-1];
+	    data[j*(rows) +ind] = row_mean[(int)floor(ranks[i])-1];
 	  }
 	}
       } else {
@@ -1435,20 +1459,20 @@ void using_target(double *data, int *rows, int *cols, double *target, int *targe
 	  if (target_ind_double  == 0.0){
 	    target_ind = (int)floor(target_ind_double_floor + 0.5); /* nearbyint(target_ind_double_floor); */	
 	    ind = dimat[0][i].rank;
-	    data[j*(*rows) +ind] = row_mean[target_ind-1];
+	    data[j*(rows) +ind] = row_mean[target_ind-1];
 	  } else if (target_ind_double == 1.0){
 	    target_ind = (int)floor(target_ind_double_floor + 1.5); /* (int)nearbyint(target_ind_double_floor + 1.0); */ 
 	    ind = dimat[0][i].rank;
-	    data[j*(*rows) +ind] = row_mean[target_ind-1];
+	    data[j*(rows) +ind] = row_mean[target_ind-1];
 	  } else {
 	    target_ind = (int)floor(target_ind_double_floor + 0.5); /* nearbyint(target_ind_double_floor); */	
 	    ind = dimat[0][i].rank;
-	    if ((target_ind < *targetrows) && (target_ind > 0)){
-	      data[j*(*rows) +ind] = (1.0- target_ind_double)*row_mean[target_ind-1] + target_ind_double*row_mean[target_ind];
-	    } else if (target_ind >= *targetrows){
-	      data[j*(*rows) +ind] = row_mean[*targetrows-1];
+	    if ((target_ind < targetrows) && (target_ind > 0)){
+	      data[j*(rows) +ind] = (1.0- target_ind_double)*row_mean[target_ind-1] + target_ind_double*row_mean[target_ind];
+	    } else if (target_ind >= targetrows){
+	      data[j*(rows) +ind] = row_mean[targetrows-1];
 	    } else {
-	      data[j*(*rows) +ind] = row_mean[0];
+	      data[j*(rows) +ind] = row_mean[0];
 	    }
 	  }
 	}
@@ -1458,15 +1482,15 @@ void using_target(double *data, int *rows, int *cols, double *target, int *targe
     /** the length of the target distribution and the size of the data matrix differ **/
     /** need to estimate quantiles **/
     dimat = (dataitem **)Calloc(1,dataitem *);
-    dimat[0] = (dataitem *)Calloc(*rows,dataitem);
+    dimat[0] = (dataitem *)Calloc(rows,dataitem);
     
     for (j = start_col; j <= end_col; j++){
       non_na = 0;
-      for (i =0; i < *rows; i++){	
-	if (ISNA(data[j*(*rows) + i])){
+      for (i =0; i < rows; i++){	
+	if (ISNA(data[j*(rows) + i])){
 
 	} else {
-	  dimat[0][non_na].data = data[j*(*rows) + i];
+	  dimat[0][non_na].data = data[j*(rows) + i];
 	  dimat[0][non_na].rank = i;
 	  non_na++;
 	}
@@ -1491,20 +1515,20 @@ void using_target(double *data, int *rows, int *cols, double *target, int *targe
 	if (target_ind_double  == 0.0){
 	  target_ind = (int)floor(target_ind_double_floor + 0.5); /* nearbyint(target_ind_double_floor); */	
 	  ind = dimat[0][i].rank;
-	  data[j*(*rows) +ind] = row_mean[target_ind-1];
+	  data[j*(rows) +ind] = row_mean[target_ind-1];
 	} else if (target_ind_double == 1.0){
 	  target_ind = (int)floor(target_ind_double_floor + 1.5); /* (int)nearbyint(target_ind_double_floor + 1.0); */ 
 	  ind = dimat[0][i].rank;
-	  data[j*(*rows) +ind] = row_mean[target_ind-1];
+	  data[j*(rows) +ind] = row_mean[target_ind-1];
 	} else {
 	  target_ind = (int)floor(target_ind_double_floor + 0.5); /* nearbyint(target_ind_double_floor); */	
 	  ind = dimat[0][i].rank;
-	  if ((target_ind < *targetrows) && (target_ind > 0)){
-	    data[j*(*rows) +ind] = (1.0- target_ind_double)*row_mean[target_ind-1] + target_ind_double*row_mean[target_ind];
-	  } else if (target_ind >= *targetrows){
-	    data[j*(*rows) +ind] = row_mean[*targetrows-1];
+	  if ((target_ind < targetrows) && (target_ind > 0)){
+	    data[j*(rows) +ind] = (1.0- target_ind_double)*row_mean[target_ind-1] + target_ind_double*row_mean[target_ind];
+	  } else if (target_ind >= targetrows){
+	    data[j*(rows) +ind] = row_mean[targetrows-1];
 	  } else {
-	    data[j*(*rows) +ind] = row_mean[0];
+	    data[j*(rows) +ind] = row_mean[0];
 	  }
 	}
 	
@@ -1556,7 +1580,7 @@ void *using_target_group(void *data){
 
 
 
-int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int *targetrows){
+int qnorm_c_using_target_l(double *data, size_t rows, size_t cols, double *target, size_t targetrows){
 
 
   
@@ -1580,10 +1604,10 @@ int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int
 #endif
 #endif
   
-  row_mean = (double *)Calloc(*targetrows,double);
+  row_mean = (double *)Calloc(targetrows,double);
   
   /* first find the normalizing distribution */
-  for (i =0; i < *targetrows; i++){
+  for (i =0; i < targetrows; i++){
     if (ISNA(target[i])){
 
     } else {
@@ -1616,9 +1640,9 @@ int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int
     1) Number of columns is less than the number of threads
   */
   
-  if (num_threads < *cols){
-    chunk_size = *cols/num_threads;
-    chunk_size_d = ((double) *cols)/((double) num_threads);
+  if (num_threads < cols){
+    chunk_size = cols/num_threads;
+    chunk_size_d = ((double) cols)/((double) num_threads);
   } else {
     chunk_size = 1;
     chunk_size_d = 1;
@@ -1627,19 +1651,19 @@ int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((*cols < num_threads ? *cols : num_threads), struct loop_data);
+  args = (struct loop_data *) Calloc((cols < num_threads ? cols : num_threads), struct loop_data);
 
   args[0].data = data;
   args[0].row_mean = row_mean;
   args[0].rows = rows;  
   args[0].cols = cols;
-  args[0].row_meanlength = &targetnon_na;
+  args[0].row_meanlength = targetnon_na;
 
   pthread_mutex_init(&mutex_R, NULL);
 
   t = 0; /* t = number of actual threads doing work */
   chunk_tot_d = 0;
-  for (i=0; floor(chunk_tot_d+0.00001) < *cols; i+=chunk_size){
+  for (i=0; floor(chunk_tot_d+0.00001) < cols; i+=chunk_size){
      if(t != 0){
        memcpy(&(args[t]), &(args[0]), sizeof(struct loop_data));
      }
@@ -1680,7 +1704,7 @@ int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int
   Free(args);  
 
 #else
-  using_target(data, rows, cols, row_mean, &targetnon_na, 0, *cols -1);
+  using_target(data, rows, cols, row_mean, targetnon_na, 0, cols -1);
 #endif
 
 
@@ -1693,11 +1717,46 @@ int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int
 
 
 
+/*****************************************************************
+ **
+ ** int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int *targetrows)
+ **
+ ** double *data - a matrix of data to be normalized
+ ** int *rows - dimensions of data
+ ** int *cols - dimensions of data
+ ** double *target - vector containing target distribution (ie distribution to be
+ **                  normalized to)
+ ** int *targetrows - length of target distribution vector
+ **
+ **
+ ** if targetrows == rows then the standard methodology is used.
+ ** 
+ ** in other cases the appropriate quantiles to be normalized to are determined in a method
+ ** equivalent to what you get using "type 8" with the quantile function
+ **
+ ** Note sample percentiles are calculated using i/(n+1)  (ie if there is 
+ ** only 2 observations, the first sample percentile is 1/3 = 0.333,
+ ** the second sample percentile will be 2/3 = 0.6666
+ **
+ ** 
+ **
+ *****************************************************************/
 
-void determine_target(double *data, double *row_mean, int *rows, int *cols, int start_col, int end_col){
+
+
+int qnorm_c_using_target(double *data, int *rows, int *cols, double *target, int *targetrows){
+
+ return qnorm_c_using_target_l(data, (size_t)(*rows), (size_t)(*cols), target, (size_t)(*targetrows));
+
+}
+
+
+
+
+void determine_target(double *data, double *row_mean, size_t rows, size_t cols, int start_col, int end_col){
 
   
-  int i,j,row_mean_ind;
+  size_t i,j,row_mean_ind;
   double *datvec;
   
   double row_mean_ind_double,row_mean_ind_double_floor;
@@ -1705,38 +1764,38 @@ void determine_target(double *data, double *row_mean, int *rows, int *cols, int 
   
   int non_na;
 #ifdef USE_PTHREADS
-  long double *row_submean = (long double *)Calloc((*rows), long double);
+  long double *row_submean = (long double *)Calloc((rows), long double);
 #endif
 
-  datvec = (double *)Calloc(*rows,double);
+  datvec = (double *)Calloc(rows,double);
   
   /* first find the normalizing distribution */
   for (j = start_col; j <= end_col; j++){
     non_na = 0;
-    for (i =0; i < *rows; i++){
-      if (ISNA(data[j*(*rows) + i])){
+    for (i =0; i < rows; i++){
+      if (ISNA(data[j*(rows) + i])){
 	
       } else {
-	datvec[non_na] = data[j*(*rows) + i];
+	datvec[non_na] = data[j*(rows) + i];
 	non_na++;
       }
     }
-    if (non_na == *rows){
+    if (non_na == rows){
       /* no NA values */
-      qsort(datvec,*rows,sizeof(double),(int(*)(const void*, const void*))sort_double);
-      for (i =0; i < *rows; i++){
+      qsort(datvec,rows,sizeof(double),(int(*)(const void*, const void*))sort_double);
+      for (i =0; i < rows; i++){
 #ifdef USE_PTHREADS
 	row_submean[i] += datvec[i];
 #else
-	row_mean[i] += datvec[i]/((double)*cols);
+	row_mean[i] += datvec[i]/((double)cols);
 #endif
       }
     } else {
       /* Use the observed data (non NA) values to estimate the distribution */
       /* Note that some of the variable names here might be a little confusing. Probably because I copied the code from below */
       qsort(datvec,non_na,sizeof(double),(int(*)(const void*, const void*))sort_double);
-      for (i =0; i < *rows; i++){
-	samplepercentile = (double)(i)/(double)(*rows-1);
+      for (i =0; i < rows; i++){
+	samplepercentile = (double)(i)/(double)(rows-1);
 	/* Rprintf("%f\n",samplepercentile); */
 	/* row_mean_ind_double = 1.0/3.0 + ((double)(*rows) + 1.0/3.0) * samplepercentile; */
 	row_mean_ind_double = 1.0 + ((double)(non_na) -1.0) * samplepercentile;
@@ -1767,13 +1826,13 @@ void determine_target(double *data, double *row_mean, int *rows, int *cols, int 
 	} else {
 	  row_mean_ind =  (int)floor(row_mean_ind_double_floor + 0.5); /* (int)nearbyint(row_mean_ind_double_floor); */
 	  
-	  if ((row_mean_ind < *rows) && (row_mean_ind > 0)){
+	  if ((row_mean_ind < rows) && (row_mean_ind > 0)){
 #ifdef USE_PTHREADS
 	    row_submean[i]+= ((1.0- row_mean_ind_double)*datvec[row_mean_ind-1] + row_mean_ind_double*datvec[row_mean_ind]);
 #else
 	    row_mean[i]+= ((1.0- row_mean_ind_double)*datvec[row_mean_ind-1] + row_mean_ind_double*datvec[row_mean_ind])/((double)*cols);
 #endif
-	  } else if (row_mean_ind >= *rows){
+	  } else if (row_mean_ind >= rows){
 #ifdef USE_PTHREADS
 	    row_submean[i]+= datvec[non_na-1];
 #else
@@ -1793,7 +1852,7 @@ void determine_target(double *data, double *row_mean, int *rows, int *cols, int 
 #ifdef USE_PTHREADS
   /* add to the global running total, will do the division after all threads finish (for precision of the result) */
   pthread_mutex_lock (&mutex_R);
-  for (i = 0; i < *rows; i++){
+  for (i = 0; i < rows; i++){
     row_mean[i] += (double) row_submean[i];
   }
   pthread_mutex_unlock (&mutex_R);
@@ -1813,11 +1872,11 @@ void *determine_target_group(void *data){
 
 
 
-int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target, int *targetrows){
+int qnorm_c_determine_target_l(double *data, size_t rows, size_t cols, double *target, size_t targetrows){
 
 
-  int i,j,row_mean_ind;
-  double *row_mean = (double *)Calloc((*rows),double);
+  size_t i,j,row_mean_ind;
+  double *row_mean = (double *)Calloc((rows),double);
   double row_mean_ind_double,row_mean_ind_double_floor;
   double samplepercentile;
   
@@ -1858,9 +1917,9 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
     1) Number of columns is less than the number of threads
   */
   
-  if (num_threads < *cols){
-    chunk_size = *cols/num_threads;
-    chunk_size_d = ((double) *cols)/((double) num_threads);
+  if (num_threads < cols){
+    chunk_size = cols/num_threads;
+    chunk_size_d = ((double) cols)/((double) num_threads);
   } else {
     chunk_size = 1;
     chunk_size_d = 1;
@@ -1869,7 +1928,7 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((*cols < num_threads ? *cols : num_threads), struct loop_data);
+  args = (struct loop_data *) Calloc((cols < num_threads ? cols : num_threads), struct loop_data);
 
   args[0].data = data;
   args[0].row_mean = row_mean;
@@ -1880,7 +1939,7 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
 
   t = 0; /* t = number of actual threads doing work */
   chunk_tot_d = 0;
-  for (i=0; floor(chunk_tot_d+0.00001) < *cols; i+=chunk_size){
+  for (i=0; floor(chunk_tot_d+0.00001) < cols; i+=chunk_size){
      if(t != 0){
        memcpy(&(args[t]), &(args[0]), sizeof(struct loop_data));
      }
@@ -1916,8 +1975,8 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
   }
 
   /* When in threaded mode, row_mean is the sum, waiting for a final division here, to maintain precision */
-  for (i = 0; i < *rows; i++){
-    row_mean[i] /= (double)*cols;
+  for (i = 0; i < rows; i++){
+    row_mean[i] /= (double)cols;
   }
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
@@ -1925,20 +1984,20 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
   Free(args);  
 
 #else
-  normalize_determine_target(data,row_mean,rows,cols,0,*cols-1);
+  normalize_determine_target(data,row_mean,rows,cols,0,cols-1);
 #endif
   
-  if (*rows == *targetrows){
-    for (i =0; i < *rows; i++){
+  if (rows == targetrows){
+    for (i =0; i < rows; i++){
       target[i] = row_mean[i];
     }
   } else {
     /* need to estimate quantiles */
-    for (i =0; i < *targetrows; i++){
-      samplepercentile = (double)(i)/(double)(*targetrows -1);
+    for (i =0; i < targetrows; i++){
+      samplepercentile = (double)(i)/(double)(targetrows -1);
       
-      /* row_mean_ind_double = 1.0/3.0 + ((double)(*rows) + 1.0/3.0) * samplepercentile; */
-      row_mean_ind_double = 1.0 + ((double)(*rows) -1.0) * samplepercentile;
+      /* row_mean_ind_double = 1.0/3.0 + ((double)(rows) + 1.0/3.0) * samplepercentile; */
+      row_mean_ind_double = 1.0 + ((double)(rows) -1.0) * samplepercentile;
 
       row_mean_ind_double_floor = floor(row_mean_ind_double + 4*DOUBLE_EPS);
 	
@@ -1958,10 +2017,10 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
       } else {
 	row_mean_ind =  (int)floor(row_mean_ind_double_floor + 0.5); /* (int)nearbyint(row_mean_ind_double_floor); */
 
-	if ((row_mean_ind < *rows) && (row_mean_ind > 0)){
+	if ((row_mean_ind < rows) && (row_mean_ind > 0)){
 	  target[i] = (1.0- row_mean_ind_double)*row_mean[row_mean_ind-1] + row_mean_ind_double*row_mean[row_mean_ind];
-	} else if (row_mean_ind >= *rows){
-	  target[i] = row_mean[*rows-1];
+	} else if (row_mean_ind >= rows){
+	  target[i] = row_mean[rows-1];
 	} else {
 	  target[i] = row_mean[0];
 	}
@@ -1977,13 +2036,19 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
 
 
 
+int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target, int *targetrows){
+
+   return  qnorm_c_determine_target_l(data, (size_t)(*rows), (size_t)(*cols), target, (size_t)(*targetrows));
+}
+
+
 
 SEXP R_qnorm_using_target(SEXP X, SEXP target,SEXP copy){
 
 
   SEXP Xcopy,dim1; /*,dim2; */
-  int rows, cols;
-  int target_rows, target_cols;
+  size_t rows, cols;
+  size_t target_rows, target_cols;
   double *Xptr;
   double *targetptr;
 
@@ -2015,7 +2080,7 @@ SEXP R_qnorm_using_target(SEXP X, SEXP target,SEXP copy){
   targetptr = NUMERIC_POINTER(AS_NUMERIC(target));
 
 
-  qnorm_c_using_target(Xptr, &rows, &cols,targetptr,&target_rows);
+  qnorm_c_using_target_l(Xptr, rows, cols ,targetptr, target_rows);
 
   if (asInteger(copy)){
     UNPROTECT(1);
@@ -2031,8 +2096,8 @@ SEXP R_qnorm_determine_target(SEXP X, SEXP targetlength){
 
 
   SEXP dim1,target;
-  int rows, cols;
-  int length;
+  size_t rows, cols;
+  size_t length;
   double *Xptr;
   double *targetptr;
 
@@ -2052,7 +2117,7 @@ SEXP R_qnorm_determine_target(SEXP X, SEXP targetlength){
   Xptr = NUMERIC_POINTER(AS_NUMERIC(X));
   targetptr = NUMERIC_POINTER(target);
     
-  qnorm_c_determine_target(Xptr,&rows,&cols,targetptr, &length);
+  qnorm_c_determine_target_l(Xptr, rows, cols, targetptr, length);
 
 
   UNPROTECT(1);
@@ -2280,10 +2345,10 @@ SEXP R_qnorm_within_blocks(SEXP X,SEXP blocks,SEXP copy){
 
 
 
-void determine_target_via_subset(double *data, double *row_mean, int *rows, int *cols, int *in_subset, int start_col, int end_col){
+void determine_target_via_subset(double *data, double *row_mean, size_t rows, size_t cols, int *in_subset, int start_col, int end_col){
 
   
-  int i,j,row_mean_ind;
+  size_t i,j,row_mean_ind;
   double *datvec;
   
   double row_mean_ind_double,row_mean_ind_double_floor;
@@ -2291,40 +2356,40 @@ void determine_target_via_subset(double *data, double *row_mean, int *rows, int 
   
   int non_na;
 #ifdef USE_PTHREADS
-  long double *row_submean = (long double *)Calloc((*rows), long double);
+  long double *row_submean = (long double *)Calloc((rows), long double);
 #endif
 
-  datvec = (double *)Calloc(*rows,double);
+  datvec = (double *)Calloc(rows,double);
   
   /* first find the normalizing distribution */
   for (j = start_col; j <= end_col; j++){
     non_na = 0;
-    for (i =0; i < *rows; i++){
-      if (ISNA(data[j*(*rows) + i]) || in_subset[i] == 0){
+    for (i =0; i < rows; i++){
+      if (ISNA(data[j*(rows) + i]) || in_subset[i] == 0){
 	
       } else {
-	datvec[non_na] = data[j*(*rows) + i];
+	datvec[non_na] = data[j*(rows) + i];
 	non_na++;
       }
     }
-    if (non_na == *rows){
+    if (non_na == rows){
       /* no NA values */
-      qsort(datvec,*rows,sizeof(double),(int(*)(const void*, const void*))sort_double);
-      for (i =0; i < *rows; i++){
+      qsort(datvec,rows,sizeof(double),(int(*)(const void*, const void*))sort_double);
+      for (i =0; i < rows; i++){
 #ifdef USE_PTHREADS
 	row_submean[i] += datvec[i];
 #else
-	row_mean[i] += datvec[i]/((double)*cols);
+	row_mean[i] += datvec[i]/((double)cols);
 #endif
       }
     } else {
       /* Use the observed data (non NA) values to estimate the distribution */
       /* Note that some of the variable names here might be a little confusing. Probably because I copied the code from below */
       qsort(datvec,non_na,sizeof(double),(int(*)(const void*, const void*))sort_double);
-      for (i =0; i < *rows; i++){
-	samplepercentile = (double)(i)/(double)(*rows-1);
+      for (i =0; i < rows; i++){
+	samplepercentile = (double)(i)/(double)(rows-1);
 	/* Rprintf("%f\n",samplepercentile); */
-	/* row_mean_ind_double = 1.0/3.0 + ((double)(*rows) + 1.0/3.0) * samplepercentile; */
+	/* row_mean_ind_double = 1.0/3.0 + ((double)(rows) + 1.0/3.0) * samplepercentile; */
 	row_mean_ind_double = 1.0 + ((double)(non_na) -1.0) * samplepercentile;
 	
 	row_mean_ind_double_floor = floor(row_mean_ind_double + 4*DOUBLE_EPS);
@@ -2341,35 +2406,35 @@ void determine_target_via_subset(double *data, double *row_mean, int *rows, int 
 #ifdef USE_PTHREADS
 	  row_submean[i]+= datvec[row_mean_ind-1];
 #else
-	  row_mean[i]+= datvec[row_mean_ind-1]/((double)*cols);
+	  row_mean[i]+= datvec[row_mean_ind-1]/((double)cols);
 #endif
 	} else if (row_mean_ind_double == 1.0){
 	  row_mean_ind = (int)floor(row_mean_ind_double_floor + 1.5);  /* (int)nearbyint(row_mean_ind_double_floor + 1.0); */ 
 #ifdef USE_PTHREADS
 	  row_submean[i]+= datvec[row_mean_ind-1];
 #else  
-	  row_mean[i]+= datvec[row_mean_ind-1]/((double)*cols);
+	  row_mean[i]+= datvec[row_mean_ind-1]/((double)cols);
 #endif
 	} else {
 	  row_mean_ind =  (int)floor(row_mean_ind_double_floor + 0.5); /* (int)nearbyint(row_mean_ind_double_floor); */
 	  
-	  if ((row_mean_ind < *rows) && (row_mean_ind > 0)){
+	  if ((row_mean_ind < rows) && (row_mean_ind > 0)){
 #ifdef USE_PTHREADS
 	    row_submean[i]+= ((1.0- row_mean_ind_double)*datvec[row_mean_ind-1] + row_mean_ind_double*datvec[row_mean_ind]);
 #else
 	    row_mean[i]+= ((1.0- row_mean_ind_double)*datvec[row_mean_ind-1] + row_mean_ind_double*datvec[row_mean_ind])/((double)*cols);
 #endif
-	  } else if (row_mean_ind >= *rows){
+	  } else if (row_mean_ind >= rows){
 #ifdef USE_PTHREADS
 	    row_submean[i]+= datvec[non_na-1];
 #else
-	    row_mean[i]+= datvec[non_na-1]/((double)*cols);
+	    row_mean[i]+= datvec[non_na-1]/((double)cols);
 #endif
 	  } else {
 #ifdef USE_PTHREADS
 	    row_submean[i]+=  datvec[0];
 #else
-	    row_mean[i]+=  datvec[0]/((double)*cols);
+	    row_mean[i]+=  datvec[0]/((double)cols);
 #endif
 	  }
 	}
@@ -2379,7 +2444,7 @@ void determine_target_via_subset(double *data, double *row_mean, int *rows, int 
 #ifdef USE_PTHREADS
   /* add to the global running total, will do the division after all threads finish (for precision of the result) */
   pthread_mutex_lock (&mutex_R);
-  for (i = 0; i < *rows; i++){
+  for (i = 0; i < rows; i++){
     row_mean[i] += (double) row_submean[i];
   }
   pthread_mutex_unlock (&mutex_R);
@@ -2400,11 +2465,11 @@ void *determine_target_group_via_subset(void *data){
 
 
 
-int qnorm_c_determine_target_via_subset(double *data, int *rows, int *cols, int *in_subset, double *target, int *targetrows){
+int qnorm_c_determine_target_via_subset_l(double *data, size_t rows, size_t cols, int *in_subset, double *target,  size_t targetrows){
 
 
-  int i,j,row_mean_ind;
-  double *row_mean = (double *)Calloc((*rows),double);
+  size_t i,j,row_mean_ind;
+  double *row_mean = (double *)Calloc((rows),double);
   double row_mean_ind_double,row_mean_ind_double_floor;
   double samplepercentile;
   
@@ -2445,9 +2510,9 @@ int qnorm_c_determine_target_via_subset(double *data, int *rows, int *cols, int 
     1) Number of columns is less than the number of threads
   */
   
-  if (num_threads < *cols){
-    chunk_size = *cols/num_threads;
-    chunk_size_d = ((double) *cols)/((double) num_threads);
+  if (num_threads < cols){
+    chunk_size = cols/num_threads;
+    chunk_size_d = ((double) cols)/((double) num_threads);
   } else {
     chunk_size = 1;
     chunk_size_d = 1;
@@ -2456,7 +2521,7 @@ int qnorm_c_determine_target_via_subset(double *data, int *rows, int *cols, int 
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((*cols < num_threads ? *cols : num_threads), struct loop_data);
+  args = (struct loop_data *) Calloc((cols < num_threads ? cols : num_threads), struct loop_data);
 
   args[0].data = data;
   args[0].row_mean = row_mean;
@@ -2468,7 +2533,7 @@ int qnorm_c_determine_target_via_subset(double *data, int *rows, int *cols, int 
 
   t = 0; /* t = number of actual threads doing work */
   chunk_tot_d = 0;
-  for (i=0; floor(chunk_tot_d+0.00001) < *cols; i+=chunk_size){
+  for (i=0; floor(chunk_tot_d+0.00001) < cols; i+=chunk_size){
      if(t != 0){
        memcpy(&(args[t]), &(args[0]), sizeof(struct loop_data));
      }
@@ -2504,8 +2569,8 @@ int qnorm_c_determine_target_via_subset(double *data, int *rows, int *cols, int 
   }
 
   /* When in threaded mode, row_mean is the sum, waiting for a final division here, to maintain precision */
-  for (i = 0; i < *rows; i++){
-    row_mean[i] /= (double)*cols;
+  for (i = 0; i < rows; i++){
+    row_mean[i] /= (double)cols;
   }
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
@@ -2513,20 +2578,20 @@ int qnorm_c_determine_target_via_subset(double *data, int *rows, int *cols, int 
   Free(args);  
 
 #else
-  determine_target_via_subset(data, row_mean, rows, cols, in_subset, 0,*cols-1);
+  determine_target_via_subset(data, row_mean, rows, cols, in_subset, 0,cols-1);
 #endif
   
-  if (*rows == *targetrows){
-    for (i =0; i < *rows; i++){
+  if (rows == targetrows){
+    for (i =0; i < rows; i++){
       target[i] = row_mean[i];
     }
   } else {
     /* need to estimate quantiles */
-    for (i =0; i < *targetrows; i++){
-      samplepercentile = (double)(i)/(double)(*targetrows -1);
+    for (i =0; i < targetrows; i++){
+      samplepercentile = (double)(i)/(double)(targetrows -1);
       
-      /* row_mean_ind_double = 1.0/3.0 + ((double)(*rows) + 1.0/3.0) * samplepercentile; */
-      row_mean_ind_double = 1.0 + ((double)(*rows) -1.0) * samplepercentile;
+      /* row_mean_ind_double = 1.0/3.0 + ((double)(rows) + 1.0/3.0) * samplepercentile; */
+      row_mean_ind_double = 1.0 + ((double)(rows) -1.0) * samplepercentile;
 
       row_mean_ind_double_floor = floor(row_mean_ind_double + 4*DOUBLE_EPS);
 	
@@ -2546,10 +2611,10 @@ int qnorm_c_determine_target_via_subset(double *data, int *rows, int *cols, int 
       } else {
 	row_mean_ind =  (int)floor(row_mean_ind_double_floor + 0.5); /* (int)nearbyint(row_mean_ind_double_floor); */
 
-	if ((row_mean_ind < *rows) && (row_mean_ind > 0)){
+	if ((row_mean_ind < rows) && (row_mean_ind > 0)){
 	  target[i] = (1.0- row_mean_ind_double)*row_mean[row_mean_ind-1] + row_mean_ind_double*row_mean[row_mean_ind];
-	} else if (row_mean_ind >= *rows){
-	  target[i] = row_mean[*rows-1];
+	} else if (row_mean_ind >= rows){
+	  target[i] = row_mean[rows-1];
 	} else {
 	  target[i] = row_mean[0];
 	}
@@ -2564,7 +2629,11 @@ int qnorm_c_determine_target_via_subset(double *data, int *rows, int *cols, int 
 }
 
 
+int qnorm_c_determine_target_via_subset(double *data, int *rows, int *cols, int *in_subset, double *target, int *targetrows){
 
+  return  qnorm_c_determine_target_via_subset_l(data, (size_t)(*rows), (size_t)(*cols), in_subset, target, (size_t)(*targetrows));
+
+}
 
 
 /******************************************************************
@@ -2613,19 +2682,19 @@ static double linear_interpolate_helper(double v, double *x, double *y, int n)
 
 
 
-static void using_target_via_subset_part1(double *data, int *rows, int *cols, int *in_subset, double *target, int *targetrows, int start_col, int end_col, int subset_count){
+static void using_target_via_subset_part1(double *data, size_t rows, size_t cols, int *in_subset, double *target, size_t targetrows, int start_col, int end_col, int subset_count){
 
-  int i,j,ind,target_ind;
+  size_t i,j,ind,target_ind;
   
   dataitem **dimat;
 
   double *row_mean = target;
 
-  double *ranks = (double *)Calloc((*rows),double);
+  double *ranks = (double *)Calloc((rows),double);
   double samplepercentile;
   double target_ind_double,target_ind_double_floor;
 
-  int targetnon_na = *targetrows;
+  int targetnon_na = targetrows;
   int non_na = 0;
   
   double *sample_percentiles;
@@ -2633,17 +2702,17 @@ static void using_target_via_subset_part1(double *data, int *rows, int *cols, in
   
   
   sample_percentiles = (double *)Calloc(subset_count, double);
-  datvec = (double *)Calloc(*rows,double);
+  datvec = (double *)Calloc(rows,double);
   dimat = (dataitem **)Calloc(1,dataitem *);
-  dimat[0] = (dataitem *)Calloc(*rows,dataitem);
+  dimat[0] = (dataitem *)Calloc(rows,dataitem);
    
   for (j = start_col; j <= end_col; j++){
     
     /* First figure out percentiles of the "subset" data */
     non_na = 0;
-    for (i =0; i < *rows; i++){
-      if (!ISNA(data[j*(*rows) + i]) && (in_subset[i] == 1)){
-	dimat[0][non_na].data = data[j*(*rows) + i];
+    for (i =0; i < rows; i++){
+      if (!ISNA(data[j*(rows) + i]) && (in_subset[i] == 1)){
+	dimat[0][non_na].data = data[j*(rows) + i];
 	dimat[0][non_na].rank = i;
 	non_na++;
       }
@@ -2657,10 +2726,10 @@ static void using_target_via_subset_part1(double *data, int *rows, int *cols, in
     }
     
     /* Now try to estimate what percentile of the "subset" data each datapoint in the "non-subset" data falls */
-    for  (i =0; i < *rows; i++){
+    for  (i =0; i < rows; i++){
       /*Linear interpolate to get sample percentile */
-      if (in_subset[i] == 0 && !ISNA(data[j*(*rows) + i])){
-	samplepercentile = linear_interpolate_helper(data[j*(*rows) + i], datvec, sample_percentiles, non_na);
+      if (in_subset[i] == 0 && !ISNA(data[j*(rows) + i])){
+	samplepercentile = linear_interpolate_helper(data[j*(rows) + i], datvec, sample_percentiles, non_na);
 	target_ind_double = 1.0 + ((double)(targetnon_na) - 1.0) * samplepercentile;
 	target_ind_double_floor = floor(target_ind_double + 4*DOUBLE_EPS);
 	
@@ -2672,20 +2741,20 @@ static void using_target_via_subset_part1(double *data, int *rows, int *cols, in
 	if (target_ind_double  == 0.0){
 	  target_ind = (int)floor(target_ind_double_floor + 0.5); /* nearbyint(target_ind_double_floor); */	
 	  ind = dimat[0][i].rank;
-	  data[j*(*rows) +i] = row_mean[target_ind-1];
+	  data[j*(rows) +i] = row_mean[target_ind-1];
 	} else if (target_ind_double == 1.0){
 	  target_ind = (int)floor(target_ind_double_floor + 1.5); /* (int)nearbyint(target_ind_double_floor + 1.0); */ 
 	  ind = dimat[0][i].rank;
-	  data[j*(*rows) +i] = row_mean[target_ind-1];
+	  data[j*(rows) +i] = row_mean[target_ind-1];
 	} else {
 	  target_ind = (int)floor(target_ind_double_floor + 0.5); /* nearbyint(target_ind_double_floor); */	
 	  ind = dimat[0][i].rank;
-	  if ((target_ind < *targetrows) && (target_ind > 0)){
-	    data[j*(*rows) +i] = (1.0- target_ind_double)*row_mean[target_ind-1] + target_ind_double*row_mean[target_ind];
-	  } else if (target_ind >= *targetrows){
-	    data[j*(*rows) +i] = row_mean[*targetrows-1];
+	  if ((target_ind < targetrows) && (target_ind > 0)){
+	    data[j*(rows) +i] = (1.0- target_ind_double)*row_mean[target_ind-1] + target_ind_double*row_mean[target_ind];
+	  } else if (target_ind >= targetrows){
+	    data[j*(rows) +i] = row_mean[targetrows-1];
 	  } else {
-	    data[j*(*rows) +i] = row_mean[0];
+	    data[j*(rows) +i] = row_mean[0];
 	  }
 	}
       }
@@ -2698,49 +2767,49 @@ static void using_target_via_subset_part1(double *data, int *rows, int *cols, in
 }
 
 
-static void using_target_via_subset_part2(double *data, int *rows, int *cols, int *in_subset, double *target, int *targetrows, int start_col, int end_col, int subset_count){
+static void using_target_via_subset_part2(double *data, size_t rows, size_t cols, int *in_subset, double *target, size_t targetrows, int start_col, int end_col, int subset_count){
 
-  int i,j,ind,target_ind;
+  size_t i,j,ind,target_ind;
   
   dataitem **dimat;
 
   double *row_mean = target;
 
-  double *ranks = (double *)Calloc((*rows),double);
+  double *ranks = (double *)Calloc((rows),double);
   double samplepercentile;
   double target_ind_double,target_ind_double_floor;
 
-  int targetnon_na = *targetrows;
+  int targetnon_na = targetrows;
   int non_na = 0;
   
   double *sample_percentiles;
   double *datvec;
 
-  if (*rows == targetnon_na){
+  if (rows == targetnon_na){
     /* now assign back distribution */
     /* this is basically the standard story */
     
     dimat = (dataitem **)Calloc(1,dataitem *);
-    dimat[0] = (dataitem *)Calloc(*rows,dataitem);
+    dimat[0] = (dataitem *)Calloc(rows,dataitem);
     
     for (j = start_col; j <= end_col; j++){
       non_na = 0;
-      for (i =0; i < *rows; i++){
-	if (!ISNA(data[j*(*rows) + i]) && (in_subset[i] == 1)){
-	  dimat[0][non_na].data = data[j*(*rows) + i];
+      for (i =0; i < rows; i++){
+	if (!ISNA(data[j*(rows) + i]) && (in_subset[i] == 1)){
+	  dimat[0][non_na].data = data[j*(rows) + i];
 	  dimat[0][non_na].rank = i;
 	  non_na++;
 	}
       }
-      if (non_na == *rows){
-	qsort(dimat[0],*rows,sizeof(dataitem),sort_fn);
-	get_ranks(ranks,dimat[0],*rows);
-	for (i =0; i < *rows; i++){
+      if (non_na == rows){
+	qsort(dimat[0],rows,sizeof(dataitem),sort_fn);
+	get_ranks(ranks,dimat[0],rows);
+	for (i =0; i < rows; i++){
 	  ind = dimat[0][i].rank;
 	  if (ranks[i] - floor(ranks[i]) > 0.4){
-	    data[j*(*rows) +ind] = 0.5*(row_mean[(int)floor(ranks[i])-1] + row_mean[(int)floor(ranks[i])]);
+	    data[j*(rows) +ind] = 0.5*(row_mean[(int)floor(ranks[i])-1] + row_mean[(int)floor(ranks[i])]);
 	  } else { 
-	    data[j*(*rows) +ind] = row_mean[(int)floor(ranks[i])-1];
+	    data[j*(rows) +ind] = row_mean[(int)floor(ranks[i])-1];
 	  }
 	}
       } else {
@@ -2764,20 +2833,20 @@ static void using_target_via_subset_part2(double *data, int *rows, int *cols, in
 	  if (target_ind_double  == 0.0){
 	    target_ind = (int)floor(target_ind_double_floor + 0.5); /* nearbyint(target_ind_double_floor); */	
 	    ind = dimat[0][i].rank;
-	    data[j*(*rows) +ind] = row_mean[target_ind-1];
+	    data[j*(rows) +ind] = row_mean[target_ind-1];
 	  } else if (target_ind_double == 1.0){
 	    target_ind = (int)floor(target_ind_double_floor + 1.5); /* (int)nearbyint(target_ind_double_floor + 1.0); */ 
 	    ind = dimat[0][i].rank;
-	    data[j*(*rows) +ind] = row_mean[target_ind-1];
+	    data[j*(rows) +ind] = row_mean[target_ind-1];
 	  } else {
 	    target_ind = (int)floor(target_ind_double_floor + 0.5); /* nearbyint(target_ind_double_floor); */	
 	    ind = dimat[0][i].rank;
-	    if ((target_ind < *targetrows) && (target_ind > 0)){
-	      data[j*(*rows) +ind] = (1.0- target_ind_double)*row_mean[target_ind-1] + target_ind_double*row_mean[target_ind];
-	    } else if (target_ind >= *targetrows){
-	      data[j*(*rows) +ind] = row_mean[*targetrows-1];
+	    if ((target_ind < targetrows) && (target_ind > 0)){
+	      data[j*(rows) +ind] = (1.0- target_ind_double)*row_mean[target_ind-1] + target_ind_double*row_mean[target_ind];
+	    } else if (target_ind >= targetrows){
+	      data[j*(rows) +ind] = row_mean[targetrows-1];
 	    } else {
-	      data[j*(*rows) +ind] = row_mean[0];
+	      data[j*(rows) +ind] = row_mean[0];
 	    }
 	  }
 	}
@@ -2787,13 +2856,13 @@ static void using_target_via_subset_part2(double *data, int *rows, int *cols, in
     /** the length of the target distribution and the size of the data matrix differ **/
     /** need to estimate quantiles **/
     dimat = (dataitem **)Calloc(1,dataitem *);
-    dimat[0] = (dataitem *)Calloc(*rows,dataitem);
+    dimat[0] = (dataitem *)Calloc(rows,dataitem);
     
     for (j = start_col; j <= end_col; j++){
       non_na = 0;
-      for (i =0; i < *rows; i++){	
-	if (!ISNA(data[j*(*rows) + i]) && (in_subset[i] == 1)){
-	  dimat[0][non_na].data = data[j*(*rows) + i];
+      for (i =0; i < rows; i++){	
+	if (!ISNA(data[j*(rows) + i]) && (in_subset[i] == 1)){
+	  dimat[0][non_na].data = data[j*(rows) + i];
 	  dimat[0][non_na].rank = i;
 	  non_na++;
 	}
@@ -2818,20 +2887,20 @@ static void using_target_via_subset_part2(double *data, int *rows, int *cols, in
 	if (target_ind_double  == 0.0){
 	  target_ind = (int)floor(target_ind_double_floor + 0.5); /* nearbyint(target_ind_double_floor); */	
 	  ind = dimat[0][i].rank;
-	  data[j*(*rows) +ind] = row_mean[target_ind-1];
+	  data[j*(rows) +ind] = row_mean[target_ind-1];
 	} else if (target_ind_double == 1.0){
 	  target_ind = (int)floor(target_ind_double_floor + 1.5); /* (int)nearbyint(target_ind_double_floor + 1.0); */ 
 	  ind = dimat[0][i].rank;
-	  data[j*(*rows) +ind] = row_mean[target_ind-1];
+	  data[j*(rows) +ind] = row_mean[target_ind-1];
 	} else {
 	  target_ind = (int)floor(target_ind_double_floor + 0.5); /* nearbyint(target_ind_double_floor); */	
 	  ind = dimat[0][i].rank;
-	  if ((target_ind < *targetrows) && (target_ind > 0)){
-	    data[j*(*rows) +ind] = (1.0- target_ind_double)*row_mean[target_ind-1] + target_ind_double*row_mean[target_ind];
-	  } else if (target_ind >= *targetrows){
-	    data[j*(*rows) +ind] = row_mean[*targetrows-1];
+	  if ((target_ind < targetrows) && (target_ind > 0)){
+	    data[j*(rows) +ind] = (1.0- target_ind_double)*row_mean[target_ind-1] + target_ind_double*row_mean[target_ind];
+	  } else if (target_ind >= targetrows){
+	    data[j*(rows) +ind] = row_mean[targetrows-1];
 	  } else {
-	    data[j*(*rows) +ind] = row_mean[0];
+	    data[j*(rows) +ind] = row_mean[0];
 	  }
 	}
 	
@@ -2845,19 +2914,19 @@ static void using_target_via_subset_part2(double *data, int *rows, int *cols, in
 
 }
 
-void using_target_via_subset(double *data, int *rows, int *cols, int *in_subset, double *target, int *targetrows, int start_col, int end_col){
+void using_target_via_subset(double *data, size_t rows, size_t cols, int *in_subset, double *target, size_t targetrows, int start_col, int end_col){
 
-  int i,j,ind,target_ind;
+  size_t i,j,ind,target_ind;
   
   dataitem **dimat;
 
   double *row_mean = target;
 
-  double *ranks = (double *)Calloc((*rows),double);
+  double *ranks = (double *)Calloc((rows),double);
   double samplepercentile;
   double target_ind_double,target_ind_double_floor;
 
-  int targetnon_na = *targetrows;
+  int targetnon_na = targetrows;
   int non_na = 0;
   
   int subset_count = 0;
@@ -2869,13 +2938,13 @@ void using_target_via_subset(double *data, int *rows, int *cols, int *in_subset,
   /* Two parts to the algorithm */
  
   /* First find out if the enitirety of the data is in the subset */
-  for (i = 0; i <  *rows; i++){
+  for (i = 0; i <  rows; i++){
     if (in_subset[i] == 1){
       subset_count++;
     }
   }
    /* Part 1: Adjust the elements not in the "subset" */
-  if (*rows > subset_count){
+  if (rows > subset_count){
      /* We have non subset elements to deal with */	
      using_target_via_subset_part1(data, rows, cols, in_subset, target, targetrows, start_col, end_col,subset_count);
   }
@@ -2899,7 +2968,7 @@ void *using_target_group_via_subset(void *data){
 
 
 
-int qnorm_c_using_target_via_subset(double *data, int *rows, int *cols, int *in_subset, double *target, int *targetrows){
+int qnorm_c_using_target_via_subset_l(double *data, size_t rows, size_t cols, int *in_subset, double *target, size_t targetrows){
 
 
   
@@ -2923,10 +2992,10 @@ int qnorm_c_using_target_via_subset(double *data, int *rows, int *cols, int *in_
 #endif
 #endif
   
-  row_mean = (double *)Calloc(*targetrows,double);
+  row_mean = (double *)Calloc(targetrows,double);
   
   /* first find the normalizing distribution */
-  for (i =0; i < *targetrows; i++){
+  for (i =0; i < targetrows; i++){
     if (ISNA(target[i])){
 
     } else {
@@ -2959,9 +3028,9 @@ int qnorm_c_using_target_via_subset(double *data, int *rows, int *cols, int *in_
     1) Number of columns is less than the number of threads
   */
   
-  if (num_threads < *cols){
-    chunk_size = *cols/num_threads;
-    chunk_size_d = ((double) *cols)/((double) num_threads);
+  if (num_threads < cols){
+    chunk_size = cols/num_threads;
+    chunk_size_d = ((double) cols)/((double) num_threads);
   } else {
     chunk_size = 1;
     chunk_size_d = 1;
@@ -2970,20 +3039,20 @@ int qnorm_c_using_target_via_subset(double *data, int *rows, int *cols, int *in_
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((*cols < num_threads ? *cols : num_threads), struct loop_data);
+  args = (struct loop_data *) Calloc((cols < num_threads ? cols : num_threads), struct loop_data);
 
   args[0].data = data;
   args[0].row_mean = row_mean;
   args[0].rows = rows;  
   args[0].cols = cols;
-  args[0].row_meanlength = &targetnon_na;
+  args[0].row_meanlength = targetnon_na;
   args[0].in_subset = in_subset;
 
   pthread_mutex_init(&mutex_R, NULL);
 
   t = 0; /* t = number of actual threads doing work */
   chunk_tot_d = 0;
-  for (i=0; floor(chunk_tot_d+0.00001) < *cols; i+=chunk_size){
+  for (i=0; floor(chunk_tot_d+0.00001) < cols; i+=chunk_size){
      if(t != 0){
        memcpy(&(args[t]), &(args[0]), sizeof(struct loop_data));
      }
@@ -3024,7 +3093,7 @@ int qnorm_c_using_target_via_subset(double *data, int *rows, int *cols, int *in_
   Free(args);  
 
 #else
-  using_target_via_subset(data, rows, cols, in_subset, row_mean, &targetnon_na, 0, *cols -1);
+  using_target_via_subset(data, rows, cols, in_subset, row_mean, targetnon_na, 0, cols -1);
 #endif
 
 
@@ -3039,7 +3108,10 @@ int qnorm_c_using_target_via_subset(double *data, int *rows, int *cols, int *in_
 
 
 
+int qnorm_c_using_target_via_subset(double *data, int *rows, int *cols, int *in_subset, double *target, int *targetrows){
+   return  qnorm_c_using_target_via_subset_l(data, (size_t)(*rows), (size_t)(*cols), in_subset, target, (size_t)(*targetrows));
 
+}
 
 
 
@@ -3048,8 +3120,8 @@ SEXP R_qnorm_determine_target_via_subset(SEXP X, SEXP subset, SEXP targetlength)
 
 
   SEXP dim1,target;
-  int rows, cols;
-  int length;
+  size_t rows, cols;
+  size_t length;
   double *Xptr;
   double *targetptr;
   int *subsetptr;
@@ -3072,7 +3144,7 @@ SEXP R_qnorm_determine_target_via_subset(SEXP X, SEXP subset, SEXP targetlength)
   subsetptr = INTEGER_POINTER(subset);
 
 
-  qnorm_c_determine_target_via_subset(Xptr,&rows,&cols,subsetptr,targetptr, &length);
+  qnorm_c_determine_target_via_subset_l(Xptr, rows, cols,subsetptr,targetptr, length);
 
 
   UNPROTECT(1);
@@ -3090,8 +3162,8 @@ SEXP R_qnorm_using_target_via_subset(SEXP X,  SEXP subset, SEXP target,SEXP copy
 
 
   SEXP Xcopy,dim1; /*,dim2; */
-  int rows, cols;
-  int target_rows, target_cols;
+  size_t rows, cols;
+  size_t target_rows, target_cols;
   double *Xptr;
   double *targetptr;
   int *subsetptr;
@@ -3124,7 +3196,7 @@ SEXP R_qnorm_using_target_via_subset(SEXP X,  SEXP subset, SEXP target,SEXP copy
   subsetptr = INTEGER_POINTER(subset);
 
 
-  qnorm_c_using_target_via_subset(Xptr, &rows, &cols,subsetptr,targetptr,&target_rows);
+  qnorm_c_using_target_via_subset_l(Xptr, rows, cols, subsetptr, targetptr, target_rows);
 
   if (asInteger(copy)){
     UNPROTECT(1);

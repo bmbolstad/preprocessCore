@@ -23,7 +23,7 @@
  *
  */
 
-void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, double *c, double *t);
+void median_polish_fit_no_copy(double *data, size_t rows, size_t cols, double *r, double *c, double *t);
 
 /*! \brief Compute medianpolish  
  *
@@ -40,7 +40,7 @@ void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, doub
  *  
  */
 
-void median_polish_no_copy(double *data, int rows, int cols, double *results, double *resultsSE);
+void median_polish_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE);
 
 /*! \brief Compute medianpolish  
  *
@@ -58,7 +58,7 @@ void median_polish_no_copy(double *data, int rows, int cols, double *results, do
  *  
  */
 
-void median_polish_log2_no_copy(double *data, int rows, int cols, double *results, double *resultsSE);
+void median_polish_log2_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE);
 
 /*! \brief Compute medianpolish  
  *
@@ -76,7 +76,7 @@ void median_polish_log2_no_copy(double *data, int rows, int cols, double *result
  *  
  */
 
-void median_polish_log2(double *data, int rows, int cols, double *results, double *resultsSE, double *residuals);
+void median_polish_log2(double *data, size_t rows, size_t cols, double *results, double *resultsSE, double *residuals);
 
 /*! \brief Compute medianpolish  
  *
@@ -94,7 +94,7 @@ void median_polish_log2(double *data, int rows, int cols, double *results, doubl
  *  
  */
 
-void median_polish(double *data, int rows, int cols, double *results, double *resultsSE, double *residuals);
+void median_polish(double *data, size_t rows, size_t cols, double *results, double *resultsSE, double *residuals);
 
 /*! \brief Compute medianpolish  
  *
@@ -115,7 +115,7 @@ void median_polish(double *data, int rows, int cols, double *results, double *re
  *  
  */
 
-void MedianPolish(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE);
+void MedianPolish(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE);
 
 /*! \brief Compute medianpolish  
  *
@@ -135,7 +135,7 @@ void MedianPolish(double *data, int rows, int cols, int *cur_rows, double *resul
  *  
  */
 
-void MedianPolish_no_log(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE);
+void MedianPolish_no_log(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE);
 
 
 #endif

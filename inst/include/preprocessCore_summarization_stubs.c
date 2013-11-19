@@ -378,13 +378,13 @@ void lm_wfit(double *x, double *y, double *w, int rows, int cols, double tol, do
  *
  */
 
-void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, double *c, double *t){
+void median_polish_fit_no_copy(double *data, size_t rows, size_t cols, double *r, double *c, double *t){
 
 
-  static void(*fun)(double *, int, int, double *, double *, double*) = NULL;
+  static void(*fun)(double *, size_t, size_t, double *, double *, double*) = NULL;
 
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, double *, double *, double*))R_GetCCallable("preprocessCore","median_polish_fit_no_copy");
+    fun = (void(*)(double *, size_t, size_t, double *, double *, double*))R_GetCCallable("preprocessCore","median_polish_fit_no_copy");
 
   fun(data, rows, cols, r, c, t);
   return;
@@ -406,12 +406,12 @@ void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, doub
  *  
  */
 
-void median_polish_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+void median_polish_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
-  static void(*fun)(double *, int, int, double *, double *) = NULL;
+  static void(*fun)(double *, size_t, size_t, double *, double *) = NULL;
 
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, double *, double *))R_GetCCallable("preprocessCore","median_polish_no_copy");
+    fun = (void(*)(double *, size_t, size_t, double *, double *))R_GetCCallable("preprocessCore","median_polish_no_copy");
   fun(data,rows,cols,results,resultsSE);
   return;
 
@@ -433,12 +433,12 @@ void median_polish_no_copy(double *data, int rows, int cols, double *results, do
  *  
  */
 
-void median_polish_log2_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+void median_polish_log2_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
   
-  static void(*fun)(double *, int, int, double *, double *) = NULL;
+  static void(*fun)(double *, size_t, size_t, double *, double *) = NULL;
 
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, double *, double *))R_GetCCallable("preprocessCore","median_polish_log2_no_copy");
+    fun = (void(*)(double *, size_t, size_t, double *, double *))R_GetCCallable("preprocessCore","median_polish_log2_no_copy");
   fun(data,rows,cols,results,resultsSE);
   return;
 
@@ -460,12 +460,12 @@ void median_polish_log2_no_copy(double *data, int rows, int cols, double *result
  *  
  */
 
-void median_polish_log2(double *data, int rows, int cols, double *results, double *resultsSE, double *residuals){
+void median_polish_log2(double *data, size_t rows, size_t cols, double *results, double *resultsSE, double *residuals){
 
-  static void(*fun)(double *, int, int, double *, double *, double *) = NULL;
+  static void(*fun)(double *, size_t, size_t, double *, double *, double *) = NULL;
 
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, double *, double *, double *))R_GetCCallable("preprocessCore","median_polish_log2");
+    fun = (void(*)(double *, size_t, size_t, double *, double *, double *))R_GetCCallable("preprocessCore","median_polish_log2");
   
   fun(data,rows,cols,results,resultsSE,residuals);
   return;
@@ -488,12 +488,12 @@ void median_polish_log2(double *data, int rows, int cols, double *results, doubl
  *  
  */
 
-void median_polish(double *data, int rows, int cols, double *results, double *resultsSE, double *residuals){
+void median_polish(double *data, size_t rows, size_t cols, double *results, double *resultsSE, double *residuals){
 
-  static void(*fun)(double *, int, int, double *, double *, double *) = NULL;
+  static void(*fun)(double *, size_t, size_t, double *, double *, double *) = NULL;
   
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, double *, double *, double *))R_GetCCallable("preprocessCore","median_polish");
+    fun = (void(*)(double *, size_t, size_t, double *, double *, double *))R_GetCCallable("preprocessCore","median_polish");
   
   fun(data,rows,cols,results,resultsSE,residuals);
   return;
@@ -519,13 +519,13 @@ void median_polish(double *data, int rows, int cols, double *results, double *re
  */
 
 
-void MedianPolish(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+void MedianPolish(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
 
 
-  static void(*fun)(double *, int, int, int *, double *, int, double *) = NULL;
+  static void(*fun)(double *, size_t, size_t, int *, double *, size_t, double *) = NULL;
 
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, int *, double *, int, double *))R_GetCCallable("preprocessCore","MedianPolish");
+    fun = (void(*)(double *, size_t, size_t, int *, double *, size_t, double *))R_GetCCallable("preprocessCore","MedianPolish");
 
   fun(data,rows,cols,cur_rows,results,nprobes,resultsSE);
   return;
@@ -550,13 +550,13 @@ void MedianPolish(double *data, int rows, int cols, int *cur_rows, double *resul
  *  
  */
 
-void MedianPolish_no_log(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+void MedianPolish_no_log(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
 
 
-  static void(*fun)(double *, int, int, int *, double *, int, double *) = NULL;
+  static void(*fun)(double *, size_t, size_t, int *, double *, size_t, double *) = NULL;
 
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, int *, double *, int, double *))R_GetCCallable("preprocessCore","MedianPolish_no_log");
+    fun = (void(*)(double *, size_t, size_t, int *, double *, size_t, double *))R_GetCCallable("preprocessCore","MedianPolish_no_log");
 
   fun(data,rows,cols,cur_rows,results,nprobes,resultsSE);
   return;
