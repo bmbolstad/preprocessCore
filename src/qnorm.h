@@ -15,6 +15,13 @@ int qnorm_c_determine_target(double *data, int *rows, int *cols, double *target,
 int qnorm_c_within_blocks(double *x, int *rows, int *cols, int *blocks);
 
 
+int qnorm_c_l(double *data, size_t rows, size_t cols);
+int qnorm_c_using_target_l(double *data, size_t rows, size_t cols, double *target, size_t targetrows);
+int qnorm_c_determine_target_l(double *data, size_t rows, size_t cols, double *target, size_t targetrows);
+
+
+
+
 SEXP R_qnorm_c(SEXP X, SEXP copy);
 
 SEXP R_qnorm_robust_weights(SEXP X, SEXP remove_extreme, SEXP n_remove);

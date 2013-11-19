@@ -32,10 +32,6 @@
  **
  ************************************************************************/
 
-
-#include "medianpolish.h"
-#include "rma_common.h"
-
 #include <R.h> 
 #include <Rdefines.h>
 #include <Rmath.h>
@@ -44,6 +40,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+
+
+#include "medianpolish.h"
+#include "rma_common.h"
 
 
 /*******************************************************************************
@@ -213,10 +213,10 @@ static void cmod(double *c, double *cdelta, int cols){
 }
 
 
-void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, double *c, double *t){
+void median_polish_fit_no_copy(double *data, size_t rows, size_t cols, double *r, double *c, double *t){
  
 
-  int i,j,iter;
+  size_t i,j,iter;
   int maxiter = 10;
   double eps=0.01;
   double oldsum = 0.0,newsum = 0.0;
@@ -259,9 +259,9 @@ void median_polish_fit_no_copy(double *data, int rows, int cols, double *r, doub
 
 
 
-void median_polish_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+void median_polish_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
-  int j;
+  size_t j;
   
   double *r = Calloc(rows,double);
   double *c = Calloc(cols,double);
@@ -281,10 +281,10 @@ void median_polish_no_copy(double *data, int rows, int cols, double *results, do
 }
 
 
-void median_polish_log2_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+void median_polish_log2_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
   
-  int i, j;
+  size_t i, j;
 
   for (j = 0; j < cols; j++){
     for (i =0; i < rows; i++){
@@ -297,8 +297,9 @@ void median_polish_log2_no_copy(double *data, int rows, int cols, double *result
 }
 
 
-void median_polish_log2(double *data, int rows, int cols, double *results, double *resultsSE, double *residuals){
-  int i, j;
+void median_polish_log2(double *data, size_t rows, size_t cols, double *results, double *resultsSE, double *residuals){
+
+  size_t i, j;
 
   for (j = 0; j < cols; j++){
     for (i =0; i < rows; i++){
@@ -310,9 +311,9 @@ void median_polish_log2(double *data, int rows, int cols, double *results, doubl
 }
 
 
-void median_polish(double *data, int rows, int cols, double *results, double *resultsSE, double *residuals){
+void median_polish(double *data, size_t rows, size_t cols, double *results, double *resultsSE, double *residuals){
 
-  int i, j;
+  size_t i, j;
 
   for (j = 0; j < cols; j++){
     for (i =0; i < rows; i++){
@@ -359,9 +360,9 @@ void median_polish(double *data, int rows, int cols, double *results, double *re
  *  
  */
 
-void MedianPolish(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+void MedianPolish(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
 
-  int i,j;
+  size_t i,j;
 
   double *z = Calloc(nprobes*cols,double);
 
@@ -380,9 +381,9 @@ void MedianPolish(double *data, int rows, int cols, int *cur_rows, double *resul
 
 
 
-void MedianPolish_no_log(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+void MedianPolish_no_log(double *data, size_t rows,size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
 
-  int i,j;
+  size_t i,j;
 
   double *z = Calloc(nprobes*cols,double);
 

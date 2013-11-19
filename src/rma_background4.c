@@ -53,10 +53,10 @@
 pthread_mutex_t mutex_R;
 struct loop_data{
   double *data;
-  int rows;
-  int cols;
-  int start_col;
-  int end_col;
+  size_t rows;
+  size_t cols;
+  size_t start_col;
+  size_t end_col;
 };
 #endif
 
@@ -69,7 +69,7 @@ struct loop_data{
  **
  ************************************************************/
 
-static double find_max(double *x,int length){
+static double find_max(double *x, int length){
   int i;
   double max;
 
@@ -95,9 +95,9 @@ static double find_max(double *x,int length){
  **
  *************************************************************************************/
 
-static double max_density(double *z,int rows,int cols,int column){
+static double max_density(double *z, size_t rows, size_t cols, size_t column){
 
-  int i;
+  size_t i;
 
   double *x;
   double *dens_x;
@@ -213,8 +213,9 @@ static double get_alpha(double *PM, double PMmax, int length){
  *******************************************************************************/
 
 
-void rma_bg_parameters(double *PM,double *param, int rows, int cols, int column){
-  int i = 0;
+void rma_bg_parameters(double *PM, double *param, size_t rows, size_t cols, size_t column){
+
+  size_t i = 0;
   double PMmax;
 
   double sd,alpha;
@@ -296,8 +297,8 @@ static double phi(double x){
  **
  ***********************************************************************************/
 
-void rma_bg_adjust(double *PM, double *param, int rows, int cols, int column){
-  int i;
+void rma_bg_adjust(double *PM, double *param, size_t rows, size_t cols, size_t column){
+  size_t i;
   double a;
     
   for (i=0; i < rows; i++){
@@ -311,7 +312,7 @@ void rma_bg_adjust(double *PM, double *param, int rows, int cols, int column){
 #ifdef USE_PTHREADS
 void *rma_bg_correct_group(void *data){
 
-  int j;
+  size_t j;
   double param[3];
   struct loop_data *args = (struct loop_data *) data;
   
@@ -335,9 +336,9 @@ void *rma_bg_correct_group(void *data){
  **
  ************************************************************************************/
 
-void rma_bg_correct(double *PM, int rows, int cols){
+void rma_bg_correct(double *PM, size_t rows, size_t cols){
 
-  int j;
+  size_t j;
   double param[3];
 #ifdef USE_PTHREADS
   int i;
@@ -461,9 +462,9 @@ void rma_bg_correct(double *PM, int rows, int cols){
 SEXP R_rma_bg_correct(SEXP PMmat,SEXP copy){
   
   SEXP dim1,PMcopy;
-  int j;
-  int rows;
-  int cols;
+  /* int j; */
+  size_t rows;
+  size_t cols;
   double *PM;
 
   PROTECT(dim1 = getAttrib(PMmat,R_DimSymbol));

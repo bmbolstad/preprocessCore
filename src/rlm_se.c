@@ -117,7 +117,7 @@ static void RLM_SE_Method_1(double residvar, double *XTX, int p, double *se_esti
       se_estimates[i] = sqrt(residvar*XTXinv[i*p + i]);
     }
   } else {
-    printf("Singular matrix in SE inverse calculation");    
+    Rprintf("Singular matrix in SE inverse calculation");    
   }    
 
 
@@ -351,7 +351,7 @@ void rlm_compute_se(double *X,double *Y, int n, int p, double *beta, double *res
 	se_estimates[i] = RMSEw*sqrt(XTX[i*p + i]);
       }
     } else {
-      printf("Singular matrix in SE inverse: Method 4\n");
+      Rprintf("Singular matrix in SE inverse: Method 4\n");
       
     }
 
@@ -414,9 +414,9 @@ void rlm_compute_se(double *X,double *Y, int n, int p, double *beta, double *res
       i = RLM_SE_Method_3(Kappa, XTX, W, p, se_estimates,varcov);
       if (i){
 	for (i=0; i <n; i++){
-	  printf("%2.1f ", PsiFn(resids[i]/scale,k1,1));
+	  Rprintf("%2.1f ", PsiFn(resids[i]/scale,k1,1));
 	} 
-	printf("\n");
+	Rprintf("\n");
       }
     } 
   }
