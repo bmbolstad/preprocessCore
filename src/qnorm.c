@@ -1814,14 +1814,14 @@ void determine_target(double *data, double *row_mean, size_t rows, size_t cols, 
 #ifdef USE_PTHREADS
 	  row_submean[i]+= datvec[row_mean_ind-1];
 #else
-	  row_mean[i]+= datvec[row_mean_ind-1]/((double)*cols);
+	  row_mean[i]+= datvec[row_mean_ind-1]/((double)cols);
 #endif
 	} else if (row_mean_ind_double == 1.0){
 	  row_mean_ind = (int)floor(row_mean_ind_double_floor + 1.5);  /* (int)nearbyint(row_mean_ind_double_floor + 1.0); */ 
 #ifdef USE_PTHREADS
 	  row_submean[i]+= datvec[row_mean_ind-1];
 #else  
-	  row_mean[i]+= datvec[row_mean_ind-1]/((double)*cols);
+	  row_mean[i]+= datvec[row_mean_ind-1]/((double)cols);
 #endif
 	} else {
 	  row_mean_ind =  (int)floor(row_mean_ind_double_floor + 0.5); /* (int)nearbyint(row_mean_ind_double_floor); */
@@ -1830,19 +1830,19 @@ void determine_target(double *data, double *row_mean, size_t rows, size_t cols, 
 #ifdef USE_PTHREADS
 	    row_submean[i]+= ((1.0- row_mean_ind_double)*datvec[row_mean_ind-1] + row_mean_ind_double*datvec[row_mean_ind]);
 #else
-	    row_mean[i]+= ((1.0- row_mean_ind_double)*datvec[row_mean_ind-1] + row_mean_ind_double*datvec[row_mean_ind])/((double)*cols);
+	    row_mean[i]+= ((1.0- row_mean_ind_double)*datvec[row_mean_ind-1] + row_mean_ind_double*datvec[row_mean_ind])/((double)cols);
 #endif
 	  } else if (row_mean_ind >= rows){
 #ifdef USE_PTHREADS
 	    row_submean[i]+= datvec[non_na-1];
 #else
-	    row_mean[i]+= datvec[non_na-1]/((double)*cols);
+	    row_mean[i]+= datvec[non_na-1]/((double)cols);
 #endif
 	  } else {
 #ifdef USE_PTHREADS
 	    row_submean[i]+=  datvec[0];
 #else
-	    row_mean[i]+=  datvec[0]/((double)*cols);
+	    row_mean[i]+=  datvec[0]/((double)cols);
 #endif
 	  }
 	}

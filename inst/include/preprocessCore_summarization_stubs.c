@@ -1,5 +1,6 @@
 #include <Rinternals.h>
 #include <R_ext/Rdynload.h>
+#include <stdlib.h>
 
 /*! \brief log2 transform and then compute the mean and SE of the mean
  * 

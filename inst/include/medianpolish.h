@@ -7,6 +7,8 @@
 #ifndef MEDIANPOLISH_H
 #define MEDIANPOLISH_H 1
 
+#include <stdlib.h>
+
 /*! \brief Compute medianpolish  
  *
  *
