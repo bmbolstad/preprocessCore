@@ -64,6 +64,6 @@
  
 \author{Ben Bolstad, \email{bmb@bmbolstad.com}}
 
-\seealso{\code{\link[affy]{normalize}}}
+\seealso{\code{\link{normalize.quantiles}}}
 
 \keyword{manip}
