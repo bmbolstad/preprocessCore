@@ -2422,7 +2422,7 @@ void determine_target_via_subset(double *data, double *row_mean, size_t rows, si
 #ifdef USE_PTHREADS
 	    row_submean[i]+= ((1.0- row_mean_ind_double)*datvec[row_mean_ind-1] + row_mean_ind_double*datvec[row_mean_ind]);
 #else
-	    row_mean[i]+= ((1.0- row_mean_ind_double)*datvec[row_mean_ind-1] + row_mean_ind_double*datvec[row_mean_ind])/((double)*cols);
+	    row_mean[i]+= ((1.0- row_mean_ind_double)*datvec[row_mean_ind-1] + row_mean_ind_double*datvec[row_mean_ind])/((double)cols);
 #endif
 	  } else if (row_mean_ind >= rows){
 #ifdef USE_PTHREADS
