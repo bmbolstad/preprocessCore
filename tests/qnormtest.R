@@ -49,3 +49,6 @@ if (all(abs(y.norm.target.truth - normalize.quantiles.determine.target(y)) < err
 if (all(abs(normalize.quantiles.use.target(y,y.norm.target.truth) - y.norm.truth) < err.tol,na.rm=TRUE) != TRUE){
 		stop("Disagreement in normalize.quantiles.use.target(y)")
 }
+
+
+
