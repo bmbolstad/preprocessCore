@@ -1984,7 +1984,7 @@ int qnorm_c_determine_target_l(double *data, size_t rows, size_t cols, double *t
   Free(args);  
 
 #else
-  normalize_determine_target(data,row_mean,rows,cols,0,cols-1);
+  determine_target(data,row_mean,rows,cols,0,cols-1);
 #endif
   
   if (rows == targetrows){
