@@ -12,7 +12,7 @@ rcModelPLM <- function(y,row.effects=NULL, input.scale=NULL){
     if (length(row.effects) != nrow(y)){
        stop("row.effects parameter should be same length as number of rows")
     }  
-    if (abs(sum(row.effects)) > 10*.Machine$double.eps){
+    if (abs(sum(row.effects)) > length(row.effects)*.Machine$double.eps){
        stop("row.effects should sum to zero")
     }
     .Call("R_rlm_rma_given_probe_effects",y,as.double(row.effects),PsiCode,PsiK,input.scale,PACKAGE="preprocessCore") 
@@ -48,7 +48,7 @@ rcModelWPLM <- function(y, w, row.effects=NULL, input.scale=NULL){
     if (length(row.effects) != nrow(y)){
        stop("row.effects parameter should be same length as number of rows")
     }  
-    if (abs(sum(row.effects)) > 10*.Machine$double.eps){
+    if (abs(sum(row.effects)) > length(row.effects)*.Machine$double.eps){
        stop("row.effects should sum to zero")
     }
     .Call("R_wrlm_rma_given_probe_effects",y,as.double(row.effects),PsiCode,PsiK,as.double(w),input.scale,PACKAGE="preprocessCore") 
