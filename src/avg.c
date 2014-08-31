@@ -36,10 +36,10 @@
 
 /***************************************************************************
  **
- ** double AvgLog(double *x, int length)
+ ** double AvgLog(double *x, size_t length)
  **
  ** double *x - a vector of PM intensities  (previously log2 transformed)
- ** int length - length of *x
+ ** size_t length - length of *x
  **
  ** take the average of log2 PM intensities.
  **
@@ -61,7 +61,7 @@ static double Avg(double *x, size_t length){
 
 /***************************************************************************
  **
- ** static double AvgLogSE(double *x, int length)
+ ** static double AvgLogSE(double *x, double mean, size_t length)
  **
  ** double *x - a vector of PM intensities (previously log2 transformed)
  ** double mean - the mean of x computed using AvgLog above
@@ -99,7 +99,7 @@ void colaverage_no_copy(double *data, size_t rows, size_t cols, double *results,
 
 /***************************************************************************
  ** 
- ** void average(double *data, int rows, int cols, double *results, double *resultsSE)
+ ** void average(double *data, size_t rows, size_t cols, double *results, double *resultsSE)
  **
  ** aim: given a data matrix of probe intensities, compute averages in column wise manner 
  **      
