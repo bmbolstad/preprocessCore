@@ -22,8 +22,6 @@
  **
  ************************************************************************/
 
-#include "avg.h"
-
 #include <R.h> 
 #include <Rdefines.h>
 #include <Rmath.h>
@@ -32,6 +30,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stddef.h>
+
+#include "avg.h"
 
 /***************************************************************************
  **
@@ -44,7 +45,7 @@
  **
  ***************************************************************************/
 
-static double Avg(double *x, int length){
+static double Avg(double *x, size_t length){
   int i;
   double sum = 0.0;
   double mean = 0.0;
@@ -71,7 +72,7 @@ static double Avg(double *x, int length){
  **
  ***************************************************************************/
 
-static double AvgSE(double *x, double mean, int length){
+static double AvgSE(double *x, double mean, size_t length){
   int i;
   double sum = 0.0;
 
@@ -86,7 +87,7 @@ static double AvgSE(double *x, double mean, int length){
 }
 
 
-void colaverage_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+void colaverage_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
   int i,j;
 
   for (j = 0; j < cols; j++){
@@ -113,7 +114,7 @@ void colaverage_no_copy(double *data, int rows, int cols, double *results, doubl
  ***************************************************************************/
 
 
-void colaverage(double *data, int rows, int cols, double *results, double *resultsSE){
+void colaverage(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
   int i,j;
   double *z = Calloc(rows,double);
 
@@ -163,7 +164,7 @@ void colaverage(double *data, int rows, int cols, double *results, double *resul
  *  
  */
 
-void ColAverage(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+void ColAverage(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
   int i,j;
   double *z = Calloc(nprobes*cols,double);
 
@@ -213,7 +214,7 @@ void ColAverage(double *data, int rows, int cols, int *cur_rows, double *results
  *  
  */
 
-void ColAverage_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
+void ColAverage_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
   int i,j;
   double *z = Calloc(nprobes*cols,double);
 
