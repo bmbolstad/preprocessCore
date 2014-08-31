@@ -8,6 +8,8 @@
 #ifndef AVG_LOG_H
 #define AVG_LOG_H
 
+#include <stddef.h>
+
 /*! \brief log2 transform and then compute the mean and SE of the mean for subset of rows
  * 
  *  Given a data matrix of probe intensities compute average log2 expression measure and SE of this estimate
@@ -26,7 +28,7 @@
  *  
  */
 
-void AverageLog(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE);
+void AverageLog(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE);
 
 /*! \brief log2 transform and then compute the mean for subset of rows
  * 
@@ -46,7 +48,7 @@ void AverageLog(double *data, int rows, int cols, int *cur_rows, double *results
  *  
  */
 
-void AverageLog_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes);
+void AverageLog_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes);
 
 /*! \brief log2 transform and then compute the mean and SE of the mean
  * 
@@ -66,7 +68,7 @@ void AverageLog_noSE(double *data, int rows, int cols, int *cur_rows, double *re
  *  
  */
 
-void averagelog_no_copy(double *data, int rows, int cols, double *results, double *resultsSE);
+void averagelog_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE);
 
 /*! \brief log2 transform and then compute the mean and SE of the mean
  * 
@@ -85,6 +87,6 @@ void averagelog_no_copy(double *data, int rows, int cols, double *results, doubl
  *  
  */
 
-void averagelog(double *data, int rows, int cols, double *results, double *resultsSE);
+void averagelog(double *data, size_t rows, size_t cols, double *results, double *resultsSE);
 
 #endif

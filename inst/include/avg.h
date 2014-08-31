@@ -6,6 +6,9 @@
 #ifndef AVG_H
 #define AVG_H
 
+#include <stdlib.h>
+
+
 /*! \brief Compute the mean and SE of the mean for subset of rows
  * 
  *  Given a data matrix of probe intensities compute averageexpression measure and SE of this estimate
@@ -24,7 +27,7 @@
  *  
  */
 
-void ColAverage(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE);
+void ColAverage(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE);
 
 /*! \brief compute the mean for specified subset of rows
  * 
@@ -44,7 +47,7 @@ void ColAverage(double *data, int rows, int cols, int *cur_rows, double *results
  *  
  */
 
-void ColAverage_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes);
+void ColAverage_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes);
 
 /*! \brief Compute the mean and SE of the mean
  * 
@@ -64,7 +67,7 @@ void ColAverage_noSE(double *data, int rows, int cols, int *cur_rows, double *re
  *  
  */
 
-void colaverage_no_copy(double *data, int rows, int cols, double *results, double *resultsSE);
+void colaverage_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE);
 
 /*! \brief Compute the mean and SE of the mean
  * 
@@ -83,6 +86,6 @@ void colaverage_no_copy(double *data, int rows, int cols, double *results, doubl
  *  
  */
 
-void colaverage(double *data, int rows, int cols, double *results, double *resultsSE);
+void colaverage(double *data, size_t rows, eize_t cols, double *results, double *resultsSE);
 
 #endif

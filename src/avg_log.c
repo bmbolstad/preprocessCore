@@ -28,8 +28,6 @@
  **
  ************************************************************************/
 
-#include "avg_log.h"
-
 #include <R.h> 
 #include <Rdefines.h>
 #include <Rmath.h>
@@ -38,19 +36,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stddef.h>
+
+#include "avg_log.h"
+
 
 /***************************************************************************
  **
- ** double AvgLog(double *x, int length)
+ ** double AvgLog(double *x, size_t length)
  **
  ** double *x - a vector of PM intensities  (previously log2 transformed)
- ** int length - length of *x
+ ** size_t length - length of *x
  **
  ** take the average of log2 PM intensities.
  **
  ***************************************************************************/
 
-static double AvgLog(double *x, int length){
+static double AvgLog(double *x, size_t length){
   int i;
   double sum = 0.0;
   double mean = 0.0;
@@ -66,18 +68,18 @@ static double AvgLog(double *x, int length){
 
 /***************************************************************************
  **
- ** static double AvgLogSE(double *x, int length)
+ ** static double AvgLogSE(double *x, size_t length)
  **
  ** double *x - a vector of PM intensities (previously log2 transformed)
  ** double mean - the mean of x computed using AvgLog above
- ** int length - length of *x
+ ** size_t length - length of *x
  **
  ** compute the standard error of the average of log2 PM intensities.
  ** 
  **
  ***************************************************************************/
 
-static double AvgLogSE(double *x, double mean, int length){
+static double AvgLogSE(double *x, double mean, size_t length){
   int i;
   double sum = 0.0;
 
@@ -92,7 +94,7 @@ static double AvgLogSE(double *x, double mean, int length){
 }
 
 
-void averagelog_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+void averagelog_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
   int i,j;
 
   for (j = 0; j < cols; j++){
@@ -108,22 +110,21 @@ void averagelog_no_copy(double *data, int rows, int cols, double *results, doubl
 
 /***************************************************************************
  ** 
- ** void averagelog(double *data, int rows, int cols, double *results, double *resultsSE)
+ ** void averagelog(double *data, size_t rows, size_t cols, double *results, double *resultsSE)
  **
  ** aim: given a data matrix of probe intensities, compute average of log2 values in column wise manner 
  **      
  **
  ** double *data - Probe intensity matrix
- ** int rows - number of rows in matrix *data (probes)
- ** int cols - number of cols in matrix *data (chips)
- ** int *cur_rows - indicies of rows corresponding to current probeset
+ ** size_t rows - number of rows in matrix *data (probes)
+ ** size_t cols - number of cols in matrix *data (chips)
  ** double *results - already allocated location to store expression measures (cols length)
- ** int nprobes - number of probes in current probeset.
+ ** double *resultsSE - already allocated location to store expression measures standard error (cols length)
  **
  ***************************************************************************/
 
 
-void averagelog(double *data, int rows, int cols, double *results, double *resultsSE){
+void averagelog(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
   int i,j;
   double *z = Calloc(rows,double);
 
@@ -143,7 +144,7 @@ void averagelog(double *data, int rows, int cols, double *results, double *resul
 
 /***************************************************************************
  **
- ** double AverageLog(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes)
+ ** double AverageLog(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE)
  **
  ** aim: given a data matrix of probe intensities, and a list of rows in the matrix 
  **      corresponding to a single probeset, compute average log2 expression measure. 
@@ -155,6 +156,7 @@ void averagelog(double *data, int rows, int cols, double *results, double *resul
  ** int *cur_rows - indicies of rows corresponding to current probeset
  ** double *results - already allocated location to store expression measures (cols length)
  ** int nprobes - number of probes in current probeset.
+ ** double *resultsSE - already allocated location to store expression measures standard errors (cols length)
  **
  ***************************************************************************/
 
@@ -173,7 +175,7 @@ void averagelog(double *data, int rows, int cols, double *results, double *resul
  *  
  */
 
-void AverageLog(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+void AverageLog(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
   int i,j;
   double *z = Calloc(nprobes*cols,double);
 
@@ -223,7 +225,7 @@ void AverageLog(double *data, int rows, int cols, int *cur_rows, double *results
  *  
  */
 
-void AverageLog_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
+void AverageLog_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
   int i,j;
   double *z = Calloc(nprobes*cols,double);
 
