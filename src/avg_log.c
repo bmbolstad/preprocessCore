@@ -124,7 +124,7 @@ void averagelog_no_copy(double *data, size_t rows, size_t cols, double *results,
  ***************************************************************************/
 
 
-void averagelog(double *data, int rows, int cols, double *results, double *resultsSE){
+void averagelog(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
   int i,j;
   double *z = Calloc(rows,double);
 
@@ -225,7 +225,7 @@ void AverageLog(double *data, size_t rows, size_t cols, int *cur_rows, double *r
  *  
  */
 
-void AverageLog_noSE(double *data, eize_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
+void AverageLog_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
   int i,j;
   double *z = Calloc(nprobes*cols,double);
 
