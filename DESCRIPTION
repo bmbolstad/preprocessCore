@@ -1,0 +1,12 @@
+Package: preprocessCore
+Version: 1.27.1
+Title: A collection of pre-processing functions
+Author: Benjamin Milo Bolstad <bmb@bmbolstad.com>
+Maintainer: Benjamin Milo Bolstad <bmb@bmbolstad.com>
+Depends: methods
+Imports: stats
+Description: A library of core preprocessing routines 
+License: LGPL (>= 2)
+Collate:  normalize.quantiles.R quantile_extensions.R rma.background.correct.R rcModel.R colSummarize.R subColSummarize.R plmr.R plmd.R
+LazyLoad: yes
+biocViews: Infrastructure
