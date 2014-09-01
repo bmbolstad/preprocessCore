@@ -25,9 +25,6 @@
  ************************************************************************/
 
 
-#include "log_median.h"
-#include "rma_common.h"
-
 #include <R.h> 
 #include <Rdefines.h>
 #include <Rmath.h>
@@ -36,6 +33,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stddef.h>
+
+#include "log_median.h"
+#include "rma_common.h"
 
 
 /***************************************************************************
@@ -49,7 +50,7 @@
  **
  ***************************************************************************/
 
-static double log_median(double *x, int length){
+static double log_median(double *x, size_t length){
 
   double med = 0.0;
   
@@ -76,8 +77,9 @@ static double log_median(double *x, int length){
  **
  ***************************************************************************/
 
-void LogMedian(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
-  int i,j;
+void LogMedian(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
+
+  size_t i,j;
   double *z = Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
@@ -95,8 +97,9 @@ void LogMedian(double *data, int rows, int cols, int *cur_rows, double *results,
 
 
 
-void LogMedian_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
-  int i,j;
+void LogMedian_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
+
+  size_t i,j;
   double *z = Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
@@ -117,8 +120,9 @@ void LogMedian_noSE(double *data, int rows, int cols, int *cur_rows, double *res
 
 
 
-void logmedian(double *data, int rows, int cols, double *results, double *resultsSE){
-  int i,j;
+void logmedian(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
+
+  size_t i,j;
   double *buffer = Calloc(rows, double);
   
   for (j=0; j < cols; j++){
@@ -134,8 +138,9 @@ void logmedian(double *data, int rows, int cols, double *results, double *result
 }
 
 
-void logmedian_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
-  int i,j;
+void logmedian_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
+
+  size_t i,j;
   
   for (j=0; j < cols; j++){
     results[j] = log_median(&data[j*rows],rows); 

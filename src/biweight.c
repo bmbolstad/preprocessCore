@@ -31,9 +31,6 @@
  **
  ************************************************************************/
 
-/*#include "threestep_common.h" */
-#include "biweight.h"
-#include "rma_common.h"
 #include <R.h> 
 #include <Rdefines.h>
 #include <Rmath.h>
@@ -41,6 +38,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stddef.h>
+
+#include "biweight.h"
+#include "rma_common.h"
 
 /******************************************************************************
  **
@@ -65,20 +66,20 @@ static double weight_bisquare(double x){
 
 /****************************************************************************
  **
- ** double Tukey_Biweight(double *x, int length)
+ ** double Tukey_Biweight(double *x, size_t length)
  **
  ** implements one step Tukey's Biweight as documented in the Affymetrix 
  ** Statistical Algorithms Description Document. 
  **
  ** double *x - vector of data
- ** int length - length of *x
+ ** size_t length - length of *x
  **
  ****************************************************************************/
 
-double Tukey_Biweight(double *x, int length){
+double Tukey_Biweight(double *x, size_t length){
   
   double median;
-  int i;
+  size_t i;
   double *buffer = (double *)Calloc(length,double);
   double c = 5.0;
   double epsilon = 0.0001;
@@ -97,10 +98,11 @@ double Tukey_Biweight(double *x, int length){
   } else {
     median = buffer[length/2];
   }
-  /* printf("%f \n",median); */
+
   for (i=0; i < length; i++){
     buffer[i] = fabs(x[i] - median);
   }
+
   qsort(buffer,length,sizeof(double),(int(*)(const void*, const void*))sort_double);
 
   if (length%2 == 0){
@@ -109,7 +111,7 @@ double Tukey_Biweight(double *x, int length){
     S = buffer[length/2];
   }
   
-  /*  printf("%f \n",S); */
+
 
   for (i=0; i < length; i++){
     buffer[i] = (x[i] - median)/(c*S + epsilon);
@@ -127,20 +129,20 @@ double Tukey_Biweight(double *x, int length){
 
 /****************************************************************************
  **
- ** double Tukey_Biweight_SE(double *x, double BW, int length)
+ ** double Tukey_Biweight_SE(double *x, double BW, size_t length)
  **
  ** implements one step Tukey's Biweight SE as documented in the Affymetrix 
  ** Statistical Algorithms Description Document. 
  **
  ** double *x - vector of data
- ** int length - length of *x
+ ** size_t length - length of *x
  **
  ****************************************************************************/
 
-static double Tukey_Biweight_SE(double *x,double BW, int length){
+static double Tukey_Biweight_SE(double *x,double BW, size_t length){
   
   double median;
-  int i;
+  size_t i;
   double *buffer = (double *)Calloc(length,double);
   double c = 5.0;
   double epsilon = 0.0001;
@@ -159,10 +161,11 @@ static double Tukey_Biweight_SE(double *x,double BW, int length){
   } else {
     median = buffer[length/2];
   }
-  /* printf("%f \n",median); */
+
   for (i=0; i < length; i++){
     buffer[i] = fabs(x[i] - median);
   }
+
   qsort(buffer,length,sizeof(double),(int(*)(const void*, const void*))sort_double);
 
   if (length%2 == 0){
@@ -171,7 +174,7 @@ static double Tukey_Biweight_SE(double *x,double BW, int length){
     S = buffer[length/2];
   }
   
-  /*  printf("%f \n",S); */
+
 
   for (i=0; i < length; i++){
     buffer[i] = (x[i] - median)/(c*S + epsilon);
@@ -188,8 +191,9 @@ static double Tukey_Biweight_SE(double *x,double BW, int length){
 }
 
 
-void tukeybiweight(double *data, int rows, int cols, double *results, double *resultsSE){
-  int i,j;
+void tukeybiweight(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
+
+  size_t i,j;
   double *z = Calloc(rows,double);
 
   for (j = 0; j < cols; j++){
@@ -209,8 +213,9 @@ void tukeybiweight(double *data, int rows, int cols, double *results, double *re
 
 
 
-void tukeybiweight_no_log(double *data, int rows, int cols, double *results, double *resultsSE){
-  int i,j;
+void tukeybiweight_no_log(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
+
+  size_t i,j;
   double *z = Calloc(rows,double);
 
   for (j = 0; j < cols; j++){
@@ -242,7 +247,7 @@ void tukeybiweight_no_log(double *data, int rows, int cols, double *results, dou
 
 /**********************************************************************************
  **
- ** void tukeybiweight(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes)
+ ** void tukeybiweight(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes)
  **
  ** aim: given a data matrix of probe intensities, and a list of rows in the matrix 
  **      corresponding to a single probeset, compute tukey biweight expression measure. 
@@ -272,8 +277,9 @@ void tukeybiweight_no_log(double *data, int rows, int cols, double *results, dou
  *  
  */
 
-void TukeyBiweight(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
-  int i,j;
+void TukeyBiweight(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
+
+  size_t i,j;
   double *z = Calloc(nprobes,double);
 
   for (j = 0; j < cols; j++){
@@ -288,8 +294,9 @@ void TukeyBiweight(double *data, int rows, int cols, int *cur_rows, double *resu
 
 
 
-void TukeyBiweight_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
-  int i,j;
+void TukeyBiweight_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
+
+  size_t i,j;
   double *z = Calloc(nprobes,double);
 
   for (j = 0; j < cols; j++){
@@ -302,8 +309,9 @@ void TukeyBiweight_noSE(double *data, int rows, int cols, int *cur_rows, double 
 }
 
 
-void TukeyBiweight_no_log_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
-  int i,j;
+void TukeyBiweight_no_log_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
+
+  size_t i,j;
   double *z = Calloc(nprobes,double);
 
   for (j = 0; j < cols; j++){

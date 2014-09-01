@@ -8,6 +8,8 @@
 #ifndef LOG_MEDIAN_H
 #define LOG_MEDIAN_H 1
 
+#include <stddef.h>
+
 /*! \brief compute the median for subset of rows and the \f$\log_2\f$ transform it
  * 
  *  Given a data matrix of probe intensities compute median and then \f$\log_2\f$ transform it. Also compute SE of this estimate
@@ -26,7 +28,7 @@
  *  
  */
 
-void LogMedian(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE);
+void LogMedian(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE);
 
 /*! \brief compute the median for subset of rows and the \f$\log_2\f$ transform it
  * 
@@ -45,11 +47,11 @@ void LogMedian(double *data, int rows, int cols, int *cur_rows, double *results,
  *  
  */
 
-void LogMedian_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes);
+void LogMedian_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes);
 
 /*! \brief compute the median for each column and then \f$\log_2\f$ transform it
  * 
- *  Given a data matrix of probe intensities compute median and then \f$\log_2\f$ transform it. Also produce the SE of this estimate
+ *  Given a data matrix of probe size_tensities compute median and then \f$\log_2\f$ transform it. Also produce the SE of this estimate
  *  on a column by column basis. Specifically, the median is computed for each column and then \f$\log_2\f$ transformed.
  *  The sample standard error is also computed. On output the data matrix will
  *  be unchanged.
@@ -64,7 +66,7 @@ void LogMedian_noSE(double *data, int rows, int cols, int *cur_rows, double *res
  *  
  */
 
-void logmedian(double *data, int rows, int cols, double *results, double *resultsSE);
+void logmedian(double *data, size_t rows, size_t cols, double *results, double *resultsSE);
 
 /*! \brief compute the median for each column and then \f$\log_2\f$ transform it
  * 
@@ -83,6 +85,6 @@ void logmedian(double *data, int rows, int cols, double *results, double *result
  *  
  */
 
-void logmedian_no_copy(double *data, int rows, int cols, double *results, double *resultsSE);
+void logmedian_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE);
 
 #endif

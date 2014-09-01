@@ -23,8 +23,6 @@
  **
  ************************************************************************/
 
-#include "log_avg.h"
-#include "qnorm.h"
 
 #include <R.h> 
 #include <Rdefines.h>
@@ -34,6 +32,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stddef.h>
+
+#include "log_avg.h"
+#include "qnorm.h"
 
 
 /***************************************************************************
@@ -47,8 +49,9 @@
  **
  ***************************************************************************/
 
-static double LogAvg(double *x, int length){
-  int i;
+static double LogAvg(double *x, size_t length){
+
+  size_t i;
   double sum = 0.0;
   double mean = 0.0;
 
@@ -80,8 +83,9 @@ static double LogAvg(double *x, int length){
  ***************************************************************************/
 
 
-void logaverage(double *data, int rows, int cols, double *results, double *resultsSE){
-  int i,j;
+void logaverage(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
+
+  size_t i,j;
   double *z = Calloc(rows,double);
 
   for (j = 0; j < cols; j++){
@@ -98,7 +102,7 @@ void logaverage(double *data, int rows, int cols, double *results, double *resul
 
 /***************************************************************************
  **
- ** double LogAverage(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes)
+ ** double LogAverage(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes)
  **
  ** aim: given a data matrix of probe intensities, and a list of rows in the matrix 
  **      corresponding to a single probeset, compute average log2 expression measure. 
@@ -127,8 +131,9 @@ void logaverage(double *data, int rows, int cols, double *results, double *resul
  *
  *  
  */
-void LogAverage(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
-  int i,j;
+void LogAverage(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
+
+  size_t i,j;
   double *z = Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
@@ -145,8 +150,9 @@ void LogAverage(double *data, int rows, int cols, int *cur_rows, double *results
 }
 
 
-void LogAverage_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
-  int i,j;
+void LogAverage_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
+
+  size_t i,j;
   double *z = Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
