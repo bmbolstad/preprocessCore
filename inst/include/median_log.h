@@ -5,6 +5,8 @@
 #ifndef MEDIAN_LOG_H
 #define MEDIAN_LOG_H 1
 
+#include <stddef.h>
+
 /*! \brief  \f$\log_2\f$ transform the data and compute the median 
  * 
  *  Given a data matrix of probe intensities \f$\log_2\f$ transform it and then compute the median. Also compute SE of this estimate
@@ -23,7 +25,7 @@
  *  
  */
 
-void MedianLog(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE);
+void MedianLog(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE);
 
 /*! \brief  \f$\log_2\f$ transform the data and compute the median 
  * 
@@ -40,7 +42,7 @@ void MedianLog(double *data, int rows, int cols, int *cur_rows, double *results,
  *  
  */
 
-void MedianLog_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes);
+void MedianLog_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes);
 
 /*! \brief compute the median for each column of \f$\log_2\f$ transformed data.
  * 
@@ -59,7 +61,7 @@ void MedianLog_noSE(double *data, int rows, int cols, int *cur_rows, double *res
  *  
  */
 
-void medianlog(double *data, int rows, int cols, double *results, double *resultsSE);
+void medianlog(double *data, size_t rows, size_t cols, double *results, double *resultsSE);
 
 /*! \brief compute the median for each column of \f$\log_2\f$ transformed data.
  * 
@@ -78,7 +80,7 @@ void medianlog(double *data, int rows, int cols, double *results, double *result
  *  
  */
 
-void medianlog_no_copy(double *data, int rows, int cols, double *results, double *resultsSE);
+void medianlog_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE);
 
 
 
