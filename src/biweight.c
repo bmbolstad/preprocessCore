@@ -294,7 +294,7 @@ void TukeyBiweight(double *data, size_t rows, size_t cols, int *cur_rows, double
 
 
 
-void TukeyBiweight_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
+void TukeyBiweight_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
 
   size_t i,j;
   double *z = Calloc(nprobes,double);
