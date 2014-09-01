@@ -3,9 +3,9 @@
  ** avg_log.c
  **
  ** created by: B. M. Bolstad   <bmb@bmbolstad.com>
- ** created on: Jan 7, 2002  (but based on earlier work from Nov 2002)
+ ** created on: Jan 7, 2003  (but based on earlier work from Nov 2002)
  **
- ** Copyright (C) 2002-2007 Ben Bolstad
+ ** Copyright (C) 2002-2014 Ben Bolstad
  **
  ** last modified: Jan 7, 2003
  **
@@ -13,7 +13,14 @@
  **
  ** General discussion
  **
- ** Implement avgerage log2 pm summarization, with or without normalization
+ ** Implement average log2 pm summarization, with or without normalization
+ **
+ **  
+ ** There are four main functions (that are exposed to outside this file):
+ ** averagelog  - computes averages of log2 of each column
+ ** averagelog_no_copy - computes averages of log2 of each column (does not allocate extra space, which means may change values in input matrix)
+ ** AverageLog  - computes averages (and SE of average) of log2 of each column using only a subset of rows (with subset specified and identical across columns)
+ ** AverageLog_noSE - computes averages of log2 of each column using only a subset of rows (with subset specified and identical across columns)
  **
  ** Nov 2, 2002 - modify so that it will work efficently with affy2
  ** Jan 3, 2003 - Clean up commenting, prepare for integration in AffyExtensions
@@ -25,6 +32,8 @@
  ** May 19, 2007 - branch out of affyPLM into a new package preprocessCore, then restructure the code. Add doxygen style documentation
  ** May 26, 2007 - fix memory leak in average_log. add additional interfaces
  ** Sep 16, 2007 - fix error in how StdError is computed
+ ** Sep 2014 - Change to size_t rather than int for variables indexing pointers. Improve code documentation.
+ **
  **
  ************************************************************************/
 
@@ -66,6 +75,8 @@ static double AvgLog(double *x, size_t length){
   return (mean);    
 }
 
+
+
 /***************************************************************************
  **
  ** static double AvgLogSE(double *x, size_t length)
@@ -94,6 +105,40 @@ static double AvgLogSE(double *x, double mean, size_t length){
 }
 
 
+
+/***************************************************************************
+ ** 
+ ** void averagelog_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE)
+ **
+ ** aim: given a data matrix of probe intensities, compute average of log2 values in column wise manner 
+ **      no additional memory allocation is done, input matrix may be changed on output
+ **
+ ** double *data - Probe intensity matrix
+ ** size_t rows - number of rows in matrix *data (probes)
+ ** size_t cols - number of cols in matrix *data (chips)
+ ** double *results - already allocated location to store expression measures (cols length)
+ ** double *resultsSE - already allocated location to store expression measures standard error (cols length)
+ **
+ ***************************************************************************/
+
+/*! \brief log2 transform and then compute the mean and SE of the mean
+ * 
+ *  Given a data matrix of probe intensities compute average log2 expression measure and SE of this estimate
+ *  on a column by column basis. Specifically, each element is log2 transformed, then the arithmetic mean
+ *  is computed for each column. The sample standard error is also computed. This function guarantees that 
+ *  no additional memory is temporarily allocated to copy the input data matrix. However, this means that
+ *  on output the input matrix will be changed.
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols
+ *
+ *  
+ */
+
 void averagelog_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
   int i,j;
 
@@ -106,6 +151,7 @@ void averagelog_no_copy(double *data, size_t rows, size_t cols, double *results,
   } 
 
 }
+
 
 
 /***************************************************************************
@@ -123,6 +169,22 @@ void averagelog_no_copy(double *data, size_t rows, size_t cols, double *results,
  **
  ***************************************************************************/
 
+/*! \brief log2 transform and then compute the mean and SE of the mean
+ * 
+ *  Given a data matrix of probe intensities compute average log2 expression measure and SE of this estimate
+ *  on a column by column basis. Specifically, each element is log2 transformed, then the arithmetic mean
+ *  is computed for each column. The sample standard error is also computed. On output the data matrix will
+ *  be unchanged.
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols
+ *
+ *  
+ */
 
 void averagelog(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
   int i,j;
@@ -138,7 +200,6 @@ void averagelog(double *data, size_t rows, size_t cols, double *results, double 
   Free(z);
 
 }
-
 
 
 
@@ -194,6 +255,7 @@ void AverageLog(double *data, size_t rows, size_t cols, int *cur_rows, double *r
 }
 
 
+
 /***************************************************************************
  **
  ** double AverageLog(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes)
@@ -240,6 +302,3 @@ void AverageLog_noSE(double *data, size_t rows, size_t cols, int *cur_rows, doub
   }
   Free(z);
 }
-
-
-
