@@ -7,6 +7,8 @@
 #ifndef BIWEIGHT_H
 #define BIWEIGHT_H 1
 
+#include <stddef.h>
+
 /*! \brief log2 transform the data and then use a 1-step Tukey Biweight to summarize each column
  * 
  *  Given a data matrix of probe intensities compute average expression measure then log2 it and SE of this estimate
@@ -22,7 +24,7 @@
  *  
  */
 
-void tukeybiweight(double *data, int rows, int cols, double *results, double *resultsSE);
+void tukeybiweight(double *data, size_t rows, size_t cols, double *results, double *resultsSE);
 
 /*! \brief Use a 1-step Tukey Biweight to summarize each column
  * 
@@ -39,7 +41,7 @@ void tukeybiweight(double *data, int rows, int cols, double *results, double *re
  *  
  */
 
-void tukeybiweight_no_log(double *data, int rows, int cols, double *results, double *resultsSE);
+void tukeybiweight_no_log(double *data, size_t rows, size_t cols, double *results, double *resultsSE);
 
 /*! \brief Use a 1-step Tukey Biweight to summarize each column
  *
@@ -58,7 +60,7 @@ void tukeybiweight_no_log(double *data, int rows, int cols, double *results, dou
  *  
  */
 
-void TukeyBiweight(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE);
+void TukeyBiweight(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE);
 
 /*! \brief Use a 1-step Tukey Biweight to summarize each column
  *
@@ -76,7 +78,7 @@ void TukeyBiweight(double *data, int rows, int cols, int *cur_rows, double *resu
  *  
  */
 
-void TukeyBiweight_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes);
+void TukeyBiweight_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes);
 
 /*! \brief Use a 1-step Tukey Biweight to summarize each column
  *
@@ -93,7 +95,7 @@ void TukeyBiweight_noSE(double *data, int rows, int cols, int *cur_rows, double 
  *  
  */
 
-void TukeyBiweight_no_log_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes);
+void TukeyBiweight_no_log_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes);
 
 /*! \brief compute a 1-step Tukey Biweight
  *
@@ -106,6 +108,6 @@ void TukeyBiweight_no_log_noSE(double *data, int rows, int cols, int *cur_rows, 
  *
  */
 
-double Tukey_Biweight(double *x, int length);
+double Tukey_Biweight(double *x, size_t length);
 
 #endif

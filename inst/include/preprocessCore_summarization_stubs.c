@@ -20,12 +20,12 @@
  *  
  */
 
-void averagelog_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+void averagelog_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
-  static void(*fun)(double*, int, int, double *, double *) = NULL;
+  static void(*fun)(double*, size_t, size_t, double *, double *) = NULL;
   
   if (fun == NULL)
-    fun =  (void(*)(double*, int, int, double *, double *))R_GetCCallable("preprocessCore","averagelog_no_copy");
+    fun =  (void(*)(double*, size_t, size_t, double *, double *))R_GetCCallable("preprocessCore","averagelog_no_copy");
   
   fun(data,rows,cols,results,resultsSE);
   return;
@@ -46,13 +46,13 @@ void averagelog_no_copy(double *data, int rows, int cols, double *results, doubl
  *  
  */
 
-void averagelog(double *data, int rows, int cols, double *results, double *resultsSE){
+void averagelog(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
 
-  static void(*fun)(double*, int, int, double *, double *) = NULL;
+  static void(*fun)(double*, size_t, size_t, double *, double *) = NULL;
   
   if (fun == NULL)
-    fun =  (void(*)(double*, int, int, double *, double *))R_GetCCallable("preprocessCore","averagelog");
+    fun =  (void(*)(double*, size_t, size_t, double *, double *))R_GetCCallable("preprocessCore","averagelog");
   
   fun(data,rows,cols,results,resultsSE);
   return;
@@ -75,12 +75,12 @@ void averagelog(double *data, int rows, int cols, double *results, double *resul
  *  
  */
 
-void AverageLog(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+void AverageLog(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
 
-  static void(*fun)(double*, int, int, int*, double *, int, double *) = NULL;
+  static void(*fun)(double*, size_t, size_t, int*, double *, size_t, double *) = NULL;
   
   if (fun == NULL)
-    fun =  (void(*)(double*, int, int, int*, double *, int, double *))R_GetCCallable("preprocessCore","AverageLog");
+    fun =  (void(*)(double*, size_t, size_t, int*, double *, size_t, double *))R_GetCCallable("preprocessCore","AverageLog");
   
   fun(data,rows,cols,cur_rows,results,nprobes,resultsSE);
   return;
@@ -102,13 +102,13 @@ void AverageLog(double *data, int rows, int cols, int *cur_rows, double *results
  *  
  */
 
-void AverageLog_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
+void AverageLog_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
   
 
-  static void(*fun)(double*, int, int, int*, double *, int) = NULL;
+  static void(*fun)(double*, size_t, size_t, int*, double *, size_t) = NULL;
   
   if (fun == NULL)
-    fun =  (void(*)(double*, int, int, int*, double *, int))R_GetCCallable("preprocessCore","AverageLog_noSE");
+    fun =  (void(*)(double*, size_t, size_t, int*, double *, size_t))R_GetCCallable("preprocessCore","AverageLog_noSE");
   fun(data,rows,cols,cur_rows,results,nprobes);
   return;
 }
@@ -128,12 +128,12 @@ void AverageLog_noSE(double *data, int rows, int cols, int *cur_rows, double *re
  *  
  */
 
-void logaverage(double *data, int rows, int cols, double *results, double *resultsSE){
+void logaverage(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
-  static void(*fun)(double*, int, int, double *, double *) = NULL;
+  static void(*fun)(double*, size_t, size_t, double *, double *) = NULL;
   
   if (fun == NULL)
-    fun =  (void(*)(double*, int, int, double *, double *))R_GetCCallable("preprocessCore","logaverage");
+    fun =  (void(*)(double*, size_t, size_t, double *, double *))R_GetCCallable("preprocessCore","logaverage");
   fun(data,rows,cols,results,resultsSE);
   return;
 }
@@ -155,13 +155,13 @@ void logaverage(double *data, int rows, int cols, double *results, double *resul
  *  
  */
 
-void LogAverage(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+void LogAverage(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
 
 
-  static void(*fun)(double*, int, int, int*, double *, int, double *) = NULL;
+  static void(*fun)(double*, size_t, size_t, int*, double *, size_t, double *) = NULL;
   
   if (fun == NULL)
-    fun =  (void(*)(double*, int, int, int*, double *, int, double *))R_GetCCallable("preprocessCore","LogAverage");
+    fun =  (void(*)(double*, size_t, size_t, int*, double *, size_t, double *))R_GetCCallable("preprocessCore","LogAverage");
   fun(data, rows, cols, cur_rows, results, nprobes, resultsSE);
   return;
 }
@@ -182,13 +182,13 @@ void LogAverage(double *data, int rows, int cols, int *cur_rows, double *results
  *  
  */
 
-void LogAverage_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
+void LogAverage_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
 
 
-  static void(*fun)(double*, int, int, int*, double *, int) = NULL;
+  static void(*fun)(double*, size_t, size_t, int*, double *, size_t) = NULL;
   
   if (fun == NULL)
-    fun =  (void(*)(double*, int, int, int*, double *, int))R_GetCCallable("preprocessCore","LogAverage_noSE");
+    fun =  (void(*)(double*, size_t, size_t, int*, double *, size_t))R_GetCCallable("preprocessCore","LogAverage_noSE");
   fun(data, rows, cols, cur_rows, results, nprobes);
   return;
 }
@@ -208,12 +208,12 @@ void LogAverage_noSE(double *data, int rows, int cols, int *cur_rows, double *re
  *  
  */
 
-void tukeybiweight(double *data, int rows, int cols, double *results, double *resultsSE){
+void tukeybiweight(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
-  static void(*fun)(double *, int, int, double *, double *) = NULL;
+  static void(*fun)(double *, size_t, size_t, double *, double *) = NULL;
 
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, double *, double *))R_GetCCallable("preprocessCore","tukeybiweight");
+    fun = (void(*)(double *, size_t, size_t, double *, double *))R_GetCCallable("preprocessCore","tukeybiweight");
   fun(data, rows, cols, results, resultsSE);
   return;
 }
@@ -233,12 +233,12 @@ void tukeybiweight(double *data, int rows, int cols, double *results, double *re
  *  
  */
 
-void tukeybiweight_no_log(double *data, int rows, int cols, double *results, double *resultsSE){
+void tukeybiweight_no_log(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
-  static void(*fun)(double *, int, int, double *, double *) = NULL;
+  static void(*fun)(double *, size_t, size_t, double *, double *) = NULL;
 
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, double *, double *))R_GetCCallable("preprocessCore","tukeybiweight_no_log");
+    fun = (void(*)(double *, size_t, size_t, double *, double *))R_GetCCallable("preprocessCore","tukeybiweight_no_log");
   fun(data, rows, cols, results, resultsSE);
   return;
 }
@@ -260,13 +260,13 @@ void tukeybiweight_no_log(double *data, int rows, int cols, double *results, dou
  *  
  */
 
-void TukeyBiweight(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+void TukeyBiweight(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
 
 
-  static void(*fun)(double *, int, int, int *, double *, int, double *) = NULL;
+  static void(*fun)(double *, size_t, size_t, int *, double *, size_t, double *) = NULL;
 
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, int *, double *, int, double *))R_GetCCallable("preprocessCore","TukeyBiweight");
+    fun = (void(*)(double *, size_t, size_t, int *, double *, size_t, double *))R_GetCCallable("preprocessCore","TukeyBiweight");
   fun(data, rows, cols, cur_rows,results, nprobes, resultsSE);
   return;
 }
@@ -287,13 +287,13 @@ void TukeyBiweight(double *data, int rows, int cols, int *cur_rows, double *resu
  *  
  */
 
-void TukeyBiweight_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
+void TukeyBiweight_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
 
 
-  static void(*fun)(double *, int, int, int *, double *, int) = NULL;
+  static void(*fun)(double *, size_t, size_t, int *, double *, size_t) = NULL;
 
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, int *, double *, int))R_GetCCallable("preprocessCore","TukeyBiweight_noSE");
+    fun = (void(*)(double *, size_t, size_t, int *, double *, size_t))R_GetCCallable("preprocessCore","TukeyBiweight_noSE");
   fun(data, rows, cols, cur_rows,results, nprobes);
   return;
 }
@@ -313,13 +313,13 @@ void TukeyBiweight_noSE(double *data, int rows, int cols, int *cur_rows, double 
  *  
  */
 
-void TukeyBiweight_no_log_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
+void TukeyBiweight_no_log_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
 
 
-  static void(*fun)(double *, int, int, int *, double *, int) = NULL;
+  static void(*fun)(double *, size_t, size_t, int *, double *, size_t) = NULL;
 
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, int *, double *, int))R_GetCCallable("preprocessCore","TukeyBiweight_no_log_noSE");
+    fun = (void(*)(double *, size_t, size_t, int *, double *, size_t))R_GetCCallable("preprocessCore","TukeyBiweight_no_log_noSE");
   fun(data, rows, cols, cur_rows,results, nprobes);
   return;
 }
@@ -336,24 +336,24 @@ void TukeyBiweight_no_log_noSE(double *data, int rows, int cols, int *cur_rows, 
  *
  */
 
-double Tukey_Biweight(double *x, int length){
+double Tukey_Biweight(double *x, size_t length){
 
-  static double(*fun)(double *, int) = NULL;
+  static double(*fun)(double *, size_t) = NULL;
 
   if (fun == NULL)
-    fun = (double (*)(double *, int))R_GetCCallable("preprocessCore","Tukey_Biweight");
+    fun = (double (*)(double *, size_t))R_GetCCallable("preprocessCore","Tukey_Biweight");
 
   return fun(x,length);
 
 }
 
 
-void lm_wfit(double *x, double *y, double *w, int rows, int cols, double tol, double *out_beta, double *out_resids){
+void lm_wfit(double *x, double *y, double *w, size_t rows, size_t cols, double tol, double *out_beta, double *out_resids){
 
-  static void(*fun)(double *, double *, double *, int, int, double, double *, double *) = NULL;
+  static void(*fun)(double *, double *, double *, size_t, size_t, double, double *, double *) = NULL;
 
   if (fun == NULL)
-    fun = (void(*)(double *, double *, double *, int, int, double, double *, double *))R_GetCCallable("preprocessCore","lm_wfit");
+    fun = (void(*)(double *, double *, double *, size_t, size_t, double, double *, double *))R_GetCCallable("preprocessCore","lm_wfit");
 
   fun(x,y,w,rows,cols,tol,out_beta,out_resids);
   return;
@@ -715,12 +715,12 @@ void MedianLog(double *data, int rows, int cols, int *cur_rows, double *results,
  *  
  */
 
-void MedianLog_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
+void MedianLog_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
 
-  static void(*fun)(double *, int, int, int *, double *, int) = NULL;
+  static void(*fun)(double *, size_t, size_t, int *, double *, size_t) = NULL;
 
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, int *, double *, int))R_GetCCallable("preprocessCore","MedianLog_noSE");
+    fun = (void(*)(double *, size_t, size_t, int *, double *, size_t))R_GetCCallable("preprocessCore","MedianLog_noSE");
   fun(data, rows, cols, cur_rows, results, nprobes);
   return;
 
@@ -745,12 +745,12 @@ void MedianLog_noSE(double *data, int rows, int cols, int *cur_rows, double *res
 
 
 
-void medianlog(double *data, int rows, int cols, double *results, double *resultsSE){
+void medianlog(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
-  static void(*fun)(double *, int, int, double *, double *) = NULL;
+  static void(*fun)(double *, size_t, size_t, double *, double *) = NULL;
   
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, double *, double *))R_GetCCallable("preprocessCore","medianlog");
+    fun = (void(*)(double *, size_t, size_t, double *, double *))R_GetCCallable("preprocessCore","medianlog");
   fun(data, rows, cols, results, resultsSE);
   return;
 
@@ -773,12 +773,12 @@ void medianlog(double *data, int rows, int cols, double *results, double *result
  *  
  */
 
-void medianlog_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+void medianlog_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
-  static void(*fun)(double *, int, int, double *, double *) = NULL;
+  static void(*fun)(double *, size_t, size_t, double *, double *) = NULL;
   
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, double *, double *))R_GetCCallable("preprocessCore","medianlog_no_copy");
+    fun = (void(*)(double *, size_t, size_t, double *, double *))R_GetCCallable("preprocessCore","medianlog_no_copy");
   fun(data, rows, cols, results, resultsSE);
   return;
 
@@ -802,12 +802,12 @@ void medianlog_no_copy(double *data, int rows, int cols, double *results, double
  *  
  */
 
-void LogMedian(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+void LogMedian(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
 
-  static void(*fun)(double *, int, int, int *, double *, int, double *) = NULL;
+  static void(*fun)(double *, size_t, size_t, int *, double *, size_t, double *) = NULL;
 
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, int *, double *, int, double *))R_GetCCallable("preprocessCore","LogMedian");
+    fun = (void(*)(double *, size_t, size_t, int *, double *, size_t, double *))R_GetCCallable("preprocessCore","LogMedian");
   fun(data, rows, cols, cur_rows, results, nprobes, resultsSE);
   return;
 
@@ -831,12 +831,12 @@ void LogMedian(double *data, int rows, int cols, int *cur_rows, double *results,
  */
 
 
-void LogMedian_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+void LogMedian_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
 
-  static void(*fun)(double *, int, int, int *, double *, int, double *) = NULL;
+  static void(*fun)(double *, size_t, size_t, int *, double *, size_t, double *) = NULL;
 
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, int *, double *, int, double *))R_GetCCallable("preprocessCore","LogMedian_noSE");
+    fun = (void(*)(double *, size_t, size_t, int *, double *, size_t, double *))R_GetCCallable("preprocessCore","LogMedian_noSE");
   fun(data, rows, cols, cur_rows, results, nprobes, resultsSE);
   return;
 
@@ -859,12 +859,12 @@ void LogMedian_noSE(double *data, int rows, int cols, int *cur_rows, double *res
  *  
  */
 
-void logmedian(double *data, int rows, int cols, double *results, double *resultsSE){
+void logmedian(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
-  static void(*fun)(double *, int, int, double *, double *) = NULL;
+  static void(*fun)(double *, size_t, size_t, double *, double *) = NULL;
   
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, double *, double *))R_GetCCallable("preprocessCore","logmedian");
+    fun = (void(*)(double *, size_t, size_t, double *, double *))R_GetCCallable("preprocessCore","logmedian");
   fun(data, rows, cols, results, resultsSE);
   return;
 
@@ -887,12 +887,12 @@ void logmedian(double *data, int rows, int cols, double *results, double *result
  *  
  */
 
-void logmedian_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+void logmedian_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
-  static void(*fun)(double *, int, int, double *, double *) = NULL;
+  static void(*fun)(double *, size_t, size_t, double *, double *) = NULL;
   
   if (fun == NULL)
-    fun = (void(*)(double *, int, int, double *, double *))R_GetCCallable("preprocessCore","logmedian_no_copy");
+    fun = (void(*)(double *, size_t, size_t, double *, double *))R_GetCCallable("preprocessCore","logmedian_no_copy");
   fun(data, rows, cols, results, resultsSE);
   return;
 
@@ -917,12 +917,12 @@ void logmedian_no_copy(double *data, int rows, int cols, double *results, double
  *  
  */
 
-void colaverage_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+void colaverage_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
-  static void(*fun)(double*, int, int, double *, double *) = NULL;
+  static void(*fun)(double*, size_t, size_t, double *, double *) = NULL;
   
   if (fun == NULL)
-    fun =  (void(*)(double*, int, int, double *, double *))R_GetCCallable("preprocessCore","colaverage_no_copy");
+    fun =  (void(*)(double*, size_t, size_t, double *, double *))R_GetCCallable("preprocessCore","colaverage_no_copy");
   
   fun(data,rows,cols,results,resultsSE);
   return;
@@ -946,12 +946,12 @@ void colaverage_no_copy(double *data, int rows, int cols, double *results, doubl
  *  
  */
 
-void colaverage(double *data, int rows, int cols, double *results, double *resultsSE){
+void colaverage(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
-  static void(*fun)(double*, int, int, double *, double *) = NULL;
+  static void(*fun)(double*, size_t, size_t, double *, double *) = NULL;
   
   if (fun == NULL)
-    fun =  (void(*)(double*, int, int, double *, double *))R_GetCCallable("preprocessCore","colaverage");
+    fun =  (void(*)(double*, size_t, size_t, double *, double *))R_GetCCallable("preprocessCore","colaverage");
   
   fun(data,rows,cols,results,resultsSE);
   return;
@@ -976,12 +976,12 @@ void colaverage(double *data, int rows, int cols, double *results, double *resul
  *  
  */
 
-void ColAverage(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+void ColAverage(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
 
-  static void(*fun)(double*, int, int, int*, double *, int, double *) = NULL;
+  static void(*fun)(double*, size_t, size_t, int*, double *, size_t, double *) = NULL;
   
   if (fun == NULL)
-    fun =  (void(*)(double*, int, int, int*, double *, int, double *))R_GetCCallable("preprocessCore","ColAverage");
+    fun =  (void(*)(double*, size_t, size_t, int*, double *, size_t, double *))R_GetCCallable("preprocessCore","ColAverage");
   
   fun(data, rows, cols, cur_rows, results, nprobes, resultsSE);
   return;
@@ -1005,12 +1005,12 @@ void ColAverage(double *data, int rows, int cols, int *cur_rows, double *results
  *  
  */
 
-void ColAverage_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
+void ColAverage_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
 
-  static void(*fun)(double*, int, int, int*, double *, int) = NULL;
+  static void(*fun)(double*, size_t, size_t, int*, double *, size_t) = NULL;
   
   if (fun == NULL)
-    fun =  (void(*)(double*, int, int, int*, double *, int))R_GetCCallable("preprocessCore","ColAverage_noSE");
+    fun =  (void(*)(double*, size_t, size_t, int*, double *, size_t))R_GetCCallable("preprocessCore","ColAverage_noSE");
   
   fun(data, rows, cols, cur_rows, results, nprobes);
   return;
@@ -1032,12 +1032,12 @@ void ColAverage_noSE(double *data, int rows, int cols, int *cur_rows, double *re
  *  
  */
 
-void colmedian_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
+void colmedian_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
-  static void(*fun)(double*, int, int, double *, double *) = NULL;
+  static void(*fun)(double*, size_t, size_t, double *, double *) = NULL;
   
   if (fun == NULL)
-    fun =  (void(*)(double*, int, int, double *, double *))R_GetCCallable("preprocessCore","colmedian_no_copy");
+    fun =  (void(*)(double*, size_t, size_t, double *, double *))R_GetCCallable("preprocessCore","colmedian_no_copy");
   
   fun(data,rows,cols,results,resultsSE);
   return;
@@ -1061,12 +1061,12 @@ void colmedian_no_copy(double *data, int rows, int cols, double *results, double
  *  
  */
 
-void colmedian(double *data, int rows, int cols, double *results, double *resultsSE){
+void colmedian(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
-  static void(*fun)(double*, int, int, double *, double *) = NULL;
+  static void(*fun)(double*, size_t, size_t, double *, double *) = NULL;
   
   if (fun == NULL)
-    fun =  (void(*)(double*, int, int, double *, double *))R_GetCCallable("preprocessCore","colmedian");
+    fun =  (void(*)(double*, size_t, size_t, double *, double *))R_GetCCallable("preprocessCore","colmedian");
   
   fun(data,rows,cols,results,resultsSE);
   return;
@@ -1091,12 +1091,12 @@ void colmedian(double *data, int rows, int cols, double *results, double *result
  *  
  */
 
-void ColMedian(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
+void ColMedian(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
 
-  static void(*fun)(double*, int, int, int*, double *, int, double *) = NULL;
+  static void(*fun)(double*, size_t, size_t, int*, double *, size_t, double *) = NULL;
   
   if (fun == NULL)
-    fun =  (void(*)(double*, int, int, int*, double *, int, double *))R_GetCCallable("preprocessCore","ColMedian");
+    fun =  (void(*)(double*, size_t, size_t, int*, double *, size_t, double *))R_GetCCallable("preprocessCore","ColMedian");
   
   fun(data, rows, cols, cur_rows, results, nprobes, resultsSE);
   return;
@@ -1120,12 +1120,12 @@ void ColMedian(double *data, int rows, int cols, int *cur_rows, double *results,
  *  
  */
 
-void ColMedian_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
+void ColMedian_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
 
-  static void(*fun)(double*, int, int, int*, double *, int) = NULL;
+  static void(*fun)(double*, size_t, size_t, int*, double *, size_t) = NULL;
   
   if (fun == NULL)
-    fun =  (void(*)(double*, int, int, int*, double *, int))R_GetCCallable("preprocessCore","ColMedian_noSE");
+    fun =  (void(*)(double*, size_t, size_t, int*, double *, size_t))R_GetCCallable("preprocessCore","ColMedian_noSE");
   
   fun(data, rows, cols, cur_rows, results, nprobes);
   return;

@@ -6,6 +6,8 @@
 #ifndef MEDIAN_H
 #define MEDIAN_H 1
 
+#include <stddef.h>
+
 /*! \brief Compute the median and SE of the median for subset of rows
  * 
  *  Given a data matrix of probe intensities compute median and SE of this estimate
@@ -24,7 +26,7 @@
  *  
  */
 
-void ColMedian(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE);
+void ColMedian(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE);
 
 /*! \brief compute the median for specified subset of rows
  * 
@@ -44,7 +46,7 @@ void ColMedian(double *data, int rows, int cols, int *cur_rows, double *results,
  *  
  */
 
-void ColMedian_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes);
+void ColMedian_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes);
 
 /*! \brief Compute the median and SE of the median
  * 
@@ -64,7 +66,7 @@ void ColMedian_noSE(double *data, int rows, int cols, int *cur_rows, double *res
  *  
  */
 
-void colmedian(double *data, int rows, int cols, double *results, double *resultsSE);
+void colmedian(double *data, size_t rows, size_t cols, double *results, double *resultsSE);
 
 /*! \brief Compute the median and SE of the median
  * 
@@ -82,7 +84,7 @@ void colmedian(double *data, int rows, int cols, double *results, double *result
  *  
  */
 
-void colmedian_no_copy(double *data, int rows, int cols, double *results, double *resultsSE);
+void colmedian_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE);
 
 
 

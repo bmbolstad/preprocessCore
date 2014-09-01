@@ -23,9 +23,6 @@
  **
  ************************************************************************/
 
-#include "rma_common.h"
-#include "median_log.h"
-
 #include <R.h> 
 #include <Rdefines.h>
 #include <Rmath.h>
@@ -34,11 +31,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stddef.h>
 
+#include "rma_common.h"
+#include "median_log.h"
 
 /***************************************************************************
  **
- ** double MedianLog(double *x, int length)
+ ** double MedianLog(double *x, size_t length)
  **
  ** double *x - a vector of PM intensities 
  ** int length - length of *x
@@ -47,7 +47,7 @@
  **
  ***************************************************************************/
 
-static double median_log(double *x, int length){
+static double median_log(double *x, size_t length){
 
   double med = 0.0;
   
@@ -73,8 +73,9 @@ static double median_log(double *x, int length){
  **
  ***************************************************************************/
 
-void MedianLog(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
-  int i,j;
+void MedianLog(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
+
+  size_t i,j;
   double *z = Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
@@ -109,8 +110,9 @@ void MedianLog(double *data, int rows, int cols, int *cur_rows, double *results,
  **
  ***************************************************************************/
 
-void MedianLog_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
-  int i,j;
+void MedianLog_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
+
+  size_t i,j;
   double *z = Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
@@ -128,8 +130,9 @@ void MedianLog_noSE(double *data, int rows, int cols, int *cur_rows, double *res
 
 
 
-void medianlog(double *data, int rows, int cols, double *results, double *resultsSE){
-  int i,j;
+void medianlog(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
+
+  size_t i,j;
   double *buffer = Calloc(rows, double);
   
   for (j=0; j < cols; j++){
@@ -146,8 +149,9 @@ void medianlog(double *data, int rows, int cols, double *results, double *result
 
 
 
-void medianlog_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
-  int i,j;
+void medianlog_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
+
+  size_t i,j;
     
   for (j=0; j < cols; j++){
     for (i = 0; i < rows; i++){

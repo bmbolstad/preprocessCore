@@ -19,9 +19,6 @@
  **
  ************************************************************************/
 
-#include "rma_common.h"
-#include "median.h"
-
 #include <R.h> 
 #include <Rdefines.h>
 #include <Rmath.h>
@@ -30,20 +27,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdlib.h>
+
+#include "rma_common.h"
+#include "median.h"
 
 
 /***************************************************************************
  **
- ** double MedianLog(double *x, int length)
+ ** double MedianLog(double *x, size_t length)
  **
  ** double *x - a vector of PM intensities 
- ** int length - length of *x
+ ** size_t length - length of *x
  **
  ** take the log2 of the median of PM intensities.
  **
  ***************************************************************************/
 
-static double colmedian_wrapper(double *x, int length){
+static double colmedian_wrapper(double *x, size_t length){
 
   double med = 0.0;
   
@@ -69,8 +70,9 @@ static double colmedian_wrapper(double *x, int length){
  **
  ***************************************************************************/
 
-void ColMedian(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes, double *resultsSE){
-  int i,j;
+void ColMedian(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
+
+  size_t i,j;
   double *z = Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
@@ -105,8 +107,9 @@ void ColMedian(double *data, int rows, int cols, int *cur_rows, double *results,
  **
  ***************************************************************************/
 
-void ColMedian_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes){
-  int i,j;
+void ColMedian_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
+
+  size_t i,j;
   double *z = Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
@@ -124,8 +127,9 @@ void ColMedian_noSE(double *data, int rows, int cols, int *cur_rows, double *res
 
 
 
-void colmedian(double *data, int rows, int cols, double *results, double *resultsSE){
-  int i,j;
+void colmedian(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
+
+  size_t i,j;
   double *buffer = Calloc(rows, double);
   
   for (j=0; j < cols; j++){
@@ -142,8 +146,9 @@ void colmedian(double *data, int rows, int cols, double *results, double *result
 
 
 
-void colmedian_no_copy(double *data, int rows, int cols, double *results, double *resultsSE){
-  int i,j;
+void colmedian_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
+
+  size_t i,j;
     
   for (j=0; j < cols; j++){
     results[j] = colmedian_wrapper(&data[j*rows],rows); 
