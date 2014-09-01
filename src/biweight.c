@@ -16,7 +16,16 @@
  ** General discussion
  **
  ** Implement Tukey Biweight Summarization method.
+ ** 
+ ** There are four main functions (that are exposed to outside this file):
+ ** tukeybiweight -  Use a 1-step Tukey Biweight to summarize each column (log2 transforming data first)
+ ** tukeybiweight_no_log - Use a 1-step Tukey Biweight to summarize each column
+ ** TukeyBiweight -  Use a 1-step Tukey Biweight to summarize each column  (log2 transforming data first) using only a subset of rows (with subset specified and identical across columns)
+ ** TukeyBiweight_noSE - Use a 1-step Tukey Biweight to summarize each column  (log2 transforming data first) using only a subset of rows (with subset specified and identical across colum
+ ** TukeyBiweight_no_log_noSE - Use a 1-step Tukey Biweight to summarize each column using only a subset of rows (with subset specified and identical across colum
+ ** Tukey_Biweight -  compute Tukey Biweight for vector input
  **
+ ** 
  **
  ** Nov, 2002 - Initial versions
  ** Jan 2, 2003 - Clean up commenting, prepare for integration into AffyExtensions version 0.4
