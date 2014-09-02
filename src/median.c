@@ -16,6 +16,7 @@
  ** Implement median log2 pm summarization.
  **
  ** Sep 16, 2007 - initial version
+ ** Sep, 2014 - Change to size_t where appropriate. Code documentation cleanup
  **
  ************************************************************************/
 
@@ -35,12 +36,12 @@
 
 /***************************************************************************
  **
- ** double MedianLog(double *x, size_t length)
+ ** double colmedian_wrapper(double *x, size_t length)
  **
  ** double *x - a vector of PM intensities 
  ** size_t length - length of *x
  **
- ** take the log2 of the median of PM intensities.
+ ** take the median of PM intensities.
  **
  ***************************************************************************/
 
@@ -55,10 +56,10 @@ static double colmedian_wrapper(double *x, size_t length){
 
 /***************************************************************************
  **
- ** double MedianLogPM(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes)
+ ** double ColMedian(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE)
  **
  ** aim: given a data matrix of probe intensities, and a list of rows in the matrix 
- **      corresponding to a single probeset, compute log2 Median expression measure. 
+ **      corresponding to a single probeset, compute Median expression measure. 
  **      Note that data is a probes by chips matrix.
  **
  ** double *data - Probe intensity matrix
@@ -67,8 +68,26 @@ static double colmedian_wrapper(double *x, size_t length){
  ** int *cur_rows - indicies of rows corresponding to current probeset
  ** double *results - already allocated location to store expression measures (cols length)
  ** int nprobes - number of probes in current probeset.
+ ** double *resultsSE - already allocated location to store expression measures SE estimates (cols length)
  **
  ***************************************************************************/
+
+/*! \brief Compute the median and SE of the median for subset of rows
+ * 
+ *  Given a data matrix of probe intensities compute median and SE of this estimate
+ *  on a column by column basis using only a specified subset of rows. 
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows indices specifying which rows in the matrix to use
+ * @param results pre-allocated space to store output medians. Should be of length cols
+ * @param nprobes the number of elements in cur_rows
+ * @param resultsSE pre-allocated space to store SE of medians. Should be of length cols
+ *
+ *  
+ */
 
 void ColMedian(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
 
@@ -92,10 +111,10 @@ void ColMedian(double *data, size_t rows, size_t cols, int *cur_rows, double *re
 
 /***************************************************************************
  **
- ** double MedianLogPM_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes)
+ ** double ColMedian_noSE(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes)
  **
  ** aim: given a data matrix of probe intensities, and a list of rows in the matrix 
- **      corresponding to a single probeset, compute log2 Median expression measure. 
+ **      corresponding to a single probeset, compute Median expression measure. 
  **      Note that data is a probes by chips matrix.
  **
  ** double *data - Probe intensity matrix
@@ -106,6 +125,22 @@ void ColMedian(double *data, size_t rows, size_t cols, int *cur_rows, double *re
  ** int nprobes - number of probes in current probeset.
  **
  ***************************************************************************/
+
+/*! \brief Compute the median 
+ * 
+ *  Given a data matrix of probe intensities compute median measure 
+ *  on a column by column basis. 
+ *  
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of averages. Should be of length cols
+ *
+ *  
+ */
 
 void ColMedian_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
 
@@ -127,6 +162,22 @@ void ColMedian_noSE(double *data, size_t rows, size_t cols, int *cur_rows, doubl
 
 
 
+/*! \brief Compute the median and SE of the median
+ * 
+ *  Given a data matrix of probe intensities compute median measure and SE of this estimate
+ *  on a column by column basis. The sample standard error is also computed. l
+ *  
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of averages. Should be of length cols
+ *
+ *  
+ */
+
 void colmedian(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
   size_t i,j;
@@ -145,6 +196,21 @@ void colmedian(double *data, size_t rows, size_t cols, double *results, double *
 
 
 
+/*! \brief Compute the median and SE of the median
+ * 
+ *  Given a data matrix of probe intensities compute median measure and SE of this estimate
+ *  on a column by column basis. The sample standard error is also computed. On output the data matrix will
+ *  be changed.
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of averages. Should be of length cols
+ *
+ *  
+ */
 
 void colmedian_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
