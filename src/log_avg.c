@@ -20,7 +20,7 @@
  ** Oct 5, 2003 - method of adding parameters. 
  ** May 19, 2007 - branch out of affyPLM into a new package preprocessCore, then restructure the code. Add doxygen style documentation
  ** Sep 19, 2007 - add LogAverage_noSE
- ** Sep, 2014 - change to size_t where appropriate. Clean up some of the code documentation
+ ** Sep, 2014 - change to size_t where appropriate. Clean up some of the code documentation. Actually implemented a SE computation.
  ** 
  **
  ************************************************************************/
