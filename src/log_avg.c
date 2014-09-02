@@ -20,7 +20,7 @@
  ** Oct 5, 2003 - method of adding parameters. 
  ** May 19, 2007 - branch out of affyPLM into a new package preprocessCore, then restructure the code. Add doxygen style documentation
  ** Sep 19, 2007 - add LogAverage_noSE
- ** Sep, 2014 - change to size_t where appropriate. Clean up some of the code documentation
+ ** Sep, 2014 - change to size_t where appropriate. Clean up some of the code documentation. Actually implemented a SE computation.
  ** 
  **
  ************************************************************************/
@@ -71,6 +71,40 @@ static double LogAvg(double *x, size_t length){
 
 
 /***************************************************************************
+ **
+ ** static double LogAvgSE(double *x, double mean size_t length)
+ **
+ ** double *x - a vector of PM intensities (previously log2 transformed)
+ ** double mean - the mean of x computed using LogAvg above
+ ** size_t length - length of *x
+ **
+ ** compute the standard error of the log2  average of PM intensities.
+ ** 
+ ** Use the delta method to approximate SE
+ **
+ ***************************************************************************/
+
+static double LogAvgSE(double *x, double mean, size_t length){
+  int i;
+  double sum = 0.0;
+
+  double mean_untrans = pow(2.0,mean);
+
+  for (i=0; i < length; i++){
+    sum = sum + (x[i]- mean)*(x[i] - mean);
+  }
+  
+  sum = sqrt(sum/(double)(length-1));
+  sum = sum/sqrt((double)length);
+
+  sum = sum*1.0/log(2.0)*1.0/mean_untrans;
+
+  return (sum);    
+}
+
+
+
+/***************************************************************************
  ** 
  ** void logaverage(double *data, int rows, int cols, double *results, double *resultsSE)
  **
@@ -111,7 +145,7 @@ void logaverage(double *data, size_t rows, size_t cols, double *results, double 
       z[i] = data[j*rows + i];
     }
     results[j] = LogAvg(z,rows);
-    resultsSE[j] = R_NaReal;
+    resultsSE[j] = LogAvgSE(z, results[j],rows);
   } 
 }
 
@@ -161,7 +195,7 @@ void LogAverage(double *data, size_t rows, size_t cols, int *cur_rows, double *r
   
   for (j=0; j < cols; j++){
     results[j] = LogAvg(&z[j*nprobes],nprobes);
-    resultsSE[j] = R_NaReal;
+    resultsSE[j] =  LogAvgSE(&z[j*nprobes], results[j],rows);
   }
   Free(z);
 }
