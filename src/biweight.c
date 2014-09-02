@@ -2,11 +2,11 @@
  **
  ** file: biweight.c
  **
- ** Copyright (C) 2002-2007 Ben Bolstad
+ ** Copyright (C) 2002-2014 Ben Bolstad
  ** 
  ** aim: implement the tukey biweight - one step method of summarizing a probeset 
  **
- ** created by: B. M. Bolstad   <bolstad@stat.berkeley.edu>
+ ** created by: B. M. Bolstad   <bmb@bmbolstad.com>
  ** created on: Jan 7, 2003 (But based on a file mas5.c created in Nov 2002)
  **
  ** last modified: Jan 7, 2003
@@ -16,7 +16,16 @@
  ** General discussion
  **
  ** Implement Tukey Biweight Summarization method.
+ ** 
+ ** There are four main functions (that are exposed to outside this file):
+ ** tukeybiweight -  Use a 1-step Tukey Biweight to summarize each column (log2 transforming data first)
+ ** tukeybiweight_no_log - Use a 1-step Tukey Biweight to summarize each column
+ ** TukeyBiweight -  Use a 1-step Tukey Biweight to summarize each column  (log2 transforming data first) using only a subset of rows (with subset specified and identical across columns)
+ ** TukeyBiweight_noSE - Use a 1-step Tukey Biweight to summarize each column  (log2 transforming data first) using only a subset of rows (with subset specified and identical across colum
+ ** TukeyBiweight_no_log_noSE - Use a 1-step Tukey Biweight to summarize each column using only a subset of rows (with subset specified and identical across colum
+ ** Tukey_Biweight -  compute Tukey Biweight for vector input
  **
+ ** 
  **
  ** Nov, 2002 - Initial versions
  ** Jan 2, 2003 - Clean up commenting, prepare for integration into AffyExtensions version 0.4
@@ -28,6 +37,7 @@
  ** May 19, 2007 - branch out of affyPLM into a new package preprocessCore, then restructure the code. Add doxygen style documentation
  ** Sep 16, 2007 - fix bug in tukeybiweight
  ** Sep 19, 2007 - add TukeyBiweight_noSE
+ ** Sep, 2014 - Change to size_t where appropriate. Improve code documentation
  **
  ************************************************************************/
 
@@ -64,6 +74,8 @@ static double weight_bisquare(double x){
   }
 }
 
+
+
 /****************************************************************************
  **
  ** double Tukey_Biweight(double *x, size_t length)
@@ -75,6 +87,17 @@ static double weight_bisquare(double x){
  ** size_t length - length of *x
  **
  ****************************************************************************/
+
+/*! \brief compute a 1-step Tukey Biweight
+ *
+ *
+ * implements one step Tukey Biweight as documented in the Affymetrix 
+ * Statistical Algorithms Description Document. 
+ *
+ * @param x  vector of data
+ * @param length length of vector of data
+ *
+ */
 
 double Tukey_Biweight(double *x, size_t length){
   
@@ -191,6 +214,22 @@ static double Tukey_Biweight_SE(double *x,double BW, size_t length){
 }
 
 
+
+/*! \brief log2 transform the data and then use a 1-step Tukey Biweight to summarize each column
+ * 
+ *  Given a data matrix of probe intensities compute average expression measure then log2 it and SE of this estimate
+ *  on a column by column basis
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols
+ *
+ *  
+ */
+
 void tukeybiweight(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
   size_t i,j;
@@ -212,6 +251,20 @@ void tukeybiweight(double *data, size_t rows, size_t cols, double *results, doub
 
 
 
+/*! \brief Use a 1-step Tukey Biweight to summarize each column
+ * 
+ *  Given a data matrix of probe intensities compute average expression measure then log2 it and SE of this estimate
+ *  on a column by column basis
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 averages. Should be of length cols
+ *
+ *  
+ */
 
 void tukeybiweight_no_log(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
@@ -226,28 +279,13 @@ void tukeybiweight_no_log(double *data, size_t rows, size_t cols, double *result
     resultsSE[j] = Tukey_Biweight_SE(z,results[j],rows);
   }
   Free(z);
-
-
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
 /**********************************************************************************
  **
- ** void tukeybiweight(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes)
+ ** void TukeyBiweight(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes)
  **
  ** aim: given a data matrix of probe intensities, and a list of rows in the matrix 
  **      corresponding to a single probeset, compute tukey biweight expression measure. 
@@ -262,9 +300,11 @@ void tukeybiweight_no_log(double *data, size_t rows, size_t cols, double *result
  **
  ***********************************************************************************/ 
 
-/*! \brief Given a data matrix of probe intensities, and a list of rows in the matrix 
- *      corresponding to a single probeset, compute  tukey biweight expression measure. 
- *      Note that data is a probes by chips matrix. Also compute SE estimates
+/*! \brief Use a 1-step Tukey Biweight to summarize each column
+ *
+ * Given a data matrix of probe intensities, and a list of rows in the matrix 
+ * corresponding to a single probeset, compute log2 transformed 1-step Tukey Biweight expression measure. 
+ * Note that data is a probes by chips matrix. Also compute SE estimates
  *
  * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
  * @param rows the number of rows in the matrix 
@@ -294,6 +334,22 @@ void TukeyBiweight(double *data, size_t rows, size_t cols, int *cur_rows, double
 
 
 
+/*! \brief Use a 1-step Tukey Biweight to summarize each column
+ *
+ * Given a data matrix of probe intensities, and a list of rows in the matrix 
+ * corresponding to a single probeset, log2 transform each data item and then compute 1-step Tukey Biweight expression measure. 
+ * Note that data is a probes by chips matrix.
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows a vector containing row indices to use
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param nprobes number of probes in current set
+ *
+ *  
+ */
+
 void TukeyBiweight_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
 
   size_t i,j;
@@ -308,6 +364,22 @@ void TukeyBiweight_noSE(double *data, size_t rows, size_t cols, int *cur_rows, d
   Free(z);
 }
 
+
+
+/*! \brief Use a 1-step Tukey Biweight to summarize each column
+ *
+ * Given a data matrix of probe intensities, and a list of rows in the matrix 
+ * corresponding to a single probeset, compute 1-step Tukey Biweight expression measure. 
+ * Note that data is a probes by chips matrix.
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows a vector containing row indices to use
+ * @param results pre-allocated space to store output log2 averages. Should be of length cols
+ * @param nprobes number of probes in current set
+ *  
+ */
 
 void TukeyBiweight_no_log_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
 

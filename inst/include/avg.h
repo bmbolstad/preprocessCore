@@ -11,7 +11,7 @@
 
 /*! \brief Compute the mean and SE of the mean for subset of rows
  * 
- *  Given a data matrix of probe intensities compute averageexpression measure and SE of this estimate
+ *  Given a data matrix of probe intensities compute average expression measure and SE of this estimate
  *  on a column by column basis using only a specified subset of rows. Specifically, the arithmetic mean
  *  is computed for each column. The sample standard error is also computed. 
  *    
@@ -33,7 +33,7 @@ void ColAverage(double *data, size_t rows, size_t cols, int *cur_rows, double *r
  * 
  *  Given a data matrix of probe intensities compute average expression measure and SE of this estimate
  *  on a column by column basis using only a specified subset of rows. Specifically, the arithmetic mean
- *  is computed for each column. The sample standard error is also computed. 
+ *  is computed for each column. The sample standard error is not computed. 
  *    
  *
  * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
@@ -51,8 +51,8 @@ void ColAverage_noSE(double *data, size_t rows, size_t cols, int *cur_rows, doub
 
 /*! \brief Compute the mean and SE of the mean
  * 
- *  Given a data matrix of probe intensities compute average log2 expression measure and SE of this estimate
- *  on a column by column basis. Specifically, each element is log2 transformed, then the arithmetic mean
+ *  Given a data matrix of probe intensities compute average expression measure and SE of this estimate
+ *  on a column by column basis. Specifically, the arithmetic mean
  *  is computed for each column. The sample standard error is also computed. This function guarantees that 
  *  no additional memory is temporarily allocated to copy the input data matrix. However, this means that
  *  on output the input matrix may be changed.
@@ -71,8 +71,8 @@ void colaverage_no_copy(double *data, size_t rows, size_t cols, double *results,
 
 /*! \brief Compute the mean and SE of the mean
  * 
- *  Given a data matrix of probe intensities compute average log2 expression measure and SE of this estimate
- *  on a column by column basis. Specifically, each element is log2 transformed, then the arithmetic mean
+ *  Given a data matrix of probe intensities compute average expression measure and SE of this estimate
+ *  on a column by column basis. Specifically, then the arithmetic mean
  *  is computed for each column. The sample standard error is also computed. On output the data matrix will
  *  be unchanged.
  *    
