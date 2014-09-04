@@ -4,7 +4,7 @@
  **
  ** aim : compute weighted kernel density estimates
  **
- ** Copyright (C) 2003-2008 Ben Bolstad
+ ** Copyright (C) 2003-2014 Ben Bolstad
  **
  ** created on: Mar 24, 2003
  **
@@ -26,6 +26,7 @@
  ** Mar 24, 2005 - Add in IQR function to handle obscure cases.
  ** Mar 15, 2008 - add KernelDensity_lowmem. weightedkerneldensity.c is ported from affyPLM to preprocessCore
  ** Oct 31, 2011 - Add additional kernels. Allow non-power of 2 nout in KernelDensity. Fix error in bandwidth calculation
+ ** Sept, 2014 - Change function definition/declarations so size inputs are not pointers (and are actually size_t rather than int)
  **
  ****************************************************************************/
 
@@ -35,6 +36,8 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h> /* For memcpy */
+#include <stddef.h>
+
 #include "rma_common.h"
 
 #include "weightedkerneldensity.h"
@@ -43,46 +46,46 @@
 
 /*****************************************************************************
  **
- ** void weighted_massdist(double *x, int nx, double *w, double *xlow, double *xhigh, double *y, int *ny)
+ ** void weighted_massdist(double *x, size_t nx, double *w, double xlow, double xhigh, double *y, size_t ny)
  **
  ** see AS R50 and AS 176  (AS = Applied Statistics)
  **
  ** idea is to discretize the data,  but have modified algorithm to put weights on each observation 
  **
  ** double *x - the data
- ** int nx - length of x
+ ** size_t nx - length of x
  ** double *w - weight for each one of x, vector should also be of length nx
- ** double *xlow - minimum value in x dimension
- ** double *xhigh - maximum value in x dimension
+ ** double xlow - minimum value in x dimension
+ ** double xhigh - maximum value in x dimension
  ** double *y - on output will contain discretation scheme of data
- ** int ny - length of y
+ ** size_t ny - length of y
  **
  ****************************************************************************/
 
-static void weighted_massdist(double *x, int *nx, double *w, double *xlow, double *xhigh, double *y, int *ny){
+static void weighted_massdist(double *x, size_t nx, double *w, double xlow, double xhigh, double *y, size_t ny){
   
   double fx, xdelta, xmass, xpos;
-  int i, ix, ixmax, ixmin;
+  size_t i, ix, ixmax, ixmin;
   
   ixmin = 0;
-  ixmax = *ny - 2;
+  ixmax = ny - 2;
   xmass = 0.0;
-  xdelta = (*xhigh - *xlow) / (*ny - 1);
+  xdelta = (xhigh - xlow) / (ny - 1);
   
-  for(i=0; i < *ny ; i++){
+  for(i=0; i < ny ; i++){
     y[i] = 0.0;
   }
 
-  for (i=0; i < *nx; i++){
+  for (i=0; i < nx; i++){
     xmass += w[i];
   }
   
   xmass = 1.0/xmass;
   /* Rprintf("%f\n",xmass);*/
 
-  for(i=0; i < *nx ; i++) {
+  for(i=0; i < nx ; i++) {
     if(R_FINITE(x[i])) {
-      xpos = (x[i] - *xlow) / xdelta;
+      xpos = (x[i] - xlow) / xdelta;
       ix = floor(xpos);
       fx = xpos - ix;
       if(ixmin <= ix && ix <= ixmax) {
@@ -98,45 +101,45 @@ static void weighted_massdist(double *x, int *nx, double *w, double *xlow, doubl
     }
   }
   
-  for(i=0; i < *ny; i++)
+  for(i=0; i < ny; i++)
     y[i] *= xmass;
   
 }
 
 /*****************************************************************************
  **
- ** void unweighted_massdist(double *x, int nx, double *xlow, double *xhigh, double *y, int *ny)
+ ** void unweighted_massdist(double *x, size_t nx, double xlow, double xhigh, double *y, size_t ny)
  **
  ** see AS R50 and AS 176  (AS = Applied Statistics)
  **
  ** idea is to discretize the data,  does not put weights on each observation 
  **
  ** double *x - the data
- ** int nx - length of x
+ ** size_t nx - length of x
  ** double *w - weight for each one of x, vector should also be of length nx
- ** double *xlow - minimum value in x dimension
- ** double *xhigh - maximum value in x dimension
+ ** double xlow - minimum value in x dimension
+ ** double xhigh - maximum value in x dimension
  ** double *y - on output will contain discretation scheme of data
- ** int ny - length of y
+ ** size_t ny - length of y
  **
  ****************************************************************************/
 
-static void unweighted_massdist(double *x, int *nx, double *xlow, double *xhigh, double *y, int *ny){
+static void unweighted_massdist(double *x, size_t nx, double xlow, double xhigh, double *y, size_t ny){
   
   double fx, xdelta, xpos;
-  int i, ix, ixmax, ixmin;
+  size_t i, ix, ixmax, ixmin;
   
   ixmin = 0;
-  ixmax = *ny - 2;
-  xdelta = (*xhigh - *xlow) / (*ny - 1);
+  ixmax = ny - 2;
+  xdelta = (xhigh - xlow) / (ny - 1);
   
-  for(i=0; i < *ny ; i++){
+  for(i=0; i < ny ; i++){
     y[i] = 0.0;
   }
 
-  for(i=0; i < *nx ; i++) {
+  for(i=0; i < nx ; i++) {
     if(R_FINITE(x[i])) {
-      xpos = (x[i] - *xlow) / xdelta;
+      xpos = (x[i] - xlow) / xdelta;
       ix = (int)floor(xpos);
       fx = xpos - ix;
       if(ixmin <= ix && ix <= ixmax) {
@@ -151,8 +154,8 @@ static void unweighted_massdist(double *x, int *nx, double *xlow, double *xhigh,
       }
     }
   }
-  for(i=0; i < *ny; i++)
-    y[i] *= (1.0/(double)(*nx));
+  for(i=0; i < ny; i++)
+    y[i] *= (1.0/(double)(nx));
 }
 
 
@@ -628,36 +631,37 @@ static double IQR(double *x, int length);
 
 /**********************************************************************
  **
- ** void KernelDensity(double *x, int *nxxx, double *output, double *xords, double *weights)
+ ** void KernelDensity(double *x, size_t nxxx,  double *weights, double *output, double *output_x, size_t nout, int kernel_fn, int bandwidth_fn, double bandwidth_adj)
  **
  ** double *x - data vector
- ** int *nxxx - length of x
+ ** size_t nxxx - length of x
+ ** double *weights - a weight for each observation in x
  ** double *output - place to output density values
- ** double *xords - x coordinates corresponding to output
- ** double *weights - a weight for each item of *x should be of length *nxxx
- ** int *nout - length of output should be a power of two, preferably 512 or above
- **
- ** 
+ ** double *output_x - x coordinates corresponding to output
+ ** size_t nout - length of output should be a power of two, preferably 512 or above
+ ** int kernel_fn - which kernel function to use (see above for integer code mapping)
+ ** int bandwidth_fn - which bandwidth function to use (see above for integer code mapping)
+ ** double bandwidth_adj - adjustment factor for bandwidth
  **
  **********************************************************************/
 
-void KernelDensity(double *x, int *nxxx, double *weights, double *output, double *output_x, int *nout, int *kernel_fn, int *bandwidth_fn, double *bandwidth_adj){
+void KernelDensity(double *x, size_t nxxx, double *weights, double *output, double *output_x, size_t nout, int kernel_fn, int bandwidth_fn, double bandwidth_adj){
 
-  int nx = *nxxx;
+  size_t nx = nxxx;
 
-  int nuser = *nout;
-  int n;  /* = *nout;  */
-  int n2;  /* == 2*n;  */
-  int i;
+  size_t nuser = nout;
+  size_t n;  /* = *nout;  */
+  size_t n2;  /* == 2*n;  */
+  size_t i;
   double low, high, iqr, bw, to, from;
   double *kords;  /*  = Calloc(2*n,double);*/
   double *buffer;  /*  = Calloc(nx,double);*/
   double *y;  /*   = Calloc(2*n,double);*/
   double *xords;  /*    = Calloc(n,double);*/
 
-  int kern_fn=*kernel_fn;
-  int bw_fn=*bandwidth_fn;
-  double bw_adj = *bandwidth_adj;
+  int kern_fn=kernel_fn;
+  int bw_fn=bandwidth_fn;
+  double bw_adj = bandwidth_adj;
 	
   n = (int)pow(2.0,ceil(log2(nuser))); 
 
@@ -701,7 +705,7 @@ void KernelDensity(double *x, int *nxxx, double *weights, double *output, double
   
   kernelize(kords, 2*n,bw,kern_fn);
 
-  weighted_massdist(x, &nx, weights, &low, &high, y, &n);
+  weighted_massdist(x, nx, weights, low, high, y, n);
 
   fft_density_convolve(y,kords,n2);
   to = high - 4*bw;  /* corrections to get on correct output range */
@@ -781,25 +785,25 @@ static double IQR(double *x, int length){
 
 /**********************************************************************
  **
- ** void KernelDensity_lowmem(double *x, int *nxxx, double *output, double *xords, double *weights)
+ ** void KernelDensity_lowmem(double *x, int nxxx, double *output,  double *output_x, size_t nout)
  **
  ** double *x - data vector (note order will be changed on output)
- ** int *nxxx - length of x
+ ** size_t nxxx - length of x
  ** double *output - place to output density values
- ** double *xords - x coordinates corresponding to output
- ** double *weights - a weight for each item of *x should be of length *nxxx
- ** int *nout - length of output should be a power of two, preferably 512 or above
+ ** double *output_x - x coordinates corresponding to output
+ ** size_t nout - length of output should be a power of two, preferably 512 or above
  **
  ** 
  **********************************************************************/
 
-void KernelDensity_lowmem(double *x, int *nxxx, double *output, double *output_x, int *nout){
+void KernelDensity_lowmem(double *x, size_t nxxx, double *output, double *output_x, size_t nout){
 
-  int nx = *nxxx;
+  size_t nx = nxxx;
 
-  int n = *nout;
-  int n2= 2*n;
-  int i;
+  size_t n = nout;
+  size_t n2= 2*n;
+  size_t i;
+
   double low, high,iqr,bw,from,to;
   double *kords = Calloc(2*n,double);
   double *buffer = x; 
@@ -832,7 +836,7 @@ void KernelDensity_lowmem(double *x, int *nxxx, double *output, double *output_x
 
   kernelize(kords, 2*n,bw,2);
 
-  unweighted_massdist(x, &nx, &low, &high, y, &n);
+  unweighted_massdist(x, nx, low, high, y, n);
 
   fft_density_convolve(y,kords,n2);
 

@@ -5,7 +5,7 @@
  ** created by: B. M. Bolstad   <bmb@bmbolstad.com>
  ** created on: Feb 6, 2003  (but based on earlier work from Nov 2002)
  **
- ** Copyright (C) 2003-2007   Ben Bolstad
+ ** Copyright (C) 2003-2014   Ben Bolstad
  **
  ** last modified: Feb 6, 2003
  **
@@ -20,6 +20,7 @@
  ** Jul 23, 2003 - add SE parameter (but not yet implemented)
  ** Oct 10, 2003 - added PLM version
  ** Sept 9, 2007 - branch out of affyPLM into a new package preprocessCore
+ ** Sept, 2014 - Documentation clean up. Change to size_t where appropriate
  **
  ************************************************************************/
 
@@ -56,6 +57,8 @@ static double median_log(double *x, size_t length){
   return (med);    
 }
 
+
+
 /***************************************************************************
  **
  ** double MedianLogPM(double *data, int rows, int cols, int *cur_rows, double *results, int nprobes)
@@ -72,6 +75,24 @@ static double median_log(double *x, size_t length){
  ** int nprobes - number of probes in current probeset.
  **
  ***************************************************************************/
+
+/*! \brief  \f$\log_2\f$ transform the data and compute the median 
+ * 
+ *  Given a data matrix of probe intensities \f$\log_2\f$ transform it and then compute the median. Also compute SE of this estimate
+ *  on a column by column basis using only a specified subset of rows. Specifically, the median of each column is based on
+ *  \f$\log_2\f$ transformed data. The sample standard error is also computed. 
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows indices specifying which rows in the matrix to use
+ * @param results pre-allocated space to store output log2 medians. Should be of length cols
+ * @param nprobes the number of rows in cur_rows
+ * @param resultsSE pre-allocated space to store SE of log2 medians. Should be of length cols
+ *
+ *  
+ */
 
 void MedianLog(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
 
@@ -110,6 +131,21 @@ void MedianLog(double *data, size_t rows, size_t cols, int *cur_rows, double *re
  **
  ***************************************************************************/
 
+/*! \brief  \f$\log_2\f$ transform the data and compute the median 
+ * 
+ *  Given a data matrix of probe intensities \f$\log_2\f$ transform it and then compute the median on a column by column basis using only a specified subset of rows. 
+ *  Specifically, the median of each column is based on \f$\log_2\f$ transformed data.
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param cur_rows indices specifying which rows in the matrix to use
+ * @param results pre-allocated space to store output log2 medians. Should be of length cols
+ * @param nprobes the number of rows in cur_rows
+ *  
+ */
+
 void MedianLog_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
 
   size_t i,j;
@@ -130,6 +166,23 @@ void MedianLog_noSE(double *data, size_t rows, size_t cols, int *cur_rows, doubl
 
 
 
+/*! \brief compute the median for each column of \f$\log_2\f$ transformed data.
+ * 
+ *  Given a data matrix of probe intensities \f$\log_2\f$ transform it then compute median of each column. Also produce the SE of this estimate
+ *  on a column by column basis. Specifically, the median is computed for each column and then \f$\log_2\f$ transformed.
+ *  The sample standard error is also computed. On output the data matrix will
+ *  be unchanged.
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 medians. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 medians. Should be of length cols
+ *
+ *  
+ */
+
 void medianlog(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
   size_t i,j;
@@ -148,6 +201,22 @@ void medianlog(double *data, size_t rows, size_t cols, double *results, double *
 
 
 
+/*! \brief compute the median for each column of \f$\log_2\f$ transformed data.
+ * 
+ *  Given a data matrix of probe intensities \f$\log_2\f$ transform it then compute median of each column. Also produce the SE of this estimate
+ *  on a column by column basis. Specifically, the median is computed for each column and then \f$\log_2\f$ transformed.
+ *  The sample standard error is also computed. On output the data matrix will
+ *  be changed.
+ *    
+ *
+ * @param data a matrix containing data stored column-wise stored in rows*cols length of memory
+ * @param rows the number of rows in the matrix 
+ * @param cols the number of columns in the matrix
+ * @param results pre-allocated space to store output log2 medians. Should be of length cols
+ * @param resultsSE pre-allocated space to store SE of log2 medians. Should be of length cols
+ *
+ *  
+ */
 
 void medianlog_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
