@@ -320,6 +320,7 @@ void *rma_bg_correct_group(void *data){
     rma_bg_parameters(args->data, param, args->rows, args->cols, j);
     rma_bg_adjust(args->data, param, args->rows, args->cols, j);
   }
+  return NULL;
 }
 #endif
 

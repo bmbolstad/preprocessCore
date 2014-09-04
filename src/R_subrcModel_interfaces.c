@@ -137,7 +137,8 @@ static void *sub_rcModelSummarize_medianpolish_group(void *data){
     for (i=0; i < cols; i++)
         beta[i]+=intercept;
 
-  }
+  }  
+  return NULL;
 }
 #endif
 
@@ -451,6 +452,7 @@ static void *sub_rcModelSummarize_plm_group(void *data){
     Free(Ymat);
      
   }
+  return NULL;
 }
 #endif
 
