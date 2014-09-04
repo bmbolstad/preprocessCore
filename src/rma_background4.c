@@ -119,7 +119,7 @@ static double max_density(double *z, size_t rows, size_t cols, size_t column){
   }
   
   
-  KernelDensity_lowmem(x,&rows,dens_y,dens_x,&npts);
+  KernelDensity_lowmem(x,rows,dens_y,dens_x,npts);
 
   max_y = find_max(dens_y,16384);
    
