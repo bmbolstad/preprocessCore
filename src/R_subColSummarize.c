@@ -80,7 +80,7 @@ static void *subColSummarize_avg_log_group(void *data){
     pthread_mutex_unlock (&mutex_R);
   }
   Free(buffer);
-
+  return NULL;
 }
 
 #endif
@@ -251,7 +251,7 @@ static void *subColSummarize_log_avg_group(void *data){
     pthread_mutex_unlock (&mutex_R);
   }
   Free(buffer);
-
+  return NULL;
 }
 #endif
 
@@ -422,7 +422,7 @@ static void *subColSummarize_avg_group(void *data){
     pthread_mutex_unlock (&mutex_R);
   }
   Free(buffer);
-
+  return NULL;
 }
 #endif
 
@@ -592,7 +592,7 @@ static void *subColSummarize_biweight_log_group(void *data){
     pthread_mutex_unlock (&mutex_R);
   }
   Free(buffer);
-
+  return NULL;
 }
 #endif
 
@@ -764,7 +764,7 @@ static void *subColSummarize_biweight_group(void *data){
     pthread_mutex_unlock (&mutex_R);
   }
   Free(buffer);
-
+  return NULL;
 }
 #endif
 
@@ -935,7 +935,7 @@ static void *subColSummarize_median_log_group(void *data){
     pthread_mutex_unlock (&mutex_R);
   }
   Free(buffer);
-
+  return NULL;
 }
 #endif
 
@@ -1106,7 +1106,7 @@ static void *subColSummarize_log_median_group(void *data){
     pthread_mutex_unlock (&mutex_R);
   }
   Free(buffer);
-
+  return NULL;
 }
 #endif
 
@@ -1276,7 +1276,7 @@ static void *subColSummarize_median_group(void *data){
     pthread_mutex_unlock (&mutex_R);
   }
   Free(buffer);
-
+  return NULL;
 }
 #endif
 
@@ -1448,7 +1448,8 @@ static void *subColSummarize_medianpolish_log_group(void *data){
     pthread_mutex_unlock (&mutex_R);
   }
   Free(buffer);
-  Free(buffer2);
+  Free(buffer2); 
+  return NULL;
 }
 #endif
 

@@ -455,11 +455,13 @@ void normalize_distribute_target(double *data, double *row_mean, size_t rows, si
 void *normalize_group(void *data){
   struct loop_data *args = (struct loop_data *) data;
   normalize_determine_target(args->data, args->row_mean, args->rows, args->cols, args->start_col, args->end_col);
+  return NULL;
 }
 
 void *distribute_group(void *data){
   struct loop_data *args = (struct loop_data *) data;
-  normalize_distribute_target(args->data, args->row_mean, args->rows, args->cols, args->start_col, args->end_col);
+  normalize_distribute_target(args->data, args->row_mean, args->rows, args->cols, args->start_col, args->end_col); 
+  return NULL;
 }
 #endif
 
@@ -1548,6 +1550,7 @@ void using_target(double *data, size_t rows, size_t cols, double *target, size_t
 void *using_target_group(void *data){
   struct loop_data *args = (struct loop_data *) data;
   using_target(args->data,  args->rows, args->cols, args->row_mean, args->row_meanlength, args->start_col, args->end_col);  
+  return NULL;
 }
 #endif
 
@@ -1865,7 +1868,8 @@ void determine_target(double *data, double *row_mean, size_t rows, size_t cols, 
 #ifdef USE_PTHREADS
 void *determine_target_group(void *data){
   struct loop_data *args = (struct loop_data *) data;
-  determine_target(args->data, args->row_mean, args->rows, args->cols, args->start_col, args->end_col);
+  determine_target(args->data, args->row_mean, args->rows, args->cols, args->start_col, args->end_col); 
+  return NULL;
 }
 #endif
 
@@ -2458,6 +2462,7 @@ void determine_target_via_subset(double *data, double *row_mean, size_t rows, si
 void *determine_target_group_via_subset(void *data){
   struct loop_data *args = (struct loop_data *) data;
   determine_target_via_subset(args->data, args->row_mean, args->rows, args->cols, args->in_subset, args->start_col, args->end_col);
+  return NULL;
 }
 #endif
  
@@ -2961,7 +2966,8 @@ void using_target_via_subset(double *data, size_t rows, size_t cols, int *in_sub
 #ifdef USE_PTHREADS
 void *using_target_group_via_subset(void *data){
   struct loop_data *args = (struct loop_data *) data;
-  using_target_via_subset(args->data,  args->rows, args->cols, args->in_subset, args->row_mean, args->row_meanlength, args->start_col, args->end_col);  
+  using_target_via_subset(args->data,  args->rows, args->cols, args->in_subset, args->row_mean, args->row_meanlength, args->start_col, args->end_col);   
+  return NULL;
 }
 #endif
 
