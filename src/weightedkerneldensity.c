@@ -550,7 +550,7 @@ static double bandwidth(double *x, int length, double iqr, int bw_fn){
     } else if (bw_fn == 1){
 	return(bandwidth_nrd(x, length, iqr));
     }
-
+    return(bandwidth_nrd0(x, length, iqr)); /* default */
 }
 
 
