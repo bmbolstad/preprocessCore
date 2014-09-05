@@ -195,7 +195,7 @@ void LogAverage(double *data, size_t rows, size_t cols, int *cur_rows, double *r
   
   for (j=0; j < cols; j++){
     results[j] = LogAvg(&z[j*nprobes],nprobes);
-    resultsSE[j] =  LogAvgSE(&z[j*nprobes], results[j],rows);
+    resultsSE[j] =  LogAvgSE(&z[j*nprobes], results[j],nprobes);
   }
   Free(z);
 }
