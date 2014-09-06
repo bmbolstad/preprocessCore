@@ -140,7 +140,7 @@ void logmedian(double *data, size_t rows, size_t cols, double *results, double *
 
 void logmedian_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
-  size_t i,j;
+  size_t j;
   
   for (j=0; j < cols; j++){
     results[j] = log_median(&data[j*rows],rows); 
