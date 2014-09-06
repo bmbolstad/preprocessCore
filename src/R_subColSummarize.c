@@ -1624,6 +1624,7 @@ static void *subColSummarize_medianpolish_group(void *data){
   }
   Free(buffer);
   Free(buffer2);
+  return NULL;
 }
 #endif
 
