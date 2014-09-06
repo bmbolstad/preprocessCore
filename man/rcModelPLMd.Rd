@@ -32,8 +32,7 @@ rcModelPLMd(y,group.labels)
   Next the residuals for each row are compared to the group variable. In cases
   where there appears to be a significant relationship, the row-effect is "split" and separate row-effect parameters, one for each group, replace the single row effect.
 }
-\seealso{
-}
+\seealso{\code{\link{rcModelPLM}},\code{\link{rcModelPLMr}}}
 \examples{
 col.effects <- c(10,11,10.5,12,9.5)
 row.effects <- c(seq(-0.5,-0.1,by=0.1),seq(0.1,0.5,by=0.1))

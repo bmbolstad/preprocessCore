@@ -77,7 +77,7 @@ SEXP R_rlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Scales){
   double *weights;
   double *se;
 
-  double scale=-1.0;
+  /* double scale=-1.0; */
   double *scaleptr;
 
   double residSE;
@@ -187,7 +187,7 @@ SEXP R_wrlm_rma_default_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Weights, SEX
   double *weights;
   double *se;
 
-  double scale=-1.0;
+  /* double scale=-1.0;*/
   double *scaleptr;
 
   double residSE;
@@ -303,8 +303,8 @@ SEXP R_medianpolish_rma_default_model(SEXP Y){
 
   double *beta;
   double *residuals;
-  double *weights;
-  double *se;
+  /*double *weights;
+    double *se; */
 
   double intercept;
 

@@ -47,8 +47,8 @@ subrcModelMedianPolish(y, group.labels)
 
        The function \code{rcModelMedianPolish} uses the median polish algorithm.
 }
-\seealso{
-}
+\seealso{\link{rcModelPLM}}
+
 \examples{
 
 y <- matrix(c(10+rnorm(50),20+rnorm(50)),20,5,byrow=TRUE)

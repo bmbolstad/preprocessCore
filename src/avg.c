@@ -136,7 +136,7 @@ static double AvgSE(double *x, double mean, size_t length){
  */
 
 void colaverage_no_copy(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
-  int i,j;
+  int j;
 
   for (j = 0; j < cols; j++){
     results[j] = Avg(&data[j*rows],rows);
