@@ -43,8 +43,7 @@ rcModelMedianPolish(y)
 
        The function \code{rcModelMedianPolish} uses the median polish algorithm.
 }
-\seealso{
-}
+\seealso{\code{\link{rcModelPLMr}},\code{\link{rcModelPLMd}}}
 \examples{
 col.effects <- c(10,11,10.5,12,9.5)
 row.effects <- c(seq(-0.5,-0.1,by=0.1),seq(0.1,0.5,by=0.1))
