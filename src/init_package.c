@@ -54,12 +54,15 @@ __declspec(dllexport)
 
 
 static const R_CallMethodDef callMethods[]  = {
-  {"R_qnorm_c",(DL_FUNC)&R_qnorm_c,2},
+  {"R_qnorm_c",(DL_FUNC)&R_qnorm_c,2}, 
+  {"R_qnorm_c_handleNA",(DL_FUNC)&R_qnorm_c_handleNA,2},
   {"R_qnorm_robust_weights", (DL_FUNC)&R_qnorm_robust_weights, 3},
   {"R_qnorm_robust_c",(DL_FUNC)&R_qnorm_robust_c,6},
   {"R_qnorm_determine_target",(DL_FUNC)&R_qnorm_determine_target,2},
   {"R_qnorm_using_target",(DL_FUNC)&R_qnorm_using_target,3},
   {"R_qnorm_within_blocks",(DL_FUNC)&R_qnorm_within_blocks,3},
+  {"R_qnorm_determine_target_via_subset",(DL_FUNC)&R_qnorm_determine_target_via_subset,3},
+  {"R_qnorm_using_target_via_subset",(DL_FUNC)&R_qnorm_using_target_via_subset,4},
   {"R_rlm_rma_default_model",(DL_FUNC)&R_rlm_rma_default_model,4},
   {"R_wrlm_rma_default_model", (DL_FUNC)&R_wrlm_rma_default_model,5},
   {"R_medianpolish_rma_default_model", (DL_FUNC)&R_medianpolish_rma_default_model,1},

@@ -31,7 +31,9 @@ SEXP R_qnorm_determine_target(SEXP X, SEXP targetlength);
 SEXP R_qnorm_using_target(SEXP X, SEXP target,SEXP copy);
 SEXP R_qnorm_within_blocks(SEXP X,SEXP blocks,SEXP copy);
 
-
+SEXP R_qnorm_c_handleNA(SEXP X, SEXP copy);
+SEXP R_qnorm_determine_target_via_subset(SEXP X, SEXP subset, SEXP targetlength);
+SEXP R_qnorm_using_target_via_subset(SEXP X,  SEXP subset, SEXP target,SEXP copy);
 
 #endif
 
