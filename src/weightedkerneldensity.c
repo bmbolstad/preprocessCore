@@ -747,7 +747,7 @@ static double IQR(double *x, int length){
   double lowindex, highindex;
   double lowfloor, highfloor;
   double lowceil, highceil;
-  int low_i, high_i;
+  /* int low_i, high_i; */
   double low_h, high_h;
 
 
@@ -762,8 +762,8 @@ static double IQR(double *x, int length){
   lowceil = ceil(lowindex);
   highceil = ceil(highindex);
   
-  low_i = lowindex > lowfloor;
-  high_i = highindex > highfloor;
+  /*low_i = lowindex > lowfloor;
+    high_i = highindex > highfloor; */
   
   qslow = x[(int)lowfloor];
   qshigh = x[(int)highfloor];
