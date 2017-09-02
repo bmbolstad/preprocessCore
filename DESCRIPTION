@@ -1,8 +1,8 @@
 Package: preprocessCore
 Version: 1.39.1
 Title: A collection of pre-processing functions
-Author: Benjamin Milo Bolstad <bmb@bmbolstad.com>
-Maintainer: Benjamin Milo Bolstad <bmb@bmbolstad.com>
+Author: Ben Bolstad <bmb@bmbolstad.com>
+Maintainer: Ben Bolstad <bmb@bmbolstad.com>
 Imports: stats
 Description: A library of core preprocessing routines 
 License: LGPL (>= 2)
