@@ -3370,16 +3370,8 @@ $as_echo "$as_me: Enabling threading for preprocessCore" >&6;}
 
 else
 
-	    { $as_echo "$as_me:${as_lineno-$LINENO}: \"Disabling threading for\n preprocessCore\"" >&5
-$as_echo "$as_me: \"Disabling threading for\n preprocessCore\"" >&6;}
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: ------------------------------------------" >&5
-$as_echo "$as_me: ------------------------------------------" >&6;}
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: Unable to find pthreads on this system.  " >&5
-$as_echo "$as_me: Unable to find pthreads on this system.  " >&6;}
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: Building a single-threaded version.      " >&5
-$as_echo "$as_me: Building a single-threaded version.      " >&6;}
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: ------------------------------------------" >&5
-$as_echo "$as_me: ------------------------------------------" >&6;}
+	    { $as_echo "$as_me:${as_lineno-$LINENO}: Disabling threading for\ preprocessCore" >&5
+$as_echo "$as_me: Disabling threading for\ preprocessCore" >&6;}
 
 fi
 
