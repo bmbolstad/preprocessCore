@@ -76,7 +76,7 @@ AS_IF([test "x$enable_threading" != "xno" ],[
 	    fi
 	    ],
 	    [
-	    AC_MSG_NOTICE(Disabling threading for\ preprocessCore)
+	    AC_MSG_NOTICE(Disabling threading for preprocessCore)
 	    ])
 
 
