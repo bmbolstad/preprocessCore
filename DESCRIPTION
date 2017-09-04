@@ -1,10 +1,10 @@
 Package: preprocessCore
-Version: 1.39.2
+Version: 1.39.3
 Title: A collection of pre-processing functions
 Author: Ben Bolstad <bmb@bmbolstad.com>
 Maintainer: Ben Bolstad <bmb@bmbolstad.com>
 Imports: stats
-Description: A library of core preprocessing routines 
+Description: A library of core preprocessing routines. 
 License: LGPL (>= 2)
 URL: https://github.com/bmbolstad/preprocessCore
 Collate:  normalize.quantiles.R quantile_extensions.R rma.background.correct.R rcModel.R colSummarize.R subColSummarize.R plmr.R plmd.R

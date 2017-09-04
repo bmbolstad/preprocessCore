@@ -1155,9 +1155,9 @@ void rlm_compute_se_anova(double *Y, int y_rows,int y_cols, double *beta, double
       i = RLM_SE_Method_3_anova(Kappa, XTX, W, y_rows,y_cols, se_estimates,varcov);
       if (i){
 	for (i=0; i <n; i++){
-	  printf("%2.1f ", PsiFn(resids[i]/scale,k1,1));
+	  //	  printf("%2.1f ", PsiFn(resids[i]/scale,k1,1));
 	} 
-	printf("\n");
+	//printf("\n");
       }
     } 
   }
