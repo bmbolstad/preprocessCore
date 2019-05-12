@@ -2960,8 +2960,6 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-
-
 # Checks for libraries.
 use_pthreads=no
 
@@ -3340,10 +3338,24 @@ if test "x$use_pthread_stack_min" = xno; then
 fi
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if R is using openblas" >&5
+$as_echo_n "checking if R is using openblas... " >&6; }
+BLAS_LIBS=`"${R_HOME}/bin/R" CMD config BLAS_LIBS`
+if echo "${BLAS_LIBS}" | grep openblas > /dev/null; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: openblas found. preprocessCore threading will be disabled" >&5
+$as_echo "openblas found. preprocessCore threading will be disabled" >&6; }
+    use_pthreads=no
+else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: openblas not found. preprocessCore threading will not be disabled" >&5
+$as_echo "openblas not found. preprocessCore threading will not be disabled" >&6; }
+fi
+
+
 # Check whether --enable-threading was given.
 if test "${enable_threading+set}" = set; then :
   enableval=$enable_threading;
 fi
+
 
 
 
@@ -3370,8 +3382,8 @@ $as_echo "$as_me: Enabling threading for preprocessCore" >&6;}
 
 else
 
-	    { $as_echo "$as_me:${as_lineno-$LINENO}: Disabling threading for\ preprocessCore" >&5
-$as_echo "$as_me: Disabling threading for\ preprocessCore" >&6;}
+	    { $as_echo "$as_me:${as_lineno-$LINENO}: Disabling threading for preprocessCore" >&5
+$as_echo "$as_me: Disabling threading for preprocessCore" >&6;}
 
 fi
 
