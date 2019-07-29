@@ -54,6 +54,16 @@ struct loop_data{
   int start_row;
   int end_row;
 };
+
+#ifdef __linux__
+#include <features.h>
+#ifdef __GLIBC__
+#ifdef __GLIBC_PREREQ && __GLIBC_PREREQ(2, 15)
+#define INFER_MIN_STACKSIZE 1
+#endif
+#endif
+#endif
+
 #endif
 
 
@@ -108,11 +118,17 @@ SEXP R_subColSummarize_avg_log(SEXP RMatrix, SEXP R_rowIndexList){
   double chunk_size_d, chunk_tot_d;
   char *nthreads;
   pthread_attr_t attr;
+  /* Initialize thread attribute */
+  pthread_attr_init(&attr);
   pthread_t *threads;
   struct loop_data *args;
   void *status;
 #ifdef PTHREAD_STACK_MIN
-  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#ifdef INFER_MIN_STACKSIZE
+  size_t stacksize = __pthread_get_minstack(&attr) + sysconf(_SC_PAGE_SIZE);
+#else
+  size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
+#endif
 #else
   size_t stacksize = 0x8000;
 #endif
@@ -136,8 +152,7 @@ SEXP R_subColSummarize_avg_log(SEXP RMatrix, SEXP R_rowIndexList){
   }
   threads = (pthread_t *) Calloc(num_threads, pthread_t);
 
-  /* Initialize and set thread detached attribute */
-  pthread_attr_init(&attr);
+  /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   pthread_attr_setstacksize (&attr, stacksize);
   /* this code works out how many threads to use and allocates ranges of subColumns to each thread */
@@ -276,11 +291,17 @@ SEXP R_subColSummarize_log_avg(SEXP RMatrix, SEXP R_rowIndexList){
   double chunk_size_d, chunk_tot_d;
   char *nthreads;
   pthread_attr_t attr;
+  /* Initialize thread attribute */
+  pthread_attr_init(&attr);
   pthread_t *threads;
   struct loop_data *args;
   void *status; 
 #ifdef PTHREAD_STACK_MIN
-  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#ifdef INFER_MIN_STACKSIZE
+  size_t stacksize = __pthread_get_minstack(&attr) + sysconf(_SC_PAGE_SIZE);
+#else
+  size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
+#endif
 #else
   size_t stacksize = 0x8000;
 #endif
@@ -304,8 +325,7 @@ SEXP R_subColSummarize_log_avg(SEXP RMatrix, SEXP R_rowIndexList){
   }
   threads = (pthread_t *) Calloc(num_threads, pthread_t);
 
-  /* Initialize and set thread detached attribute */
-  pthread_attr_init(&attr);
+  /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   pthread_attr_setstacksize (&attr, stacksize);
   
@@ -447,11 +467,17 @@ SEXP R_subColSummarize_avg(SEXP RMatrix, SEXP R_rowIndexList){
   double chunk_size_d, chunk_tot_d;
   char *nthreads;
   pthread_attr_t attr;
+  /* Initialize thread attribute */
+  pthread_attr_init(&attr);
   pthread_t *threads;
   struct loop_data *args;
   void *status; 
 #ifdef PTHREAD_STACK_MIN
-  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#ifdef INFER_MIN_STACKSIZE
+  size_t stacksize = __pthread_get_minstack(&attr) + sysconf(_SC_PAGE_SIZE);
+#else
+  size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
+#endif
 #else
   size_t stacksize = 0x8000;
 #endif
@@ -475,8 +501,7 @@ SEXP R_subColSummarize_avg(SEXP RMatrix, SEXP R_rowIndexList){
   }
   threads = (pthread_t *) Calloc(num_threads, pthread_t);
 
-  /* Initialize and set thread detached attribute */
-  pthread_attr_init(&attr);
+  /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   pthread_attr_setstacksize (&attr, stacksize);
   
@@ -619,11 +644,17 @@ SEXP R_subColSummarize_biweight_log(SEXP RMatrix, SEXP R_rowIndexList){
   double chunk_size_d, chunk_tot_d;
   char *nthreads;
   pthread_attr_t attr;
+  /* Initialize thread attribute */
+  pthread_attr_init(&attr);
   pthread_t *threads;
   struct loop_data *args;
   void *status;
 #ifdef PTHREAD_STACK_MIN
-  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#ifdef INFER_MIN_STACKSIZE
+  size_t stacksize = __pthread_get_minstack(&attr) + sysconf(_SC_PAGE_SIZE);
+#else
+  size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
+#endif
 #else
   size_t stacksize = 0x8000;
 #endif
@@ -648,8 +679,7 @@ SEXP R_subColSummarize_biweight_log(SEXP RMatrix, SEXP R_rowIndexList){
   }
   threads = (pthread_t *) Calloc(num_threads, pthread_t);
 
-  /* Initialize and set thread detached attribute */
-  pthread_attr_init(&attr);
+  /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   pthread_attr_setstacksize (&attr, stacksize);
   /* this code works out how many threads to use and allocates ranges of subColumns to each thread */
@@ -790,11 +820,17 @@ SEXP R_subColSummarize_biweight(SEXP RMatrix, SEXP R_rowIndexList){
   double chunk_size_d, chunk_tot_d;
   char *nthreads;
   pthread_attr_t attr;
+  /* Initialize thread attribute */
+  pthread_attr_init(&attr);
   pthread_t *threads;
   struct loop_data *args;
   void *status;
 #ifdef PTHREAD_STACK_MIN
-  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#ifdef INFER_MIN_STACKSIZE
+  size_t stacksize = __pthread_get_minstack(&attr) + sysconf(_SC_PAGE_SIZE);
+#else
+  size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
+#endif
 #else
   size_t stacksize = 0x8000;
 #endif
@@ -818,8 +854,7 @@ SEXP R_subColSummarize_biweight(SEXP RMatrix, SEXP R_rowIndexList){
   }
   threads = (pthread_t *) Calloc(num_threads, pthread_t);
 
-  /* Initialize and set thread detached attribute */
-  pthread_attr_init(&attr);
+  /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   pthread_attr_setstacksize (&attr, stacksize);
   
@@ -962,11 +997,17 @@ SEXP R_subColSummarize_median_log(SEXP RMatrix, SEXP R_rowIndexList){
   double chunk_size_d, chunk_tot_d;
   char *nthreads;
   pthread_attr_t attr;
+  /* Initialize thread attribute */
+  pthread_attr_init(&attr);
   pthread_t *threads;
   struct loop_data *args;
   void *status;
 #ifdef PTHREAD_STACK_MIN
-  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#ifdef INFER_MIN_STACKSIZE
+  size_t stacksize = __pthread_get_minstack(&attr) + sysconf(_SC_PAGE_SIZE);
+#else
+  size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
+#endif
 #else
   size_t stacksize = 0x8000;
 #endif
@@ -990,8 +1031,7 @@ SEXP R_subColSummarize_median_log(SEXP RMatrix, SEXP R_rowIndexList){
   }
   threads = (pthread_t *) Calloc(num_threads, pthread_t);
 
-  /* Initialize and set thread detached attribute */
-  pthread_attr_init(&attr);
+  /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   pthread_attr_setstacksize (&attr, stacksize);
   
@@ -1132,11 +1172,17 @@ SEXP R_subColSummarize_log_median(SEXP RMatrix, SEXP R_rowIndexList){
   double chunk_size_d, chunk_tot_d;
   char *nthreads;
   pthread_attr_t attr;
+  /* Initialize thread attribute */
+  pthread_attr_init(&attr);
   pthread_t *threads;
   struct loop_data *args;
   void *status; 
 #ifdef PTHREAD_STACK_MIN
-  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#ifdef INFER_MIN_STACKSIZE
+  size_t stacksize = __pthread_get_minstack(&attr) + sysconf(_SC_PAGE_SIZE);
+#else
+  size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
+#endif
 #else
   size_t stacksize = 0x8000;
 #endif
@@ -1160,8 +1206,7 @@ SEXP R_subColSummarize_log_median(SEXP RMatrix, SEXP R_rowIndexList){
   }
   threads = (pthread_t *) Calloc(num_threads, pthread_t);
 
-  /* Initialize and set thread detached attribute */
-  pthread_attr_init(&attr);
+  /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   pthread_attr_setstacksize (&attr, stacksize);
   
@@ -1301,11 +1346,17 @@ SEXP R_subColSummarize_median(SEXP RMatrix, SEXP R_rowIndexList){
   double chunk_size_d, chunk_tot_d;
   char *nthreads;
   pthread_attr_t attr;
+  /* Initialize thread attribute */
+  pthread_attr_init(&attr);
   pthread_t *threads;
   struct loop_data *args;
   void *status; 
 #ifdef PTHREAD_STACK_MIN
-  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#ifdef INFER_MIN_STACKSIZE
+  size_t stacksize = __pthread_get_minstack(&attr) + sysconf(_SC_PAGE_SIZE);
+#else
+  size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
+#endif
 #else
   size_t stacksize = 0x8000;
 #endif
@@ -1329,8 +1380,7 @@ SEXP R_subColSummarize_median(SEXP RMatrix, SEXP R_rowIndexList){
   }
   threads = (pthread_t *) Calloc(num_threads, pthread_t);
 
-  /* Initialize and set thread detached attribute */
-  pthread_attr_init(&attr);
+  /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   pthread_attr_setstacksize (&attr, stacksize);
   
@@ -1475,11 +1525,17 @@ SEXP R_subColSummarize_medianpolish_log(SEXP RMatrix, SEXP R_rowIndexList){
   double chunk_size_d, chunk_tot_d;
   char *nthreads;
   pthread_attr_t attr;
+  /* Initialize thread attribute */
+  pthread_attr_init(&attr);
   pthread_t *threads;
   struct loop_data *args;
   void *status; 
 #ifdef PTHREAD_STACK_MIN
-  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#ifdef INFER_MIN_STACKSIZE
+  size_t stacksize = __pthread_get_minstack(&attr) + sysconf(_SC_PAGE_SIZE);
+#else
+  size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
+#endif
 #else
   size_t stacksize = 0x8000;
 #endif
@@ -1507,8 +1563,7 @@ SEXP R_subColSummarize_medianpolish_log(SEXP RMatrix, SEXP R_rowIndexList){
   }
   threads = (pthread_t *) Calloc(num_threads, pthread_t);
 
-  /* Initialize and set thread detached attribute */
-  pthread_attr_init(&attr);
+  /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   pthread_attr_setstacksize (&attr, stacksize);
   
@@ -1650,11 +1705,17 @@ SEXP R_subColSummarize_medianpolish(SEXP RMatrix, SEXP R_rowIndexList){
   double chunk_size_d, chunk_tot_d;
   char *nthreads;
   pthread_attr_t attr;
+  /* Initialize thread attribute */
+  pthread_attr_init(&attr);
   pthread_t *threads;
   struct loop_data *args;
   void *status; 
 #ifdef PTHREAD_STACK_MIN
-  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#ifdef INFER_MIN_STACKSIZE
+  size_t stacksize = __pthread_get_minstack(&attr) + sysconf(_SC_PAGE_SIZE);
+#else
+  size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
+#endif
 #else
   size_t stacksize = 0x8000;
 #endif
@@ -1678,8 +1739,7 @@ SEXP R_subColSummarize_medianpolish(SEXP RMatrix, SEXP R_rowIndexList){
   }
   threads = (pthread_t *) Calloc(num_threads, pthread_t);
 
-  /* Initialize and set thread detached attribute */
-  pthread_attr_init(&attr);
+  /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   pthread_attr_setstacksize (&attr, stacksize);
   
