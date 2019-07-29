@@ -55,14 +55,6 @@ if test "x$use_pthread_stack_min" = xno; then
 fi
 
 
-AC_MSG_CHECKING([if R is using openblas])
-BLAS_LIBS=`"${R_HOME}/bin/R" CMD config BLAS_LIBS`
-if echo "${BLAS_LIBS}" | grep openblas > /dev/null; then
-    AC_MSG_RESULT([openblas found. preprocessCore threading will be disabled])
-    use_pthreads=no
-else
-    AC_MSG_RESULT([openblas not found. preprocessCore threading will not be disabled])
-fi
 
 
 AC_ARG_ENABLE([threading],
