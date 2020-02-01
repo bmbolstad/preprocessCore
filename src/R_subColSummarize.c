@@ -37,13 +37,13 @@
 #include "median.h"
 
 #include "medianpolish.h"
+#include "common.h"
 
 #ifdef USE_PTHREADS
 #include <pthread.h>
 #include <limits.h>
 #include <unistd.h>
 #define THREADS_ENV_VAR "R_THREADS"
-pthread_mutex_t mutex_R;
 struct loop_data{
   double *matrix;
   double *results;

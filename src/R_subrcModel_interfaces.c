@@ -26,7 +26,7 @@
 #include "rlm_se.h"
 #include "psi_fns.h"
 #include "medianpolish.h"
-
+#include "common.h"
 
 
 
@@ -37,7 +37,6 @@
 #include <limits.h>
 #include <unistd.h>
 #define THREADS_ENV_VAR "R_THREADS"
-pthread_mutex_t mutex_R;
 struct loop_data{
   double *matrix;
   SEXP *R_return_value;
