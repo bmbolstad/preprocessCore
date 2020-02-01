@@ -110,6 +110,16 @@ struct loop_data{
   int start_col;
   int end_col;
 };
+
+#ifdef __linux__
+#include <features.h>
+#ifdef __GLIBC__
+#ifdef __GLIBC_PREREQ && __GLIBC_PREREQ(2, 15)
+#define INFER_MIN_STACKSIZE 1
+#endif
+#endif
+#endif
+
 #endif
 
 /*****************************************************************************************************
@@ -486,11 +496,17 @@ int qnorm_c_l(double *data, size_t rows, size_t cols){
   double chunk_size_d, chunk_tot_d;
   char *nthreads;
   pthread_attr_t attr;
+  /* Initialize thread attribute */
+  pthread_attr_init(&attr);
   pthread_t *threads;
   struct loop_data *args;
   void *status;
 #ifdef PTHREAD_STACK_MIN
-  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#ifdef INFER_MIN_STACKSIZE
+  size_t stacksize = __pthread_get_minstack(&attr);
+#else
+  size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
+#endif
 #else
   size_t stacksize = 0x8000;
 #endif
@@ -510,8 +526,7 @@ int qnorm_c_l(double *data, size_t rows, size_t cols){
   }
   threads = (pthread_t *) Calloc(num_threads, pthread_t);
 
-  /* Initialize and set thread detached attribute */
-  pthread_attr_init(&attr);
+  /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   pthread_attr_setstacksize (&attr, stacksize);
   
@@ -1597,11 +1612,17 @@ int qnorm_c_using_target_l(double *data, size_t rows, size_t cols, double *targe
   double chunk_size_d, chunk_tot_d;
   char *nthreads;
   pthread_attr_t attr;
+  /* Initialize thread attribute */
+  pthread_attr_init(&attr);
   pthread_t *threads;
   struct loop_data *args;
   void *status;
 #ifdef PTHREAD_STACK_MIN
-  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#ifdef INFER_MIN_STACKSIZE
+  size_t stacksize = __pthread_get_minstack(&attr) + sysconf(_SC_PAGE_SIZE);
+#else
+  size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
+#endif
 #else
   size_t stacksize = 0x8000;
 #endif
@@ -1631,9 +1652,7 @@ int qnorm_c_using_target_l(double *data, size_t rows, size_t cols, double *targe
   }
   threads = (pthread_t *) Calloc(num_threads, pthread_t);
 
-  /* Initialize and set thread detached attribute */
-
-  pthread_attr_init(&attr);
+  /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   pthread_attr_setstacksize (&attr, stacksize);
 
@@ -1890,11 +1909,17 @@ int qnorm_c_determine_target_l(double *data, size_t rows, size_t cols, double *t
   double chunk_size_d, chunk_tot_d;
   char *nthreads;
   pthread_attr_t attr;
+  /* Initialize thread attribute */
+  pthread_attr_init(&attr);
   pthread_t *threads;
   struct loop_data *args;
   void *status;
 #ifdef PTHREAD_STACK_MIN
-  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#ifdef INFER_MIN_STACKSIZE
+  size_t stacksize = __pthread_get_minstack(&attr) + sysconf(_SC_PAGE_SIZE);
+#else
+  size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
+#endif
 #else
   size_t stacksize = 0x8000;
 #endif
@@ -1910,8 +1935,7 @@ int qnorm_c_determine_target_l(double *data, size_t rows, size_t cols, double *t
   }
   threads = (pthread_t *) Calloc(num_threads, pthread_t);
 
-  /* Initialize and set thread detached attribute */
-  pthread_attr_init(&attr);
+  /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   pthread_attr_setstacksize (&attr, stacksize);
 
@@ -2484,11 +2508,17 @@ int qnorm_c_determine_target_via_subset_l(double *data, size_t rows, size_t cols
   double chunk_size_d, chunk_tot_d;
   char *nthreads;
   pthread_attr_t attr;
+  /* Initialize thread attribute */
+  pthread_attr_init(&attr);
   pthread_t *threads;
   struct loop_data *args;
   void *status;
 #ifdef PTHREAD_STACK_MIN
-  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#ifdef INFER_MIN_STACKSIZE
+  size_t stacksize = __pthread_get_minstack(&attr) + sysconf(_SC_PAGE_SIZE);
+#else
+  size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
+#endif
 #else
   size_t stacksize = 0x8000;
 #endif
@@ -2504,8 +2534,7 @@ int qnorm_c_determine_target_via_subset_l(double *data, size_t rows, size_t cols
   }
   threads = (pthread_t *) Calloc(num_threads, pthread_t);
 
-  /* Initialize and set thread detached attribute */
-  pthread_attr_init(&attr);
+  /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   pthread_attr_setstacksize (&attr, stacksize);
 
@@ -2988,11 +3017,17 @@ int qnorm_c_using_target_via_subset_l(double *data, size_t rows, size_t cols, in
   double chunk_size_d, chunk_tot_d;
   char *nthreads;
   pthread_attr_t attr;
+  /* Initialize thread attribute */
+  pthread_attr_init(&attr);
   pthread_t *threads;
   struct loop_data *args;
   void *status;
 #ifdef PTHREAD_STACK_MIN
-  size_t stacksize = PTHREAD_STACK_MIN + 0x4000;
+#ifdef INFER_MIN_STACKSIZE
+  size_t stacksize = __pthread_get_minstack(&attr) + sysconf(_SC_PAGE_SIZE);
+#else
+  size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
+#endif
 #else
   size_t stacksize = 0x8000;
 #endif
@@ -3022,9 +3057,7 @@ int qnorm_c_using_target_via_subset_l(double *data, size_t rows, size_t cols, in
   }
   threads = (pthread_t *) Calloc(num_threads, pthread_t);
 
-  /* Initialize and set thread detached attribute */
-
-  pthread_attr_init(&attr);
+  /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   pthread_attr_setstacksize (&attr, stacksize);
 
