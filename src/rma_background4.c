@@ -62,8 +62,10 @@ struct loop_data{
 #ifdef __linux__
 #include <features.h>
 #ifdef __GLIBC__
-#ifdef __GLIBC_PREREQ &&  __GLIBC_PREREQ(2, 15)
-#define INFER_MIN_STACKSIZE 1
+#ifdef __GLIBC_PREREQ
+#if __GLIBC_PREREQ(2, 15)
+/* #define INFER_MIN_STACKSIZE 1*/   /* Currently disabled */
+#endif
 #endif
 #endif
 #endif
