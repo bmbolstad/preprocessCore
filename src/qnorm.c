@@ -9,7 +9,7 @@
  ** written by: B. M. Bolstad  <bmb@bmbolstad.com>
  **
  ** written: Feb 2, 2002
- ** last modified: Nov 19, 2008
+ ** last modified: Jan 8, 2021
  ** 
  ** This c code implements the quantile normalization method
  ** for normalizing high density oligonucleotide data as discussed
