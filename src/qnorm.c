@@ -4,7 +4,7 @@
  **
  ** aim: A c implementation of the quantile normalization method 
  **
- ** Copyright (C) 2002-2008    Ben Bolstad
+ ** Copyright (C) 2002-2021    Ben Bolstad
  **
  ** written by: B. M. Bolstad  <bmb@bmbolstad.com>
  **
