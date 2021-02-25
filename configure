@@ -3338,6 +3338,17 @@ if test "x$use_pthread_stack_min" = xno; then
 fi
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if R is using flexiblas" >&5
+$as_echo_n "checking if R is using flexiblas... " >&6; }
+BLAS_LIBS=`"${R_HOME}/bin/R" CMD config BLAS_LIBS`
+if echo "${BLAS_LIBS}" | grep flexiblas > /dev/null; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: flexiblas found. preprocessCore specific threading will be disabled" >&5
+$as_echo "flexiblas found. preprocessCore specific threading will be disabled" >&6; }
+    use_pthreads=no
+else
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: flexiblas not found. preprocessCore threading will not be disabled" >&5
+$as_echo "flexiblas not found. preprocessCore threading will not be disabled" >&6; }
+fi
 
 # Check whether --enable-threading was given.
 if test "${enable_threading+set}" = set; then :
