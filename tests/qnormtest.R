@@ -51,4 +51,13 @@ if (all(abs(normalize.quantiles.use.target(y,y.norm.target.truth) - y.norm.truth
 }
 
 
-
+x <- matrix(c(100,15,200,250,110,16.5,220,275,120,18,240,300),ncol=3)
+rownames(x) <- letters[1:4]
+colnames(x) <- LETTERS[1:3]
+y <- normalize.quantiles(x, keep.names = TRUE)
+if(!all(colnames(x)==colnames(y))){
+    stop("Disagreement between initial and final column names despite keep.names=TRUE")
+}
+if(!all(rownames(x)==rownames(y))){
+    stop("Disagreement between initial and final row names despite keep.names=TRUE")
+}
