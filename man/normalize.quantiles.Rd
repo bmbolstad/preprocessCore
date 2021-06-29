@@ -14,6 +14,8 @@
   \item{copy}{Make a copy of matrix before normalizing. Usually safer to
     work with a copy, but in certain situations not making a copy of the
     matrix, but instead normalizing it in place will be more memory friendly.}
+  \item{keep.names}{Boolean option to preserve matrix row and column names in
+    output.}
 }
 \details{This method is based upon the concept of a quantile-quantile
   plot extended to n dimensions. No special allowances are made for

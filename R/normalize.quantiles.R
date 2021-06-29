@@ -28,7 +28,7 @@
 ##
 ##################################################################
 
-normalize.quantiles <- function(x,copy=TRUE){
+normalize.quantiles <- function(x,copy=TRUE,keep.names=FALSE){
 
   rows <- dim(x)[1]
   cols <- dim(x)[2]
@@ -45,11 +45,16 @@ normalize.quantiles <- function(x,copy=TRUE){
   #matrix(.C("qnorm_c", as.double(as.vector(x)), as.integer(rows), as.integer(cols))[[1]], rows, cols)
 
 ##  .Call("R_qnorm_c",x,copy, PACKAGE="preprocessCore");
-  .Call("R_qnorm_c_handleNA",x,copy, PACKAGE="preprocessCore");
+  mat <- .Call("R_qnorm_c_handleNA",x,copy, PACKAGE="preprocessCore");
+  if(keep.names){
+    rownames(mat) <- rownames(x)
+    colnames(mat) <- colnames(x)
+  }
+  mat
 }
 
 
-normalize.quantiles.robust <- function(x,copy=TRUE,weights=NULL,remove.extreme=c("variance","mean","both","none"),n.remove=1,use.median=FALSE,use.log2=FALSE){
+normalize.quantiles.robust <- function(x,copy=TRUE,weights=NULL,remove.extreme=c("variance","mean","both","none"),n.remove=1,use.median=FALSE,use.log2=FALSE,keep.names=FALSE){
 
   calc.var.ratios <- function(x){
     cols <- dim(x)[2]
@@ -104,5 +109,9 @@ normalize.quantiles.robust <- function(x,copy=TRUE,weights=NULL,remove.extreme=c
     }
   }
   
-  .Call("R_qnorm_robust_c",x,copy,weights,as.integer(use.median),as.integer(use.log2),as.integer(use.huber),PACKAGE="preprocessCore")
+  mat <- .Call("R_qnorm_robust_c",x,copy,weights,as.integer(use.median),as.integer(use.log2),as.integer(use.huber),PACKAGE="preprocessCore")
+  if(keep.names){
+    rownames(mat) <- rownames(x)
+    colnames(mat) <- colnames(x)
+  }
 }

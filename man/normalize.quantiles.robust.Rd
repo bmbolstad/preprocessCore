@@ -23,6 +23,8 @@
     chip, otherwise uses a weighted mean}
   \item{use.log2}{work on log2 scale. This means we will be using the
     geometric mean rather than ordinary mean}
+  \item{keep.names}{Boolean option to preserve matrix row and column names in
+    output.}
 }
 \details{This method is based upon the concept of a quantile-quantile 
   plot extended to n dimensions. Note that the matrix is of intensities
