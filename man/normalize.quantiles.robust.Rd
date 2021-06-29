@@ -7,7 +7,7 @@
 \usage{
       normalize.quantiles.robust(x,copy=TRUE,weights=NULL,
                 remove.extreme=c("variance","mean","both","none"),
-                n.remove=1,use.median=FALSE,use.log2=FALSE)
+                n.remove=1,use.median=FALSE,use.log2=FALSE, keep.names=FALSE)
 }
 
 \arguments{

@@ -6,7 +6,7 @@
   normalizes a matrix of probe level intensities.
 }
 \usage{
-  normalize.quantiles(x,copy=TRUE)
+  normalize.quantiles(x,copy=TRUE, keep.names=FALSE)
 }
 \arguments{
   \item{x}{A matrix of intensities where each column corresponds to a
