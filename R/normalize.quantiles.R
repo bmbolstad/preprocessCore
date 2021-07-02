@@ -114,4 +114,5 @@ normalize.quantiles.robust <- function(x,copy=TRUE,weights=NULL,remove.extreme=c
     rownames(mat) <- rownames(x)
     colnames(mat) <- colnames(x)
   }
+  mat
 }
