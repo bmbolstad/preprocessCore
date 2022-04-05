@@ -93,7 +93,9 @@
 #include <Rdefines.h>
 #include <Rmath.h>
 #include <Rinternals.h>
- 
+
+#define DOUBLE_EPS DBL_EPSILON
+
 #ifdef USE_PTHREADS
 #include <pthread.h>
 #include <limits.h>
