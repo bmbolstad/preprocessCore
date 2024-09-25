@@ -128,8 +128,8 @@ SEXP R_plmd_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Groups, SEXP Ngroups){
 
   Ymat = NUMERIC_POINTER(Y);
   
-  beta = Calloc(cols + rows*ngroups -1, double);   
-  se = Calloc(cols + rows*ngroups -1, double);
+  beta = R_Calloc(cols + rows*ngroups -1, double);   
+  se = R_Calloc(cols + rows*ngroups -1, double);
 
   plmd_fit(Ymat, rows, cols, ngroups, groups, was_split, beta, residuals, weights, PsiFunc(asInteger(PsiCode)),asReal(PsiK), 20);
 
@@ -146,7 +146,7 @@ SEXP R_plmd_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Groups, SEXP Ngroups){
 
 
     rlm_compute_se(X,Ymat, X_rows, X_cols, beta, residuals, weights, se,(double *)NULL, &residSE, 2, PsiFunc(asInteger(PsiCode)),asReal(PsiK));
-    Free(X);
+    R_Free(X);
 
 
     for (i = cols; i <  rows + cols + howmany_split*(ngroups-1) - 1; i++)
@@ -181,8 +181,8 @@ SEXP R_plmd_model(SEXP Y, SEXP PsiCode, SEXP PsiK, SEXP Groups, SEXP Ngroups){
 
   }
 
-  Free(beta);
-  Free(se);
+  R_Free(beta);
+  R_Free(se);
 
   SET_VECTOR_ELT(R_return_value,0,R_beta);
   SET_VECTOR_ELT(R_return_value,3,R_SE);

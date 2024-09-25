@@ -65,16 +65,16 @@ void lm_wfit(double *x, double *y, double *w, int rows, int cols, double tol, do
   
   double fittedvalue;
 
-  double *wts = Calloc(rows,double);
-  double *x_wts_f = Calloc(rows*cols,double);
-  double *y_wts_f = Calloc(rows,double);
-  double *beta = Calloc(cols,double);
-  double *resid = Calloc(rows,double);
-  double *qraux = Calloc(cols,double);
-  double *qty = Calloc(rows,double);
-  double *work = Calloc(2*cols,double);
+  double *wts = R_Calloc(rows,double);
+  double *x_wts_f = R_Calloc(rows*cols,double);
+  double *y_wts_f = R_Calloc(rows,double);
+  double *beta = R_Calloc(cols,double);
+  double *resid = R_Calloc(rows,double);
+  double *qraux = R_Calloc(cols,double);
+  double *qty = R_Calloc(rows,double);
+  double *work = R_Calloc(2*cols,double);
   
-  int *jpvt = Calloc(cols,int);
+  int *jpvt = R_Calloc(cols,int);
 
   for (i=0; i < rows; i++){
     if (w[i] == 0.0){
@@ -199,15 +199,15 @@ void lm_wfit(double *x, double *y, double *w, int rows, int cols, double tol, do
     }
   }
   
-  Free(wts); 
-  Free(x_wts_f); 
-  Free(y_wts_f);
-  Free(beta);
-  Free(resid);
-  Free(qraux);
-  Free(qty);
-  Free(work);
-  Free(jpvt );
+  R_Free(wts); 
+  R_Free(x_wts_f); 
+  R_Free(y_wts_f);
+  R_Free(beta);
+  R_Free(resid);
+  R_Free(qraux);
+  R_Free(qty);
+  R_Free(work);
+  R_Free(jpvt );
 }
 
 

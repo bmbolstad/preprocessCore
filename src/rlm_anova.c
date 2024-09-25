@@ -172,11 +172,11 @@ This is R test code
 static void XTWXinv(int y_rows, int y_cols,double *xtwx){
   int i,j,k;
   int Msize = y_cols +y_rows-1;
-  double *P= Calloc(y_cols,double);
-  double *RP = Calloc(y_cols*(y_rows-1),double);
-  double *RPQ = Calloc((y_rows-1)*(y_rows-1),double);
-  double *S = Calloc((y_rows-1)*(y_rows-1),double);
-  double *work = Calloc((y_rows-1)*(y_rows-1),double);
+  double *P= R_Calloc(y_cols,double);
+  double *RP = R_Calloc(y_cols*(y_rows-1),double);
+  double *RPQ = R_Calloc((y_rows-1)*(y_rows-1),double);
+  double *S = R_Calloc((y_rows-1)*(y_rows-1),double);
+  double *work = R_Calloc((y_rows-1)*(y_rows-1),double);
   
   for (j=0;j < y_cols;j++){
     for (i=0; i < y_rows -1; i++){
@@ -266,11 +266,11 @@ static void XTWXinv(int y_rows, int y_cols,double *xtwx){
   }
 
 
-  Free(P);
-  Free(work);
-  Free(RP);
-  Free(RPQ);
-  Free(S);
+  R_Free(P);
+  R_Free(work);
+  R_Free(RP);
+  R_Free(RPQ);
+  R_Free(S);
 
 }
 
@@ -346,12 +346,12 @@ static void rlm_fit_anova_engine(double *y, int y_rows, int y_cols, double *inpu
   double *wts = out_weights; 
 
   double *resids = out_resids; 
-  double *old_resids = Calloc(y_rows*y_cols,double);
+  double *old_resids = R_Calloc(y_rows*y_cols,double);
   
-  double *rowmeans = Calloc(y_rows,double);
+  double *rowmeans = R_Calloc(y_rows,double);
 
-  double *xtwx = Calloc((y_rows+y_cols-1)*(y_rows+y_cols-1),double);
-  double *xtwy = Calloc((y_rows+y_cols),double);
+  double *xtwx = R_Calloc((y_rows+y_cols-1)*(y_rows+y_cols-1),double);
+  double *xtwy = R_Calloc((y_rows+y_cols),double);
 
   double sumweights, rows;
   
@@ -482,10 +482,10 @@ static void rlm_fit_anova_engine(double *y, int y_rows, int y_cols, double *inpu
     scale = *input_scale;
   }
 
-  Free(xtwx);
-  Free(xtwy);
-  Free(old_resids);
-  Free(rowmeans);
+  R_Free(xtwx);
+  R_Free(xtwy);
+  R_Free(old_resids);
+  R_Free(rowmeans);
   input_scale[0] = scale;
 
 }
@@ -575,12 +575,12 @@ void rlm_wfit_anova_engine(double *y, int y_rows, int y_cols, double *input_scal
   double *wts = out_weights; 
 
   double *resids = out_resids; 
-  double *old_resids = Calloc(y_rows*y_cols,double);
+  double *old_resids = R_Calloc(y_rows*y_cols,double);
   
-  double *rowmeans = Calloc(y_rows,double);
+  double *rowmeans = R_Calloc(y_rows,double);
 
-  double *xtwx = Calloc((y_rows+y_cols-1)*(y_rows+y_cols-1),double);
-  double *xtwy = Calloc((y_rows+y_cols),double);
+  double *xtwx = R_Calloc((y_rows+y_cols-1)*(y_rows+y_cols-1),double);
+  double *xtwy = R_Calloc((y_rows+y_cols),double);
 
   double sumweights, rows;
   
@@ -713,10 +713,10 @@ void rlm_wfit_anova_engine(double *y, int y_rows, int y_cols, double *input_scal
     scale = *input_scale;
   }
 
-  Free(xtwx);
-  Free(xtwy);
-  Free(old_resids);
-  Free(rowmeans);
+  R_Free(xtwx);
+  R_Free(xtwy);
+  R_Free(old_resids);
+  R_Free(rowmeans);
   input_scale[0] = scale;
 
 }
@@ -835,8 +835,8 @@ static void RLM_SE_Method_1_anova(double residvar, double *XTX, int y_rows,int y
 static void RLM_SE_Method_2_anova(double residvar, double *W, int y_rows,int y_cols, double *se_estimates,double *varcov){
   int i,j; /* l,k; */
   int p = y_rows + y_cols -1;
-  double *Winv = Calloc(p*p,double);
-  double *work = Calloc(p*p,double);
+  double *Winv = R_Calloc(p*p,double);
+  double *work = R_Calloc(p*p,double);
   
   
   if (!Choleski_inverse(W,Winv,work,p,1)){
@@ -888,8 +888,8 @@ static void RLM_SE_Method_2_anova(double residvar, double *W, int y_rows,int y_c
       varcov[(i+ y_rows -1)*p + (j - y_cols)] =  residvar*Winv[j*p + i];
       } **/
   
-  Free(work);
-  Free(Winv);
+  R_Free(work);
+  R_Free(Winv);
 
 }
 
@@ -917,13 +917,13 @@ static int RLM_SE_Method_3_anova(double residvar, double *XTX, double *W,  int y
   int i,j,k;   /* l; */
   int rv;
   int p = y_rows + y_cols -1;
-  double *Winv = Calloc(p*p,double);
-  double *work = Calloc(p*p,double);
+  double *Winv = R_Calloc(p*p,double);
+  double *work = R_Calloc(p*p,double);
   
 
   /***************** 
 
-  double *Wcopy = Calloc(p*p,double);
+  double *Wcopy = R_Calloc(p*p,double);
 
   
   for (i=0; i <p; i++){
@@ -1000,8 +1000,8 @@ static int RLM_SE_Method_3_anova(double residvar, double *XTX, double *W,  int y
       for (j = y_cols; j < p; j++)
       varcov[(i+ y_rows -1)*p + (j - y_cols)] =  residvar*W[j*p + i];
       } */
-   Free(work);
-   Free(Winv);
+   R_Free(work);
+   R_Free(Winv);
 
    return rv;
 
@@ -1030,12 +1030,12 @@ void rlm_compute_se_anova(double *Y, int y_rows,int y_cols, double *beta, double
   double scale=0.0;
   int n = y_rows*y_cols;
   int p = y_rows + y_cols -1;
-  double *XTX = Calloc(p*p,double);
-  double *W = Calloc(p*p,double);
-  double *work = Calloc(p*p,double);
+  double *XTX = R_Calloc(p*p,double);
+  double *W = R_Calloc(p*p,double);
+  double *work = R_Calloc(p*p,double);
   double RMSEw = 0.0;
   double vs=0.0,m,varderivpsi=0.0; 
-  double *W_tmp=Calloc(n,double);
+  double *W_tmp=R_Calloc(n,double);
 
 
   if (method == 4){
@@ -1161,10 +1161,10 @@ void rlm_compute_se_anova(double *Y, int y_rows,int y_cols, double *beta, double
       }
     } 
   }
-  Free(W_tmp);
-  Free(work);
-  Free(XTX);
-  Free(W);
+  R_Free(W_tmp);
+  R_Free(work);
+  R_Free(XTX);
+  R_Free(W);
 
 }
 
@@ -1230,19 +1230,19 @@ void rlm_fit_anova_given_probe_effects_engine(double *y, int y_rows, int y_cols,
   int i,j,iter;
   /* double tol = 1e-7; */
   double acc = 1e-4;
-  double *scale =Calloc((y_cols),double);;
+  double *scale =R_Calloc((y_cols),double);;
   double conv;
   double endprobe;
 
   double *wts = out_weights; 
 
   double *resids = out_resids; 
-  double *old_resids = Calloc(y_rows*y_cols,double);
+  double *old_resids = R_Calloc(y_rows*y_cols,double);
   
-  double *rowmeans = Calloc(y_rows,double);
+  double *rowmeans = R_Calloc(y_rows,double);
 
-  double *xtwx = Calloc((y_cols)*(y_cols),double);
-  double *xtwy = Calloc((y_cols),double);
+  double *xtwx = R_Calloc((y_cols)*(y_cols),double);
+  double *xtwy = R_Calloc((y_cols),double);
 
   double sumweights, rows;
   
@@ -1350,21 +1350,21 @@ void rlm_fit_anova_given_probe_effects_engine(double *y, int y_rows, int y_cols,
     }
   }
 
-  Free(xtwx);
-  Free(xtwy);
-  Free(old_resids);
-  Free(rowmeans);
+  R_Free(xtwx);
+  R_Free(xtwy);
+  R_Free(old_resids);
+  R_Free(rowmeans);
 
   for (j = 0; j < y_cols; j++){
     input_scale[j] = scale[j];
   }
-  Free(scale);
+  R_Free(scale);
 }
 
 
 void rlm_fit_anova_given_probe_effects(double *y, int y_rows, int y_cols, double *probe_effects, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
 
-  double *scale=Calloc((y_cols),double);
+  double *scale=R_Calloc((y_cols),double);
   int j;
 
   for (j=0; j < y_cols; j++){
@@ -1372,7 +1372,7 @@ void rlm_fit_anova_given_probe_effects(double *y, int y_rows, int y_cols, double
   }
   rlm_fit_anova_given_probe_effects_engine(y, y_rows, y_cols, scale, probe_effects, out_beta, out_resids, out_weights, PsiFn, psi_k, max_iter, initialized);
 
-  Free(scale);
+  R_Free(scale);
 }
 
 void rlm_fit_anova_given_probe_effects_scale(double *y, int y_rows, int y_cols, double *input_scale, double *probe_effects, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
@@ -1419,12 +1419,12 @@ void rlm_compute_se_anova_given_probe_effects(double *Y, int y_rows,int y_cols, 
   double scale=0.0;
   int n = y_rows*y_cols;
   int p = y_cols;
-  double *XTX = Calloc(p*p,double);
-  double *W = Calloc(p*p,double);
-  double *work = Calloc(p*p,double);
+  double *XTX = R_Calloc(p*p,double);
+  double *W = R_Calloc(p*p,double);
+  double *work = R_Calloc(p*p,double);
   double RMSEw = 0.0;
   double vs=0.0,m,varderivpsi=0.0; 
-  double *W_tmp=Calloc(n,double);
+  double *W_tmp=R_Calloc(n,double);
 
   /*
   ** The previous multi-chip code 
@@ -1486,10 +1486,10 @@ void rlm_compute_se_anova_given_probe_effects(double *Y, int y_rows,int y_cols, 
 
   
 
-  Free(W_tmp);
-  Free(work);
-  Free(XTX);
-  Free(W);
+  R_Free(W_tmp);
+  R_Free(work);
+  R_Free(XTX);
+  R_Free(W);
 
 }
 
@@ -1500,19 +1500,19 @@ void rlm_wfit_anova_given_probe_effects_engine(double *y, int y_rows, int y_cols
   int i,j,iter;
   /* double tol = 1e-7; */
   double acc = 1e-4;
-  double *scale  =Calloc((y_cols),double);
+  double *scale  =R_Calloc((y_cols),double);
   double conv;
   double endprobe;
 
   double *wts = out_weights; 
 
   double *resids = out_resids; 
-  double *old_resids = Calloc(y_rows*y_cols,double);
+  double *old_resids = R_Calloc(y_rows*y_cols,double);
   
-  double *rowmeans = Calloc(y_rows,double);
+  double *rowmeans = R_Calloc(y_rows,double);
 
-  double *xtwx = Calloc((y_cols)*(y_cols),double);
-  double *xtwy = Calloc((y_cols),double);
+  double *xtwx = R_Calloc((y_cols)*(y_cols),double);
+  double *xtwy = R_Calloc((y_cols),double);
 
   double sumweights, rows;
   
@@ -1620,21 +1620,21 @@ void rlm_wfit_anova_given_probe_effects_engine(double *y, int y_rows, int y_cols
       scale[j] = input_scale[j];
     }
   }
-  Free(xtwx);
-  Free(xtwy);
-  Free(old_resids);
-  Free(rowmeans);
+  R_Free(xtwx);
+  R_Free(xtwy);
+  R_Free(old_resids);
+  R_Free(rowmeans);
 
   for (j = 0; j < y_cols; j++){
     input_scale[j] = scale[j];
   }
-  Free(scale);
+  R_Free(scale);
 }
 
 
 
 void rlm_wfit_anova_given_probe_effects(double *y, int y_rows, int y_cols, double *probe_effects, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized){
-  double *scale=Calloc((y_cols),double);
+  double *scale=R_Calloc((y_cols),double);
   int j;
 
   for (j=0; j < y_cols; j++){
@@ -1643,7 +1643,7 @@ void rlm_wfit_anova_given_probe_effects(double *y, int y_rows, int y_cols, doubl
 
   rlm_wfit_anova_given_probe_effects_engine(y, y_rows, y_cols, scale, probe_effects, w, out_beta, out_resids, out_weights, PsiFn, psi_k, max_iter, initialized);
 
-  Free(scale);
+  R_Free(scale);
 }
 
 

@@ -33,7 +33,7 @@
  **                now from R as alterative to traditonal means.
  **                Fixed a bug where use_median was not being dereferenced in "robust method"
  ** Oct 7, 2003 - fix a bug with length is qnorm_robust
- ** Mar 6, 2004 - change malloc/free pairs to Calloc/Free
+ ** Mar 6, 2004 - change malloc/free pairs to R_Calloc/R_Free
  ** Mar 3, 2005 - port across the low memory quantile normalization from RMAExpress (and make it the new qnorm_c (previous version made qnorm_c_old)
  ** Mar 12, 2006 - make some internal functions static
  ** Mar 13, 2006 - re-working of the "robust" quantile normalizer. The old function is
@@ -250,7 +250,7 @@ static dataitem **get_di_matrix(double *data, int rows, int cols){
   dataitem **dimat;
   /* dataitem *xtmp; */
   
-  dimat = (dataitem **)Calloc((cols),dataitem *);
+  dimat = (dataitem **)R_Calloc((cols),dataitem *);
   
   if (dimat == NULL){
     Rprintf("\nERROR - Sorry the normalization routine could not allocate adequate memory\n       You probably need more memory to work with a dataset this large\n");
@@ -260,7 +260,7 @@ static dataitem **get_di_matrix(double *data, int rows, int cols){
      for (j=0; j < cols; j++, xtmp +=rows) dimat[j] = xtmp; */
   
   for (j=0; j < cols; j++)
-    dimat[j] = Calloc(rows,dataitem);
+    dimat[j] = R_Calloc(rows,dataitem);
 
 
 
@@ -375,14 +375,14 @@ static double weights_huber(double u, double k){
 static double med_abs(double *x, int length){
   int i;
   double med_abs;
-  double *buffer = Calloc(length,double);
+  double *buffer = R_Calloc(length,double);
 
   for (i = 0; i < length; i++)
     buffer[i] = fabs(x[i]);
 
   med_abs = median_nocopy(buffer,length);
 
-  Free(buffer);
+  R_Free(buffer);
   return(med_abs);
 }
 
@@ -398,10 +398,10 @@ static double med_abs(double *x, int length){
 
 void normalize_determine_target(double *data, double *row_mean, size_t rows, size_t cols, int start_col, int end_col){
   size_t i, j;
-  double *datvec = (double *)Calloc((rows),double);
+  double *datvec = (double *)R_Calloc((rows),double);
   
 #ifdef USE_PTHREADS
-  long double *row_submean = (long double *)Calloc((rows), long double);
+  long double *row_submean = (long double *)R_Calloc((rows), long double);
   for (i =0; i < rows; i++){
     row_submean[i] = 0.0;
   }
@@ -422,7 +422,7 @@ void normalize_determine_target(double *data, double *row_mean, size_t rows, siz
 #endif
     }
   }
-  Free(datvec);
+  R_Free(datvec);
 
 #ifdef USE_PTHREADS
   /* add to the global running total, will do the division after all threads finish (for precision of the result) */
@@ -431,17 +431,17 @@ void normalize_determine_target(double *data, double *row_mean, size_t rows, siz
     row_mean[i] += (double) row_submean[i];
   }
   pthread_mutex_unlock (&mutex_R);
-  Free(row_submean);
+  R_Free(row_submean);
 #endif
 }
   
 void normalize_distribute_target(double *data, double *row_mean, size_t rows, size_t cols, int start_col, int end_col){ 
   size_t i, j, ind;
   dataitem **dimat;
-  double *ranks = (double *)Calloc((rows),double);
+  double *ranks = (double *)R_Calloc((rows),double);
 
-  dimat = (dataitem **)Calloc(1,dataitem *);
-  dimat[0] = (dataitem *)Calloc(rows,dataitem);
+  dimat = (dataitem **)R_Calloc(1,dataitem *);
+  dimat[0] = (dataitem *)R_Calloc(rows,dataitem);
 
   for (j = start_col; j <= end_col; j++){
     for (i = 0; i < rows; i++){
@@ -460,9 +460,9 @@ void normalize_distribute_target(double *data, double *row_mean, size_t rows, si
     }
   }
 
-  Free(ranks);
-  Free(dimat[0]);
-  Free(dimat);
+  R_Free(ranks);
+  R_Free(dimat[0]);
+  R_Free(dimat);
 }
 
 #ifdef USE_PTHREADS
@@ -494,7 +494,7 @@ void *distribute_group(void *data){
 
 int qnorm_c_l(double *data, size_t rows, size_t cols){
   size_t i;
-  double *row_mean = (double *)Calloc(rows,double);
+  double *row_mean = (double *)R_Calloc(rows,double);
 #ifdef USE_PTHREADS
   int t, returnCode, chunk_size, num_threads = 1;
   double chunk_size_d, chunk_tot_d;
@@ -528,7 +528,7 @@ int qnorm_c_l(double *data, size_t rows, size_t cols){
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -551,7 +551,7 @@ int qnorm_c_l(double *data, size_t rows, size_t cols){
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((cols < num_threads ? cols : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((cols < num_threads ? cols : num_threads), struct loop_data);
 
   args[0].data = data;
   args[0].row_mean = row_mean;
@@ -619,14 +619,14 @@ int qnorm_c_l(double *data, size_t rows, size_t cols){
   }
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 #else
   normalize_determine_target(data, row_mean, rows, cols, 0, cols-1);
   normalize_distribute_target(data, row_mean, rows, cols, 0, cols-1); 
 #endif
 
-  Free(row_mean);
+  R_Free(row_mean);
 
   return 0;
 }
@@ -735,9 +735,9 @@ int qnorm_robust_c(double *data,double *weights, int *rows, int *cols, int *use_
   int i,j,ind,rep;  
   int half,length;
   dataitem **dimat;
-  double *row_mean = (double *)Calloc((*rows),double);
-  double *datvec=0; /* = (double *)Calloc(*cols,double); */
-  double *ranks = (double *)Calloc((*rows),double);
+  double *row_mean = (double *)R_Calloc((*rows),double);
+  double *datvec=0; /* = (double *)R_Calloc(*cols,double); */
+  double *ranks = (double *)R_Calloc((*rows),double);
   
   double sum_weights = 0.0;
   double mean, scale; /* used in M-estimation routine */
@@ -750,7 +750,7 @@ int qnorm_robust_c(double *data,double *weights, int *rows, int *cols, int *use_
 
 
   if ((*weight_scheme == 0) && !(*use_median)){
-    datvec = (double *)Calloc(*rows,double);
+    datvec = (double *)R_Calloc(*rows,double);
     
     if (!(*use_log2)){
       for (j = 0; j < *cols; j++){
@@ -794,7 +794,7 @@ int qnorm_robust_c(double *data,double *weights, int *rows, int *cols, int *use_
     /** row-wise huber weights **/
     dimat = get_di_matrix(data, *rows, *cols);
    
-    datvec = Calloc(*cols,double);
+    datvec = R_Calloc(*cols,double);
     
     for (j=0; j < *cols; j++){
       qsort(dimat[j],*rows,sizeof(dataitem),sort_fn);
@@ -877,10 +877,10 @@ int qnorm_robust_c(double *data,double *weights, int *rows, int *cols, int *use_
       }
     }
     for (j=0; j < *cols; j++){
-      Free(dimat[j]);
+      R_Free(dimat[j]);
     }
     
-    Free(dimat);
+    R_Free(dimat);
 
 
 
@@ -888,7 +888,7 @@ int qnorm_robust_c(double *data,double *weights, int *rows, int *cols, int *use_
   } else if ((*use_median)){
     dimat = get_di_matrix(data, *rows, *cols);
    
-    datvec = Calloc(*cols,double);
+    datvec = R_Calloc(*cols,double);
     
     for (j=0; j < *cols; j++){
       qsort(dimat[j],*rows,sizeof(dataitem),sort_fn);
@@ -909,10 +909,10 @@ int qnorm_robust_c(double *data,double *weights, int *rows, int *cols, int *use_
       }
     }
     for (j=0; j < *cols; j++){
-      Free(dimat[j]);
+      R_Free(dimat[j]);
     }
     
-    Free(dimat);
+    R_Free(dimat);
   } else {
     error("Not sure that these inputs are recognised for the robust quantile normalization routine.\n");
 
@@ -924,8 +924,8 @@ int qnorm_robust_c(double *data,double *weights, int *rows, int *cols, int *use_
 
 
   /* now assign back distribution */
-  dimat = (dataitem **)Calloc(1,dataitem *);
-  dimat[0] = (dataitem *)Calloc(*rows,dataitem);
+  dimat = (dataitem **)R_Calloc(1,dataitem *);
+  dimat[0] = (dataitem *)R_Calloc(*rows,dataitem);
   
   for (j = 0; j < *cols; j++){
     for (i =0; i < *rows; i++){
@@ -944,12 +944,12 @@ int qnorm_robust_c(double *data,double *weights, int *rows, int *cols, int *use_
     }
   }
   
-  Free(ranks);
-  Free(datvec);
-  Free(dimat[0]);
+  R_Free(ranks);
+  R_Free(datvec);
+  R_Free(dimat[0]);
   
-  Free(dimat);
-  Free(row_mean);
+  R_Free(dimat);
+  R_Free(row_mean);
   return 0;
   
 }
@@ -1084,11 +1084,11 @@ static double compute_means(double *x, int length){
 
 static void remove_order_variance(double *x, int rows, int cols, int n_remove, double *weights){
 
-  double *vars = Calloc(cols,double);
-  double *vars_row = Calloc(cols,double);
-  double *vars_col = Calloc(cols,double);
+  double *vars = R_Calloc(cols,double);
+  double *vars_row = R_Calloc(cols,double);
+  double *vars_col = R_Calloc(cols,double);
 
-  double *results = Calloc(cols*cols,double);
+  double *results = R_Calloc(cols*cols,double);
   
   int i,j;
 
@@ -1137,10 +1137,10 @@ static void remove_order_variance(double *x, int rows, int cols, int n_remove, d
     }
   }
   
-  Free(results);
-  Free(vars);
-  Free(vars_row);
-  Free(vars_col);
+  R_Free(results);
+  R_Free(vars);
+  R_Free(vars_row);
+  R_Free(vars_col);
 
 
 }
@@ -1163,11 +1163,11 @@ static void remove_order_variance(double *x, int rows, int cols, int n_remove, d
 static void remove_order_mean(double *x, int rows, int cols, int n_remove, double *weights){
 
   
-  double *means = Calloc(cols,double);
-  double *means_row = Calloc(cols,double);
-  double *means_col = Calloc(cols,double);
+  double *means = R_Calloc(cols,double);
+  double *means_row = R_Calloc(cols,double);
+  double *means_col = R_Calloc(cols,double);
 
-  double *results = Calloc(cols*cols,double);
+  double *results = R_Calloc(cols*cols,double);
   
   int i,j;
 
@@ -1206,10 +1206,10 @@ static void remove_order_mean(double *x, int rows, int cols, int n_remove, doubl
     }
   }
   
-  Free(results);
-  Free(means);
-  Free(means_row);
-  Free(means_col);
+  R_Free(results);
+  R_Free(means);
+  R_Free(means_row);
+  R_Free(means_col);
 
 
 
@@ -1232,17 +1232,17 @@ static void remove_order_mean(double *x, int rows, int cols, int n_remove, doubl
 
 static void remove_order_both(double *x, int rows, int cols, int n_remove, double *weights){
 
-  double *means = Calloc(cols,double);
-  double *means_row = Calloc(cols,double);
-  double *means_col = Calloc(cols,double);
+  double *means = R_Calloc(cols,double);
+  double *means_row = R_Calloc(cols,double);
+  double *means_col = R_Calloc(cols,double);
 
-  double *vars = Calloc(cols,double);
-  double *vars_row = Calloc(cols,double);
-  double *vars_col = Calloc(cols,double);
+  double *vars = R_Calloc(cols,double);
+  double *vars_row = R_Calloc(cols,double);
+  double *vars_col = R_Calloc(cols,double);
 
 
 
-  double *results = Calloc(cols*cols,double);
+  double *results = R_Calloc(cols*cols,double);
   
   int i,j;
 
@@ -1421,7 +1421,7 @@ void using_target(double *data, size_t rows, size_t cols, double *target, size_t
 
   double *row_mean = target;
 
-  double *ranks = (double *)Calloc((rows),double);
+  double *ranks = (double *)R_Calloc((rows),double);
   double samplepercentile;
   double target_ind_double,target_ind_double_floor;
 
@@ -1434,8 +1434,8 @@ void using_target(double *data, size_t rows, size_t cols, double *target, size_t
     /* now assign back distribution */
     /* this is basically the standard story */
     
-    dimat = (dataitem **)Calloc(1,dataitem *);
-    dimat[0] = (dataitem *)Calloc(rows,dataitem);
+    dimat = (dataitem **)R_Calloc(1,dataitem *);
+    dimat[0] = (dataitem *)R_Calloc(rows,dataitem);
     
     for (j = start_col; j <= end_col; j++){
       non_na = 0;
@@ -1502,8 +1502,8 @@ void using_target(double *data, size_t rows, size_t cols, double *target, size_t
   } else {
     /** the length of the target distribution and the size of the data matrix differ **/
     /** need to estimate quantiles **/
-    dimat = (dataitem **)Calloc(1,dataitem *);
-    dimat[0] = (dataitem *)Calloc(rows,dataitem);
+    dimat = (dataitem **)R_Calloc(1,dataitem *);
+    dimat[0] = (dataitem *)R_Calloc(rows,dataitem);
     
     for (j = start_col; j <= end_col; j++){
       non_na = 0;
@@ -1556,9 +1556,9 @@ void using_target(double *data, size_t rows, size_t cols, double *target, size_t
       }
     }
   }
-  Free(dimat[0]);
-  Free(dimat);
-  Free(ranks);
+  R_Free(dimat[0]);
+  R_Free(dimat);
+  R_Free(ranks);
 }
 
 
@@ -1632,7 +1632,7 @@ int qnorm_c_using_target_l(double *data, size_t rows, size_t cols, double *targe
 #endif
 #endif
   
-  row_mean = (double *)Calloc(targetrows,double);
+  row_mean = (double *)R_Calloc(targetrows,double);
   
   /* first find the normalizing distribution */
   for (i =0; i < targetrows; i++){
@@ -1654,7 +1654,7 @@ int qnorm_c_using_target_l(double *data, size_t rows, size_t cols, double *targe
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -1677,7 +1677,7 @@ int qnorm_c_using_target_l(double *data, size_t rows, size_t cols, double *targe
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((cols < num_threads ? cols : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((cols < num_threads ? cols : num_threads), struct loop_data);
 
   args[0].data = data;
   args[0].row_mean = row_mean;
@@ -1726,15 +1726,15 @@ int qnorm_c_using_target_l(double *data, size_t rows, size_t cols, double *targe
 
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 
 #else
   using_target(data, rows, cols, row_mean, targetnon_na, 0, cols -1);
 #endif
 
 
-  Free(row_mean);
+  R_Free(row_mean);
   return 0;
 
 
@@ -1790,10 +1790,10 @@ void determine_target(double *data, double *row_mean, size_t rows, size_t cols, 
   
   int non_na;
 #ifdef USE_PTHREADS
-  long double *row_submean = (long double *)Calloc((rows), long double);
+  long double *row_submean = (long double *)R_Calloc((rows), long double);
 #endif
 
-  datvec = (double *)Calloc(rows,double);
+  datvec = (double *)R_Calloc(rows,double);
   
   /* first find the normalizing distribution */
   for (j = start_col; j <= end_col; j++){
@@ -1883,7 +1883,7 @@ void determine_target(double *data, double *row_mean, size_t rows, size_t cols, 
   }
   pthread_mutex_unlock (&mutex_R);
 #endif  
-  Free(datvec);
+  R_Free(datvec);
 }
 
 
@@ -1903,7 +1903,7 @@ int qnorm_c_determine_target_l(double *data, size_t rows, size_t cols, double *t
 
 
   size_t i,j,row_mean_ind;
-  double *row_mean = (double *)Calloc((rows),double);
+  double *row_mean = (double *)R_Calloc((rows),double);
   double row_mean_ind_double,row_mean_ind_double_floor;
   double samplepercentile;
   
@@ -1937,7 +1937,7 @@ int qnorm_c_determine_target_l(double *data, size_t rows, size_t cols, double *t
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -1960,7 +1960,7 @@ int qnorm_c_determine_target_l(double *data, size_t rows, size_t cols, double *t
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((cols < num_threads ? cols : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((cols < num_threads ? cols : num_threads), struct loop_data);
 
   args[0].data = data;
   args[0].row_mean = row_mean;
@@ -2012,8 +2012,8 @@ int qnorm_c_determine_target_l(double *data, size_t rows, size_t cols, double *t
   }
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 
 #else
   determine_target(data,row_mean,rows,cols,0,cols-1);
@@ -2062,7 +2062,7 @@ int qnorm_c_determine_target_l(double *data, size_t rows, size_t cols, double *t
 
   }
 
-  Free(row_mean);
+  R_Free(row_mean);
   return 0;
 }
 
@@ -2177,12 +2177,12 @@ SEXP R_qnorm_determine_target(SEXP X, SEXP targetlength){
 
 void qnorm_c_handleNA(double *data, int *rows, int *cols){
 
-  double *target = Calloc(*rows,double);
+  double *target = R_Calloc(*rows,double);
     
   qnorm_c_determine_target(data, rows, cols, target, rows);
   qnorm_c_using_target(data, rows, cols, target, rows);
 
-  Free(target);
+  R_Free(target);
 
 }
 
@@ -2260,12 +2260,12 @@ int qnorm_c_within_blocks(double *x, int *rows, int *cols, int *blocks){
   int i,j,ind;
   dataitem_block **dimat_block;
   /*  double sum; */
-  double *row_mean = (double *)Calloc((*rows),double);
-  double *ranks = (double *)Calloc((*rows),double);
+  double *row_mean = (double *)R_Calloc((*rows),double);
+  double *ranks = (double *)R_Calloc((*rows),double);
   
 
-  dimat_block = (dataitem_block **)Calloc(1,dataitem_block *);
-  dimat_block[0] = (dataitem_block *)Calloc(*rows,dataitem_block);
+  dimat_block = (dataitem_block **)R_Calloc(1,dataitem_block *);
+  dimat_block[0] = (dataitem_block *)R_Calloc(*rows,dataitem_block);
   
   for (i =0; i < *rows; i++){
     row_mean[i] = 0.0;
@@ -2309,12 +2309,12 @@ int qnorm_c_within_blocks(double *x, int *rows, int *cols, int *blocks){
     }
   }
   
-  Free(ranks);
+  R_Free(ranks);
   
-  Free(dimat_block[0]);
+  R_Free(dimat_block[0]);
   
-  Free(dimat_block);
-  Free(row_mean);
+  R_Free(dimat_block);
+  R_Free(row_mean);
   return 0;
   
 
@@ -2388,10 +2388,10 @@ void determine_target_via_subset(double *data, double *row_mean, size_t rows, si
   
   int non_na;
 #ifdef USE_PTHREADS
-  long double *row_submean = (long double *)Calloc((rows), long double);
+  long double *row_submean = (long double *)R_Calloc((rows), long double);
 #endif
 
-  datvec = (double *)Calloc(rows,double);
+  datvec = (double *)R_Calloc(rows,double);
   
   /* first find the normalizing distribution */
   for (j = start_col; j <= end_col; j++){
@@ -2481,7 +2481,7 @@ void determine_target_via_subset(double *data, double *row_mean, size_t rows, si
   }
   pthread_mutex_unlock (&mutex_R);
 #endif  
-  Free(datvec);
+  R_Free(datvec);
 }
 
 
@@ -2502,7 +2502,7 @@ int qnorm_c_determine_target_via_subset_l(double *data, size_t rows, size_t cols
 
 
   size_t i,j,row_mean_ind;
-  double *row_mean = (double *)Calloc((rows),double);
+  double *row_mean = (double *)R_Calloc((rows),double);
   double row_mean_ind_double,row_mean_ind_double_floor;
   double samplepercentile;
   
@@ -2536,7 +2536,7 @@ int qnorm_c_determine_target_via_subset_l(double *data, size_t rows, size_t cols
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -2559,7 +2559,7 @@ int qnorm_c_determine_target_via_subset_l(double *data, size_t rows, size_t cols
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((cols < num_threads ? cols : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((cols < num_threads ? cols : num_threads), struct loop_data);
 
   args[0].data = data;
   args[0].row_mean = row_mean;
@@ -2612,8 +2612,8 @@ int qnorm_c_determine_target_via_subset_l(double *data, size_t rows, size_t cols
   }
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 
 #else
   determine_target_via_subset(data, row_mean, rows, cols, in_subset, 0,cols-1);
@@ -2662,7 +2662,7 @@ int qnorm_c_determine_target_via_subset_l(double *data, size_t rows, size_t cols
 
   }
 
-  Free(row_mean);
+  R_Free(row_mean);
   return 0;
 }
 
@@ -2728,7 +2728,7 @@ static void using_target_via_subset_part1(double *data, size_t rows, size_t cols
 
   double *row_mean = target;
 
-  double *ranks = (double *)Calloc((rows),double);
+  double *ranks = (double *)R_Calloc((rows),double);
   double samplepercentile;
   double target_ind_double,target_ind_double_floor;
 
@@ -2739,10 +2739,10 @@ static void using_target_via_subset_part1(double *data, size_t rows, size_t cols
   double *datvec;
   
   
-  sample_percentiles = (double *)Calloc(subset_count, double);
-  datvec = (double *)Calloc(rows,double);
-  dimat = (dataitem **)Calloc(1,dataitem *);
-  dimat[0] = (dataitem *)Calloc(rows,dataitem);
+  sample_percentiles = (double *)R_Calloc(subset_count, double);
+  datvec = (double *)R_Calloc(rows,double);
+  dimat = (dataitem **)R_Calloc(1,dataitem *);
+  dimat[0] = (dataitem *)R_Calloc(rows,dataitem);
    
   for (j = start_col; j <= end_col; j++){
     
@@ -2798,10 +2798,10 @@ static void using_target_via_subset_part1(double *data, size_t rows, size_t cols
       }
     }
   } 
-  Free(dimat[0]);
-  Free(dimat);
-  Free(datvec);
-  Free(sample_percentiles);
+  R_Free(dimat[0]);
+  R_Free(dimat);
+  R_Free(datvec);
+  R_Free(sample_percentiles);
 }
 
 
@@ -2813,7 +2813,7 @@ static void using_target_via_subset_part2(double *data, size_t rows, size_t cols
 
   double *row_mean = target;
 
-  double *ranks = (double *)Calloc((rows),double);
+  double *ranks = (double *)R_Calloc((rows),double);
   double samplepercentile;
   double target_ind_double,target_ind_double_floor;
 
@@ -2827,8 +2827,8 @@ static void using_target_via_subset_part2(double *data, size_t rows, size_t cols
     /* now assign back distribution */
     /* this is basically the standard story */
     
-    dimat = (dataitem **)Calloc(1,dataitem *);
-    dimat[0] = (dataitem *)Calloc(rows,dataitem);
+    dimat = (dataitem **)R_Calloc(1,dataitem *);
+    dimat[0] = (dataitem *)R_Calloc(rows,dataitem);
     
     for (j = start_col; j <= end_col; j++){
       non_na = 0;
@@ -2893,8 +2893,8 @@ static void using_target_via_subset_part2(double *data, size_t rows, size_t cols
   } else {
     /** the length of the target distribution and the size of the data matrix differ **/
     /** need to estimate quantiles **/
-    dimat = (dataitem **)Calloc(1,dataitem *);
-    dimat[0] = (dataitem *)Calloc(rows,dataitem);
+    dimat = (dataitem **)R_Calloc(1,dataitem *);
+    dimat[0] = (dataitem *)R_Calloc(rows,dataitem);
     
     for (j = start_col; j <= end_col; j++){
       non_na = 0;
@@ -2945,9 +2945,9 @@ static void using_target_via_subset_part2(double *data, size_t rows, size_t cols
       }
     }
   }
-  Free(dimat[0]);
-  Free(dimat);
-  Free(ranks);
+  R_Free(dimat[0]);
+  R_Free(dimat);
+  R_Free(ranks);
 
 
 }
@@ -2960,7 +2960,7 @@ void using_target_via_subset(double *data, size_t rows, size_t cols, int *in_sub
 
   double *row_mean = target;
 
-  double *ranks = (double *)Calloc((rows),double);
+  double *ranks = (double *)R_Calloc((rows),double);
   double samplepercentile;
   double target_ind_double,target_ind_double_floor;
 
@@ -3037,7 +3037,7 @@ int qnorm_c_using_target_via_subset_l(double *data, size_t rows, size_t cols, in
 #endif
 #endif
   
-  row_mean = (double *)Calloc(targetrows,double);
+  row_mean = (double *)R_Calloc(targetrows,double);
   
   /* first find the normalizing distribution */
   for (i =0; i < targetrows; i++){
@@ -3059,7 +3059,7 @@ int qnorm_c_using_target_via_subset_l(double *data, size_t rows, size_t cols, in
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -3082,7 +3082,7 @@ int qnorm_c_using_target_via_subset_l(double *data, size_t rows, size_t cols, in
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((cols < num_threads ? cols : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((cols < num_threads ? cols : num_threads), struct loop_data);
 
   args[0].data = data;
   args[0].row_mean = row_mean;
@@ -3132,15 +3132,15 @@ int qnorm_c_using_target_via_subset_l(double *data, size_t rows, size_t cols, in
 
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 
 #else
   using_target_via_subset(data, rows, cols, in_subset, row_mean, targetnon_na, 0, cols -1);
 #endif
 
 
-  Free(row_mean);
+  R_Free(row_mean);
   return 0;
 
 

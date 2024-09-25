@@ -109,8 +109,8 @@
 
 static void RLM_SE_Method_1(double residvar, double *XTX, int p, double *se_estimates,double *varcov){
   int i,j;
-  double *XTXinv = Calloc(p*p,double);
-  double *work = Calloc(p*p,double);
+  double *XTXinv = R_Calloc(p*p,double);
+  double *work = R_Calloc(p*p,double);
 
   if (!Choleski_inverse(XTX,XTXinv,work,p,1)){
     for (i =0; i < p; i++){
@@ -128,8 +128,8 @@ static void RLM_SE_Method_1(double residvar, double *XTX, int p, double *se_esti
       }
     }
   
-  Free(work);
-  Free(XTXinv);
+  R_Free(work);
+  R_Free(XTXinv);
 }
 
 
@@ -153,8 +153,8 @@ static void RLM_SE_Method_1(double residvar, double *XTX, int p, double *se_esti
 
 static void RLM_SE_Method_2(double residvar, double *W, int p, double *se_estimates,double *varcov){
   int i,j; /* l,k; */
-  double *Winv = Calloc(p*p,double);
-  double *work = Calloc(p*p,double);
+  double *Winv = R_Calloc(p*p,double);
+  double *work = R_Calloc(p*p,double);
 
   if (!Choleski_inverse(W,Winv,work,p,1)){
     for (i =0; i < p; i++){
@@ -178,8 +178,8 @@ static void RLM_SE_Method_2(double residvar, double *W, int p, double *se_estima
     }
   
   
-  Free(work);
-  Free(Winv);
+  R_Free(work);
+  R_Free(Winv);
 
 }
 
@@ -205,13 +205,13 @@ static int RLM_SE_Method_3(double residvar, double *XTX, double *W, int p, doubl
   int i,j,k;   /* l; */
   int rv;
 
-  double *Winv = Calloc(p*p,double);
-  double *work = Calloc(p*p,double);
+  double *Winv = R_Calloc(p*p,double);
+  double *work = R_Calloc(p*p,double);
   
 
   /***************** 
 
-  double *Wcopy = Calloc(p*p,double);
+  double *Wcopy = R_Calloc(p*p,double);
 
   
   for (i=0; i <p; i++){
@@ -261,8 +261,8 @@ static int RLM_SE_Method_3(double residvar, double *XTX, double *W, int p, doubl
        }
    }
   
-  Free(work);
-  Free(Winv);
+  R_Free(work);
+  R_Free(Winv);
 
   return rv;
 
@@ -319,9 +319,9 @@ void rlm_compute_se(double *X,double *Y, int n, int p, double *beta, double *res
   double Kappa=0.0;      /* A correction factor */
   double scale=0.0;
   
-  double *XTX = Calloc(p*p,double);
-  double *W = Calloc(p*p,double);
-  double *work = Calloc(p*p,double);
+  double *XTX = R_Calloc(p*p,double);
+  double *W = R_Calloc(p*p,double);
+  double *work = R_Calloc(p*p,double);
   double RMSEw = 0.0;
   double vs=0.0,m,varderivpsi=0.0; 
 
@@ -420,9 +420,9 @@ void rlm_compute_se(double *X,double *Y, int n, int p, double *beta, double *res
       }
     } 
   }
-  Free(work);
-  Free(XTX);
-  Free(W);
+  R_Free(work);
+  R_Free(XTX);
+  R_Free(W);
 }
 
 void rlm_compute_se_R(double *X, double *Y, int *n, int *p, double *beta, double *resids, double *weights, double *se_estimates, double *varcov, double *residSE, int *method){

@@ -22,7 +22,7 @@
  ** Mar 11, 2003 - Add ability to do kernel density with arbitrary weights
  ** Apr 22, 2003 - fix computation of bandwidth. Add in linear interpolation
  **                so as to be more consistent with R.
- ** Apr 5, 2004 - all calloc/free are now Calloc/Free
+ ** Apr 5, 2004 - all calloc/free are now R_Calloc/R_Free
  ** Mar 24, 2005 - Add in IQR function to handle obscure cases.
  ** Mar 15, 2008 - add KernelDensity_lowmem. weightedkerneldensity.c is ported from affyPLM to preprocessCore
  ** Oct 31, 2011 - Add additional kernels. Allow non-power of 2 nout in KernelDensity. Fix error in bandwidth calculation
@@ -316,10 +316,10 @@ static void fft_ditI(double *f_real, double *f_imag, int p){
 static void fft_density_convolve(double *y, double *kords, int n){
   int i;
   int nlog2 = (int)(log((double)n)/log(2.0) + 0.5); /* ugly hack to stop rounding problems */
-  double *y_imag = Calloc(n,double);
-  double *kords_imag = Calloc(n,double);
-  double *conv_real = Calloc(n,double);
-  double *conv_imag = Calloc(n,double);
+  double *y_imag = R_Calloc(n,double);
+  double *kords_imag = R_Calloc(n,double);
+  double *conv_real = R_Calloc(n,double);
+  double *conv_imag = R_Calloc(n,double);
  
 
   
@@ -341,10 +341,10 @@ static void fft_density_convolve(double *y, double *kords, int n){
   }
 
 
-  Free(conv_real);
-  Free(conv_imag);
-  Free(kords_imag);
-  Free(y_imag);
+  R_Free(conv_real);
+  R_Free(conv_imag);
+  R_Free(kords_imag);
+  R_Free(y_imag);
   
 
 }
@@ -654,10 +654,10 @@ void KernelDensity(double *x, size_t nxxx, double *weights, double *output, doub
   size_t n2;  /* == 2*n;  */
   size_t i;
   double low, high, iqr, bw, to, from;
-  double *kords;  /*  = Calloc(2*n,double);*/
-  double *buffer;  /*  = Calloc(nx,double);*/
-  double *y;  /*   = Calloc(2*n,double);*/
-  double *xords;  /*    = Calloc(n,double);*/
+  double *kords;  /*  = R_Calloc(2*n,double);*/
+  double *buffer;  /*  = R_Calloc(nx,double);*/
+  double *y;  /*   = R_Calloc(2*n,double);*/
+  double *xords;  /*    = R_Calloc(n,double);*/
 
   int kern_fn=kernel_fn;
   int bw_fn=bandwidth_fn;
@@ -671,10 +671,10 @@ void KernelDensity(double *x, size_t nxxx, double *weights, double *output, doub
 
   n2 = 2*n;
 
-  kords = Calloc(n2,double);
-  buffer = Calloc(nx,double);
-  y = Calloc(n2,double);
-  xords  = Calloc(n,double);
+  kords = R_Calloc(n2,double);
+  buffer = R_Calloc(nx,double);
+  y = R_Calloc(n2,double);
+  xords  = R_Calloc(n,double);
 
   memcpy(buffer,x,nx*sizeof(double));
 
@@ -726,10 +726,10 @@ void KernelDensity(double *x, size_t nxxx, double *weights, double *output, doub
 
   linear_interpolate(xords, kords, output_x, output, n, nuser);
 
-  Free(xords);
-  Free(y);
-  Free(buffer);
-  Free(kords);
+  R_Free(xords);
+  R_Free(y);
+  R_Free(buffer);
+  R_Free(kords);
 
 }
 
@@ -805,10 +805,10 @@ void KernelDensity_lowmem(double *x, size_t nxxx, double *output, double *output
   size_t i;
 
   double low, high,iqr,bw,from,to;
-  double *kords = Calloc(2*n,double);
+  double *kords = R_Calloc(2*n,double);
   double *buffer = x; 
-  double *y = Calloc(2*n,double);
-  double *xords = Calloc(n,double);
+  double *y = R_Calloc(2*n,double);
+  double *xords = R_Calloc(n,double);
 
   qsort(buffer,nx,sizeof(double),(int(*)(const void*, const void*))sort_double);
  
@@ -857,9 +857,9 @@ void KernelDensity_lowmem(double *x, size_t nxxx, double *output, double *output
 
   linear_interpolate(xords, kords, output_x, output, n, n);
   
-  Free(xords);
-  Free(y);
-  Free(kords);
+  R_Free(xords);
+  R_Free(y);
+  R_Free(kords);
 
 }
 

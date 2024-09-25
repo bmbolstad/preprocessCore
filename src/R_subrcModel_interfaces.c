@@ -226,7 +226,7 @@ SEXP R_sub_rcModelSummarize_medianpolish(SEXP RMatrix, SEXP R_rowIndexList){
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -249,7 +249,7 @@ SEXP R_sub_rcModelSummarize_medianpolish(SEXP RMatrix, SEXP R_rowIndexList){
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
 
   args[0].matrix = matrix;
   args[0].R_return_value = &R_return_value;
@@ -299,8 +299,8 @@ SEXP R_sub_rcModelSummarize_medianpolish(SEXP RMatrix, SEXP R_rowIndexList){
 
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 #else     
 
   for (j =0; j < length_rowIndexList; j++){    
@@ -447,7 +447,7 @@ static void *sub_rcModelSummarize_plm_group(void *data){
     }
 
 
-    Ymat = Calloc(ncur_rows*cols,double);
+    Ymat = R_Calloc(ncur_rows*cols,double);
     
     
     for (k = 0; k < cols; k++){
@@ -465,7 +465,7 @@ static void *sub_rcModelSummarize_plm_group(void *data){
     for (i = cols; i < ncur_rows + cols -1; i++)
        beta[ncur_rows+cols -1]-=beta[i];
 
-    Free(Ymat);
+    R_Free(Ymat);
      
   }
   return NULL;
@@ -552,7 +552,7 @@ SEXP R_sub_rcModelSummarize_plm(SEXP RMatrix, SEXP R_rowIndexList, SEXP PsiCode,
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -575,7 +575,7 @@ SEXP R_sub_rcModelSummarize_plm(SEXP RMatrix, SEXP R_rowIndexList, SEXP PsiCode,
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
 
   args[0].matrix = matrix;
   args[0].R_return_value = &R_return_value;
@@ -628,8 +628,8 @@ SEXP R_sub_rcModelSummarize_plm(SEXP RMatrix, SEXP R_rowIndexList, SEXP PsiCode,
 
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 #else     
 
   for (j =0; j < length_rowIndexList; j++){    
@@ -668,7 +668,7 @@ SEXP R_sub_rcModelSummarize_plm(SEXP RMatrix, SEXP R_rowIndexList, SEXP PsiCode,
     }
 
 
-    Ymat = Calloc(ncur_rows*cols,double);
+    Ymat = R_Calloc(ncur_rows*cols,double);
     
     
     for (k = 0; k < cols; k++){
@@ -690,7 +690,7 @@ SEXP R_sub_rcModelSummarize_plm(SEXP RMatrix, SEXP R_rowIndexList, SEXP PsiCode,
      for (i = cols; i < ncur_rows + cols -1; i++)
         beta[ncur_rows+cols -1]-=beta[i];
 
-     Free(Ymat);
+     R_Free(Ymat);
      PROTECT(R_return_value_names= allocVector(STRSXP,5));
      SET_STRING_ELT(R_return_value_names,0,mkChar("Estimates"));
      SET_STRING_ELT(R_return_value_names,1,mkChar("Weights"));

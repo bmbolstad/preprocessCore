@@ -35,7 +35,7 @@
  **                more general psi functions
  ** Jun 05, 2003 - move lm_wfit  to lm.c
  ** Sep 13, 2003 - rlm now has a parameter that controls the maximum number of iterations
- ** Apr 5, 2004 - all malloc/free are now Calloc/Free
+ ** Apr 5, 2004 - all malloc/free are now R_Calloc/R_Free
  ** May 26, 2004 - rlm specialised for anova model. 
  ** June 21, 2004 - fixed up specialization for default anova model.
  ** June 23, 2004 - move specialization to its own file
@@ -113,11 +113,11 @@ double irls_delta(double *old, double *new, int length){
 
  static double irls_rrxwr(double *x, double *w, double *r, int rows, int cols){
   int i =0,j=0;
-  double *weights = Calloc(rows,double);
-  double *rw = Calloc(rows,double);
-  double *wr2 = Calloc(rows,double);
-  double *numerator = Calloc(cols,double);
-  double *denominator = Calloc(cols,double);
+  double *weights = R_Calloc(rows,double);
+  double *rw = R_Calloc(rows,double);
+  double *wr2 = R_Calloc(rows,double);
+  double *numerator = R_Calloc(cols,double);
+  double *denominator = R_Calloc(cols,double);
   double max_num,sum=0.0;
 
   for (i =0; i < rows; i++){
@@ -149,11 +149,11 @@ double irls_delta(double *old, double *new, int length){
     sum+=wr2[i];
   }
   
-  Free(numerator);
-  Free(denominator);
-  Free(wr2);
-  Free(rw);
-  Free(weights);
+  R_Free(numerator);
+  R_Free(denominator);
+  R_Free(wr2);
+  R_Free(rw);
+  R_Free(weights);
   return(max_num/sum);
 }  
 
@@ -179,14 +179,14 @@ double irls_delta(double *old, double *new, int length){
 double med_abs(double *x, int length){
   int i;
   double med_abs;
-  double *buffer = Calloc(length,double);
+  double *buffer = R_Calloc(length,double);
 
   for (i = 0; i < length; i++)
     buffer[i] = fabs(x[i]);
   
   med_abs = median(buffer,length);
     
-  Free(buffer);
+  R_Free(buffer);
   return(med_abs);
 }
 
@@ -226,7 +226,7 @@ void rlm_fit(double *x, double *y, int rows, int cols, double *out_beta, double 
   double *wts = out_weights; 
   double *beta = out_beta; 
   double *resids = out_resids; 
-  double *old_resids = Calloc(rows,double);
+  double *old_resids = R_Calloc(rows,double);
   
 
 
@@ -298,7 +298,7 @@ void rlm_fit(double *x, double *y, int rows, int cols, double *out_beta, double 
 
 
 
-  Free(old_resids);
+  R_Free(old_resids);
 }
 
 
@@ -369,7 +369,7 @@ void rlm_wfit(double *x, double *y, double *w, int rows, int cols, double *out_b
   double *wts = out_weights;
   double *beta = out_beta; 
   double *resids = out_resids; 
-  double *old_resids = Calloc(rows,double);
+  double *old_resids = R_Calloc(rows,double);
   
 
 
@@ -441,7 +441,7 @@ void rlm_wfit(double *x, double *y, double *w, int rows, int cols, double *out_b
 
 
 
-  Free(old_resids);
+  R_Free(old_resids);
 }
 
 

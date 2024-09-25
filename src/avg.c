@@ -181,7 +181,7 @@ void colaverage_no_copy(double *data, size_t rows, size_t cols, double *results,
 
 void colaverage(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
   int i,j;
-  double *z = Calloc(rows,double);
+  double *z = R_Calloc(rows,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < rows; i++){
@@ -190,7 +190,7 @@ void colaverage(double *data, size_t rows, size_t cols, double *results, double 
     results[j] = Avg(z,rows);
     resultsSE[j] = AvgSE(z,results[j],rows);
   } 
-  Free(z);
+  R_Free(z);
 
 }
 
@@ -231,7 +231,7 @@ void colaverage(double *data, size_t rows, size_t cols, double *results, double 
 
 void ColAverage(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
   int i,j;
-  double *z = Calloc(nprobes*cols,double);
+  double *z = R_Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < nprobes; i++){
@@ -244,7 +244,7 @@ void ColAverage(double *data, size_t rows, size_t cols, int *cur_rows, double *r
     resultsSE[j] = AvgSE(&z[j*nprobes],results[j],nprobes);
   }
 
-  Free(z);
+  R_Free(z);
 }
 
 
@@ -282,7 +282,7 @@ void ColAverage(double *data, size_t rows, size_t cols, int *cur_rows, double *r
 
 void ColAverage_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
   int i,j;
-  double *z = Calloc(nprobes*cols,double);
+  double *z = R_Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < nprobes; i++){
@@ -293,5 +293,5 @@ void ColAverage_noSE(double *data, size_t rows, size_t cols, int *cur_rows, doub
   for (j=0; j < cols; j++){
     results[j] = Avg(&z[j*nprobes],nprobes);
   }
-  Free(z);
+  R_Free(z);
 }

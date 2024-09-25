@@ -188,7 +188,7 @@ void averagelog_no_copy(double *data, size_t rows, size_t cols, double *results,
 
 void averagelog(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
   int i,j;
-  double *z = Calloc(rows,double);
+  double *z = R_Calloc(rows,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < rows; i++){
@@ -197,7 +197,7 @@ void averagelog(double *data, size_t rows, size_t cols, double *results, double 
     results[j] = AvgLog(z,rows);
     resultsSE[j] = AvgLogSE(z,results[j],rows);
   } 
-  Free(z);
+  R_Free(z);
 
 }
 
@@ -238,7 +238,7 @@ void averagelog(double *data, size_t rows, size_t cols, double *results, double 
 
 void AverageLog(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
   int i,j;
-  double *z = Calloc(nprobes*cols,double);
+  double *z = R_Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < nprobes; i++){
@@ -251,7 +251,7 @@ void AverageLog(double *data, size_t rows, size_t cols, int *cur_rows, double *r
     resultsSE[j] = AvgLogSE(&z[j*nprobes],results[j],nprobes);
   }
 
-  Free(z);
+  R_Free(z);
 }
 
 
@@ -289,7 +289,7 @@ void AverageLog(double *data, size_t rows, size_t cols, int *cur_rows, double *r
 
 void AverageLog_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
   int i,j;
-  double *z = Calloc(nprobes*cols,double);
+  double *z = R_Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < nprobes; i++){
@@ -300,5 +300,5 @@ void AverageLog_noSE(double *data, size_t rows, size_t cols, int *cur_rows, doub
   for (j=0; j < cols; j++){
     results[j] = AvgLog(&z[j*nprobes],nprobes);
   }
-  Free(z);
+  R_Free(z);
 }

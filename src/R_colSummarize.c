@@ -477,13 +477,13 @@ SEXP R_colSummarize_medianpolish_log(SEXP RMatrix){
   results = NUMERIC_POINTER(R_summaries);
   resultsSE = NUMERIC_POINTER(R_summaries_se);
 
-  resids = Calloc(rows*cols, double);
+  resids = R_Calloc(rows*cols, double);
   
   memcpy(resids, matrix, rows*cols*sizeof(double));
   
   median_polish_log2_no_copy(resids, rows, cols, results, resultsSE);
   
-  Free(resids);
+  R_Free(resids);
   
 
   PROTECT(R_return_value_names= allocVector(STRSXP,2));
@@ -535,13 +535,13 @@ SEXP R_colSummarize_medianpolish(SEXP RMatrix){
   results = NUMERIC_POINTER(R_summaries);
   resultsSE = NUMERIC_POINTER(R_summaries_se);
 
-  resids = Calloc(rows*cols, double);
+  resids = R_Calloc(rows*cols, double);
   
   memcpy(resids, matrix, rows*cols*sizeof(double));
   
   median_polish_no_copy(resids, rows, cols, results, resultsSE);
   
-  Free(resids);
+  R_Free(resids);
   
 
   PROTECT(R_return_value_names= allocVector(STRSXP,2));

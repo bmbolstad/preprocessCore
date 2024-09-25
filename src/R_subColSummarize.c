@@ -79,7 +79,7 @@ static void *subColSummarize_avg_log_group(void *data){
   int i, j;
   int ncur_rows;
   
-  buffer = Calloc(args->cols,double);
+  buffer = R_Calloc(args->cols,double);
 
   for (j = args->start_row; j <= args->end_row;  j++){    
     ncur_rows = LENGTH(VECTOR_ELT(*(args->R_rowIndexList),j)); 
@@ -91,7 +91,7 @@ static void *subColSummarize_avg_log_group(void *data){
     }
     pthread_mutex_unlock (&mutex_R);
   }
-  Free(buffer);
+  R_Free(buffer);
   return NULL;
 }
 
@@ -152,7 +152,7 @@ SEXP R_subColSummarize_avg_log(SEXP RMatrix, SEXP R_rowIndexList){
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -174,7 +174,7 @@ SEXP R_subColSummarize_avg_log(SEXP RMatrix, SEXP R_rowIndexList){
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
 
   args[0].matrix = matrix;
   args[0].results = results;
@@ -224,11 +224,11 @@ SEXP R_subColSummarize_avg_log(SEXP RMatrix, SEXP R_rowIndexList){
 
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 #else
  
-  buffer = Calloc(cols,double);
+  buffer = R_Calloc(cols,double);
   for (j =0; j < length_rowIndexList; j++){    
     ncur_rows = LENGTH(VECTOR_ELT(R_rowIndexList,j)); 
     cur_rows = INTEGER_POINTER(VECTOR_ELT(R_rowIndexList,j));
@@ -238,7 +238,7 @@ SEXP R_subColSummarize_avg_log(SEXP RMatrix, SEXP R_rowIndexList){
       results[i*length_rowIndexList + j] = buffer[i];
     }
   }
-  Free(buffer);
+  R_Free(buffer);
 #endif
   UNPROTECT(1);
   return R_summaries;
@@ -255,7 +255,7 @@ static void *subColSummarize_log_avg_group(void *data){
   int i, j;
   int ncur_rows;
   
-  buffer = Calloc(args->cols,double);
+  buffer = R_Calloc(args->cols,double);
 
   for (j = args->start_row; j <= args->end_row;  j++){    
     ncur_rows = LENGTH(VECTOR_ELT(*(args->R_rowIndexList),j)); 
@@ -267,7 +267,7 @@ static void *subColSummarize_log_avg_group(void *data){
     }
     pthread_mutex_unlock (&mutex_R);
   }
-  Free(buffer);
+  R_Free(buffer);
   return NULL;
 }
 #endif
@@ -325,7 +325,7 @@ SEXP R_subColSummarize_log_avg(SEXP RMatrix, SEXP R_rowIndexList){
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -348,7 +348,7 @@ SEXP R_subColSummarize_log_avg(SEXP RMatrix, SEXP R_rowIndexList){
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
 
   args[0].matrix = matrix;
   args[0].results = results;
@@ -398,11 +398,11 @@ SEXP R_subColSummarize_log_avg(SEXP RMatrix, SEXP R_rowIndexList){
 
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 #else
  
-  buffer = Calloc(cols,double);
+  buffer = R_Calloc(cols,double);
 
   for (j =0; j < length_rowIndexList; j++){    
     ncur_rows = LENGTH(VECTOR_ELT(R_rowIndexList,j)); 
@@ -414,7 +414,7 @@ SEXP R_subColSummarize_log_avg(SEXP RMatrix, SEXP R_rowIndexList){
     }
   }
   
-  Free(buffer);
+  R_Free(buffer);
 #endif
   UNPROTECT(1);
   return R_summaries;
@@ -431,7 +431,7 @@ static void *subColSummarize_avg_group(void *data){
   int i, j;
   int ncur_rows;
   
-  buffer = Calloc(args->cols,double);
+  buffer = R_Calloc(args->cols,double);
 
   for (j = args->start_row; j <= args->end_row;  j++){    
     ncur_rows = LENGTH(VECTOR_ELT(*(args->R_rowIndexList),j)); 
@@ -443,7 +443,7 @@ static void *subColSummarize_avg_group(void *data){
     }
     pthread_mutex_unlock (&mutex_R);
   }
-  Free(buffer);
+  R_Free(buffer);
   return NULL;
 }
 #endif
@@ -501,7 +501,7 @@ SEXP R_subColSummarize_avg(SEXP RMatrix, SEXP R_rowIndexList){
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -524,7 +524,7 @@ SEXP R_subColSummarize_avg(SEXP RMatrix, SEXP R_rowIndexList){
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
 
   args[0].matrix = matrix;
   args[0].results = results;
@@ -574,10 +574,10 @@ SEXP R_subColSummarize_avg(SEXP RMatrix, SEXP R_rowIndexList){
 
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 #else
-  buffer = Calloc(cols,double);
+  buffer = R_Calloc(cols,double);
 
   for (j =0; j < length_rowIndexList; j++){    
     ncur_rows = LENGTH(VECTOR_ELT(R_rowIndexList,j)); 
@@ -589,7 +589,7 @@ SEXP R_subColSummarize_avg(SEXP RMatrix, SEXP R_rowIndexList){
     }
   }
   
-  Free(buffer);
+  R_Free(buffer);
 #endif
   UNPROTECT(1);
   return R_summaries;
@@ -606,7 +606,7 @@ static void *subColSummarize_biweight_log_group(void *data){
   int i, j;
   int ncur_rows;
   
-  buffer = Calloc(args->cols,double);
+  buffer = R_Calloc(args->cols,double);
 
   for (j = args->start_row; j <= args->end_row;  j++){    
     ncur_rows = LENGTH(VECTOR_ELT(*(args->R_rowIndexList),j)); 
@@ -618,7 +618,7 @@ static void *subColSummarize_biweight_log_group(void *data){
     }
     pthread_mutex_unlock (&mutex_R);
   }
-  Free(buffer);
+  R_Free(buffer);
   return NULL;
 }
 #endif
@@ -679,7 +679,7 @@ SEXP R_subColSummarize_biweight_log(SEXP RMatrix, SEXP R_rowIndexList){
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -701,7 +701,7 @@ SEXP R_subColSummarize_biweight_log(SEXP RMatrix, SEXP R_rowIndexList){
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
 
   args[0].matrix = matrix;
   args[0].results = results;
@@ -751,10 +751,10 @@ SEXP R_subColSummarize_biweight_log(SEXP RMatrix, SEXP R_rowIndexList){
 
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 #else 
-  buffer = Calloc(cols,double);
+  buffer = R_Calloc(cols,double);
 
   for (j =0; j < length_rowIndexList; j++){    
     ncur_rows = LENGTH(VECTOR_ELT(R_rowIndexList,j)); 
@@ -766,7 +766,7 @@ SEXP R_subColSummarize_biweight_log(SEXP RMatrix, SEXP R_rowIndexList){
     }
   }
   
-  Free(buffer);
+  R_Free(buffer);
 #endif
   UNPROTECT(1);
   return R_summaries;
@@ -783,7 +783,7 @@ static void *subColSummarize_biweight_group(void *data){
   int i, j;
   int ncur_rows;
   
-  buffer = Calloc(args->cols,double);
+  buffer = R_Calloc(args->cols,double);
 
   for (j = args->start_row; j <= args->end_row;  j++){    
     ncur_rows = LENGTH(VECTOR_ELT(*(args->R_rowIndexList),j)); 
@@ -795,7 +795,7 @@ static void *subColSummarize_biweight_group(void *data){
     }
     pthread_mutex_unlock (&mutex_R);
   }
-  Free(buffer);
+  R_Free(buffer);
   return NULL;
 }
 #endif
@@ -854,7 +854,7 @@ SEXP R_subColSummarize_biweight(SEXP RMatrix, SEXP R_rowIndexList){
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -877,7 +877,7 @@ SEXP R_subColSummarize_biweight(SEXP RMatrix, SEXP R_rowIndexList){
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
 
   args[0].matrix = matrix;
   args[0].results = results;
@@ -927,11 +927,11 @@ SEXP R_subColSummarize_biweight(SEXP RMatrix, SEXP R_rowIndexList){
 
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 #else 
  
-  buffer = Calloc(cols,double);
+  buffer = R_Calloc(cols,double);
 
   for (j =0; j < length_rowIndexList; j++){    
     ncur_rows = LENGTH(VECTOR_ELT(R_rowIndexList,j)); 
@@ -943,7 +943,7 @@ SEXP R_subColSummarize_biweight(SEXP RMatrix, SEXP R_rowIndexList){
     }
   }
   
-  Free(buffer);
+  R_Free(buffer);
 #endif
   UNPROTECT(1);
   return R_summaries;
@@ -959,7 +959,7 @@ static void *subColSummarize_median_log_group(void *data){
   int i, j;
   int ncur_rows;
   
-  buffer = Calloc(args->cols,double);
+  buffer = R_Calloc(args->cols,double);
 
   for (j = args->start_row; j <= args->end_row;  j++){    
     ncur_rows = LENGTH(VECTOR_ELT(*(args->R_rowIndexList),j)); 
@@ -971,7 +971,7 @@ static void *subColSummarize_median_log_group(void *data){
     }
     pthread_mutex_unlock (&mutex_R);
   }
-  Free(buffer);
+  R_Free(buffer);
   return NULL;
 }
 #endif
@@ -1031,7 +1031,7 @@ SEXP R_subColSummarize_median_log(SEXP RMatrix, SEXP R_rowIndexList){
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -1054,7 +1054,7 @@ SEXP R_subColSummarize_median_log(SEXP RMatrix, SEXP R_rowIndexList){
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
 
   args[0].matrix = matrix;
   args[0].results = results;
@@ -1104,10 +1104,10 @@ SEXP R_subColSummarize_median_log(SEXP RMatrix, SEXP R_rowIndexList){
 
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 #else  
-  buffer = Calloc(cols,double);
+  buffer = R_Calloc(cols,double);
 
   for (j =0; j < length_rowIndexList; j++){    
     ncur_rows = LENGTH(VECTOR_ELT(R_rowIndexList,j)); 
@@ -1119,7 +1119,7 @@ SEXP R_subColSummarize_median_log(SEXP RMatrix, SEXP R_rowIndexList){
     }
   }
   
-  Free(buffer);
+  R_Free(buffer);
 #endif
   UNPROTECT(1);
   return R_summaries;
@@ -1135,7 +1135,7 @@ static void *subColSummarize_log_median_group(void *data){
   int i, j;
   int ncur_rows;
   
-  buffer = Calloc(args->cols,double);
+  buffer = R_Calloc(args->cols,double);
 
   for (j = args->start_row; j <= args->end_row;  j++){    
     ncur_rows = LENGTH(VECTOR_ELT(*(args->R_rowIndexList),j)); 
@@ -1147,7 +1147,7 @@ static void *subColSummarize_log_median_group(void *data){
     }
     pthread_mutex_unlock (&mutex_R);
   }
-  Free(buffer);
+  R_Free(buffer);
   return NULL;
 }
 #endif
@@ -1206,7 +1206,7 @@ SEXP R_subColSummarize_log_median(SEXP RMatrix, SEXP R_rowIndexList){
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -1229,7 +1229,7 @@ SEXP R_subColSummarize_log_median(SEXP RMatrix, SEXP R_rowIndexList){
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
 
   args[0].matrix = matrix;
   args[0].results = results;
@@ -1279,10 +1279,10 @@ SEXP R_subColSummarize_log_median(SEXP RMatrix, SEXP R_rowIndexList){
 
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 #else   
-  buffer = Calloc(cols,double);
+  buffer = R_Calloc(cols,double);
 
   for (j =0; j < length_rowIndexList; j++){    
     ncur_rows = LENGTH(VECTOR_ELT(R_rowIndexList,j)); 
@@ -1294,7 +1294,7 @@ SEXP R_subColSummarize_log_median(SEXP RMatrix, SEXP R_rowIndexList){
     }
   }
   
-  Free(buffer);
+  R_Free(buffer);
 #endif
   UNPROTECT(1);
   return R_summaries;
@@ -1310,7 +1310,7 @@ static void *subColSummarize_median_group(void *data){
   int i, j;
   int ncur_rows;
   
-  buffer = Calloc(args->cols,double);
+  buffer = R_Calloc(args->cols,double);
 
   for (j = args->start_row; j <= args->end_row;  j++){    
     ncur_rows = LENGTH(VECTOR_ELT(*(args->R_rowIndexList),j)); 
@@ -1322,7 +1322,7 @@ static void *subColSummarize_median_group(void *data){
     }
     pthread_mutex_unlock (&mutex_R);
   }
-  Free(buffer);
+  R_Free(buffer);
   return NULL;
 }
 #endif
@@ -1380,7 +1380,7 @@ SEXP R_subColSummarize_median(SEXP RMatrix, SEXP R_rowIndexList){
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -1403,7 +1403,7 @@ SEXP R_subColSummarize_median(SEXP RMatrix, SEXP R_rowIndexList){
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
 
   args[0].matrix = matrix;
   args[0].results = results;
@@ -1453,10 +1453,10 @@ SEXP R_subColSummarize_median(SEXP RMatrix, SEXP R_rowIndexList){
 
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 #else    
-  buffer = Calloc(cols,double);
+  buffer = R_Calloc(cols,double);
 
   for (j =0; j < length_rowIndexList; j++){    
     ncur_rows = LENGTH(VECTOR_ELT(R_rowIndexList,j)); 
@@ -1468,7 +1468,7 @@ SEXP R_subColSummarize_median(SEXP RMatrix, SEXP R_rowIndexList){
     }
   }
   
-  Free(buffer);
+  R_Free(buffer);
 #endif
   UNPROTECT(1);
   return R_summaries;
@@ -1485,8 +1485,8 @@ static void *subColSummarize_medianpolish_log_group(void *data){
   int i, j;
   int ncur_rows;
   
-  buffer = Calloc(args->cols,double);
-  buffer2 = Calloc(args->cols,double);
+  buffer = R_Calloc(args->cols,double);
+  buffer2 = R_Calloc(args->cols,double);
 
  
   for (j = args->start_row; j <= args->end_row;  j++){    
@@ -1499,8 +1499,8 @@ static void *subColSummarize_medianpolish_log_group(void *data){
     }
     pthread_mutex_unlock (&mutex_R);
   }
-  Free(buffer);
-  Free(buffer2); 
+  R_Free(buffer);
+  R_Free(buffer2); 
   return NULL;
 }
 #endif
@@ -1553,8 +1553,8 @@ SEXP R_subColSummarize_medianpolish_log(SEXP RMatrix, SEXP R_rowIndexList){
  
   results = NUMERIC_POINTER(R_summaries);
  
-  buffer = Calloc(cols,double);
-  buffer2 = Calloc(cols,double);
+  buffer = R_Calloc(cols,double);
+  buffer2 = R_Calloc(cols,double);
 #ifdef  USE_PTHREADS
   nthreads = getenv(THREADS_ENV_VAR);
   if(nthreads != NULL){
@@ -1563,7 +1563,7 @@ SEXP R_subColSummarize_medianpolish_log(SEXP RMatrix, SEXP R_rowIndexList){
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -1586,7 +1586,7 @@ SEXP R_subColSummarize_medianpolish_log(SEXP RMatrix, SEXP R_rowIndexList){
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
 
   args[0].matrix = matrix;
   args[0].results = results;
@@ -1636,8 +1636,8 @@ SEXP R_subColSummarize_medianpolish_log(SEXP RMatrix, SEXP R_rowIndexList){
 
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 #else    
   for (j =0; j < length_rowIndexList; j++){    
     ncur_rows = LENGTH(VECTOR_ELT(R_rowIndexList,j)); 
@@ -1648,8 +1648,8 @@ SEXP R_subColSummarize_medianpolish_log(SEXP RMatrix, SEXP R_rowIndexList){
       results[i*length_rowIndexList + j] = buffer[i];
     }
   }
-  Free(buffer2);
-  Free(buffer);
+  R_Free(buffer2);
+  R_Free(buffer);
 #endif
   UNPROTECT(1);
   return R_summaries;
@@ -1665,8 +1665,8 @@ static void *subColSummarize_medianpolish_group(void *data){
   int i, j;
   int ncur_rows;
   
-  buffer = Calloc(args->cols,double);
-  buffer2 = Calloc(args->cols,double);
+  buffer = R_Calloc(args->cols,double);
+  buffer2 = R_Calloc(args->cols,double);
 
  
   for (j = args->start_row; j <= args->end_row;  j++){    
@@ -1679,8 +1679,8 @@ static void *subColSummarize_medianpolish_group(void *data){
     }
     pthread_mutex_unlock (&mutex_R);
   }
-  Free(buffer);
-  Free(buffer2);
+  R_Free(buffer);
+  R_Free(buffer2);
   return NULL;
 }
 #endif
@@ -1739,7 +1739,7 @@ SEXP R_subColSummarize_medianpolish(SEXP RMatrix, SEXP R_rowIndexList){
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -1762,7 +1762,7 @@ SEXP R_subColSummarize_medianpolish(SEXP RMatrix, SEXP R_rowIndexList){
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((length_rowIndexList < num_threads ? length_rowIndexList : num_threads), struct loop_data);
 
   args[0].matrix = matrix;
   args[0].results = results;
@@ -1812,11 +1812,11 @@ SEXP R_subColSummarize_medianpolish(SEXP RMatrix, SEXP R_rowIndexList){
 
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 #else     
-  buffer = Calloc(cols,double);
-  buffer2 = Calloc(cols,double);
+  buffer = R_Calloc(cols,double);
+  buffer2 = R_Calloc(cols,double);
 
   for (j =0; j < length_rowIndexList; j++){    
     ncur_rows = LENGTH(VECTOR_ELT(R_rowIndexList,j)); 
@@ -1827,8 +1827,8 @@ SEXP R_subColSummarize_medianpolish(SEXP RMatrix, SEXP R_rowIndexList){
       results[i*length_rowIndexList + j] = buffer[i];
     }
   }
-  Free(buffer2);
-  Free(buffer);
+  R_Free(buffer2);
+  R_Free(buffer);
 #endif
   UNPROTECT(1);
   return R_summaries;

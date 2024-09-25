@@ -138,7 +138,7 @@ static double LogAvgSE(double *x, double mean, size_t length){
 void logaverage(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
   size_t i,j;
-  double *z = Calloc(rows,double);
+  double *z = R_Calloc(rows,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < rows; i++){
@@ -185,7 +185,7 @@ void logaverage(double *data, size_t rows, size_t cols, double *results, double 
 void LogAverage(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
 
   size_t i,j;
-  double *z = Calloc(nprobes*cols,double);
+  double *z = R_Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < nprobes; i++){
@@ -197,7 +197,7 @@ void LogAverage(double *data, size_t rows, size_t cols, int *cur_rows, double *r
     results[j] = LogAvg(&z[j*nprobes],nprobes);
     resultsSE[j] =  LogAvgSE(&z[j*nprobes], results[j],nprobes);
   }
-  Free(z);
+  R_Free(z);
 }
 
 
@@ -221,7 +221,7 @@ void LogAverage(double *data, size_t rows, size_t cols, int *cur_rows, double *r
 void LogAverage_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
 
   size_t i,j;
-  double *z = Calloc(nprobes*cols,double);
+  double *z = R_Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < nprobes; i++){
@@ -232,6 +232,6 @@ void LogAverage_noSE(double *data, size_t rows, size_t cols, int *cur_rows, doub
   for (j=0; j < cols; j++){
     results[j] = LogAvg(&z[j*nprobes],nprobes);
   }
-  Free(z);
+  R_Free(z);
 }
 

@@ -264,11 +264,11 @@ static int SVD_compute(double *X, int n, double *s, double *u, double *v,int lap
   int lwork = 7*n*n + 4*n;
   int job = 21;
   char jobz = 'A';
-  double *Xcopy= Calloc(n*n,double);              /* Calloc(n*n,double); */
-  double *e =    Calloc(n,double);                /* Calloc(n,double); */
-  double *work =  Calloc(n,double);               /* Calloc(n,double); */
-  double *work2 =  Calloc(lwork,double);
-  int *iwork = Calloc(8*n,int);
+  double *Xcopy= R_Calloc(n*n,double);              /* R_Calloc(n*n,double); */
+  double *e =    R_Calloc(n,double);                /* R_Calloc(n,double); */
+  double *work =  R_Calloc(n,double);               /* R_Calloc(n,double); */
+  double *work2 =  R_Calloc(lwork,double);
+  int *iwork = R_Calloc(8*n,int);
 
 
   for (i=0; i < n; i++){
@@ -283,11 +283,11 @@ static int SVD_compute(double *X, int n, double *s, double *u, double *v,int lap
   }
     
 
-  Free(iwork);
-  Free(work2);
-  Free(work);
-  Free(e);
-  Free(Xcopy);
+  R_Free(iwork);
+  R_Free(work2);
+  R_Free(work);
+  R_Free(e);
+  R_Free(Xcopy);
   
   return error_code;
 
@@ -383,18 +383,18 @@ static int SVD_2_inverse(double *Xinv, int n, double *s, double *u, double *v,in
 int SVD_inverse(double *X, double *Xinv, int n){
 
   int error_code=0;
-  double *s = Calloc(n+1,double);
-  double *v = Calloc(n*n,double);
-  double *u = Calloc(n*n,double);
+  double *s = R_Calloc(n+1,double);
+  double *v = R_Calloc(n*n,double);
+  double *u = R_Calloc(n*n,double);
 
   error_code = SVD_compute(X, n, s, u, v,use_lapack);
   SVD_2_inverse(Xinv,n, s, u, v,use_lapack);
 
   return error_code;
 
-  Free(s);
-  Free(v);
-  Free(u);
+  R_Free(s);
+  R_Free(v);
+  R_Free(u);
 }
 
 

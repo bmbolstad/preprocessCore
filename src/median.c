@@ -92,7 +92,7 @@ static double colmedian_wrapper(double *x, size_t length){
 void ColMedian(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
 
   size_t i,j;
-  double *z = Calloc(nprobes*cols,double);
+  double *z = R_Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < nprobes; i++){
@@ -104,7 +104,7 @@ void ColMedian(double *data, size_t rows, size_t cols, int *cur_rows, double *re
     results[j] = colmedian_wrapper(&z[j*nprobes],nprobes); 
     resultsSE[j] = R_NaReal;
   }
-  Free(z);
+  R_Free(z);
 }
 
 
@@ -145,7 +145,7 @@ void ColMedian(double *data, size_t rows, size_t cols, int *cur_rows, double *re
 void ColMedian_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
 
   size_t i,j;
-  double *z = Calloc(nprobes*cols,double);
+  double *z = R_Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < nprobes; i++){
@@ -157,7 +157,7 @@ void ColMedian_noSE(double *data, size_t rows, size_t cols, int *cur_rows, doubl
     results[j] = colmedian_wrapper(&z[j*nprobes],nprobes);
 
   }
-  Free(z);
+  R_Free(z);
 }
 
 
@@ -181,7 +181,7 @@ void ColMedian_noSE(double *data, size_t rows, size_t cols, int *cur_rows, doubl
 void colmedian(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
   size_t i,j;
-  double *buffer = Calloc(rows, double);
+  double *buffer = R_Calloc(rows, double);
   
   for (j=0; j < cols; j++){
     for (i = 0; i < rows; i++){
@@ -191,7 +191,7 @@ void colmedian(double *data, size_t rows, size_t cols, double *results, double *
     resultsSE[j] = R_NaReal;
   }
 
-  Free(buffer);
+  R_Free(buffer);
 }
 
 

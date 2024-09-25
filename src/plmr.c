@@ -167,11 +167,11 @@ This is R test code
 static void XTWXinv(int y_rows, int y_cols,double *xtwx){
   int i,j,k;
   int Msize = y_cols +y_rows-1;
-  double *P= Calloc(y_cols,double);
-  double *RP = Calloc(y_cols*(y_rows-1),double);
-  double *RPQ = Calloc((y_rows-1)*(y_rows-1),double);
-  double *S = Calloc((y_rows-1)*(y_rows-1),double);
-  double *work = Calloc((y_rows-1)*(y_rows-1),double);
+  double *P= R_Calloc(y_cols,double);
+  double *RP = R_Calloc(y_cols*(y_rows-1),double);
+  double *RPQ = R_Calloc((y_rows-1)*(y_rows-1),double);
+  double *S = R_Calloc((y_rows-1)*(y_rows-1),double);
+  double *work = R_Calloc((y_rows-1)*(y_rows-1),double);
   
   for (j=0;j < y_cols;j++){
     for (i=0; i < y_rows -1; i++){
@@ -261,11 +261,11 @@ static void XTWXinv(int y_rows, int y_cols,double *xtwx){
   }
 
 
-  Free(P);
-  Free(work);
-  Free(RP);
-  Free(RPQ);
-  Free(S);
+  R_Free(P);
+  R_Free(work);
+  R_Free(RP);
+  R_Free(RPQ);
+  R_Free(S);
 
 }
 
@@ -447,7 +447,7 @@ void R_estimate_median_percentile(double *median, int *n){
 
 void determine_row_weights(double *resids, int y_rows, int y_cols, double *row_weights){
   
-  double *current_row = Calloc(y_cols,double);
+  double *current_row = R_Calloc(y_cols,double);
   double scale;
   int n = y_rows*y_cols;
   int i, j;
@@ -485,7 +485,7 @@ void determine_row_weights(double *resids, int y_rows, int y_cols, double *row_w
 
   }
 
-  Free(current_row);
+  R_Free(current_row);
 }
 
 /**********************************************************************************
@@ -502,7 +502,7 @@ void determine_row_weights(double *resids, int y_rows, int y_cols, double *row_w
 
 void determine_col_weights(double *resids, int y_rows, int y_cols, double *col_weights){
       
-  double *current_col = Calloc(y_rows,double);
+  double *current_col = R_Calloc(y_rows,double);
   double scale;
   int n = y_rows*y_cols;
   int i, j;
@@ -539,7 +539,7 @@ void determine_col_weights(double *resids, int y_rows, int y_cols, double *col_w
 
   }
 
-  Free(current_col);
+  R_Free(current_col);
   
 
 
@@ -602,16 +602,16 @@ static void plmr_fit_core(double *y, int y_rows, int y_cols,double *out_beta, do
 
   double *wts = out_weights; 
 
-  double *row_weights = Calloc(y_rows, double);
-  double *col_weights = Calloc(y_cols, double);
+  double *row_weights = R_Calloc(y_rows, double);
+  double *col_weights = R_Calloc(y_cols, double);
 
   double *resids = out_resids; 
-  double *old_resids = Calloc(y_rows*y_cols,double);
+  double *old_resids = R_Calloc(y_rows*y_cols,double);
   
-  double *rowmeans = Calloc(y_rows,double);
+  double *rowmeans = R_Calloc(y_rows,double);
 
-  double *xtwx = Calloc((y_rows+y_cols-1)*(y_rows+y_cols-1),double);
-  double *xtwy = Calloc((y_rows+y_cols),double);
+  double *xtwx = R_Calloc((y_rows+y_cols-1)*(y_rows+y_cols-1),double);
+  double *xtwy = R_Calloc((y_rows+y_cols),double);
 
   double sumweights, rows;
   
@@ -776,10 +776,10 @@ static void plmr_fit_core(double *y, int y_rows, int y_cols,double *out_beta, do
 
 
 
-  Free(xtwx);
-  Free(xtwy);
-  Free(old_resids);
-  Free(rowmeans);
+  R_Free(xtwx);
+  R_Free(xtwy);
+  R_Free(old_resids);
+  R_Free(rowmeans);
 
 
 }
@@ -846,16 +846,16 @@ static void plmr_wfit_core(double *y, int y_rows, int y_cols, double *w, double 
 
   double *wts = out_weights; 
  
-  double *row_weights = Calloc(y_rows, double);
-  double *col_weights = Calloc(y_cols, double);
+  double *row_weights = R_Calloc(y_rows, double);
+  double *col_weights = R_Calloc(y_cols, double);
 
   double *resids = out_resids; 
-  double *old_resids = Calloc(y_rows*y_cols,double);
+  double *old_resids = R_Calloc(y_rows*y_cols,double);
   
-  double *rowmeans = Calloc(y_rows,double);
+  double *rowmeans = R_Calloc(y_rows,double);
 
-  double *xtwx = Calloc((y_rows+y_cols-1)*(y_rows+y_cols-1),double);
-  double *xtwy = Calloc((y_rows+y_cols),double);
+  double *xtwx = R_Calloc((y_rows+y_cols-1)*(y_rows+y_cols-1),double);
+  double *xtwy = R_Calloc((y_rows+y_cols),double);
 
   double sumweights, rows;
   
@@ -1021,10 +1021,10 @@ static void plmr_wfit_core(double *y, int y_rows, int y_cols, double *w, double 
 
 
 
-  Free(xtwx);
-  Free(xtwy);
-  Free(old_resids);
-  Free(rowmeans);
+  R_Free(xtwx);
+  R_Free(xtwy);
+  R_Free(old_resids);
+  R_Free(rowmeans);
 
 
 }

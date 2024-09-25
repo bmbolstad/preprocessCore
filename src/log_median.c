@@ -80,7 +80,7 @@ static double log_median(double *x, size_t length){
 void LogMedian(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
 
   size_t i,j;
-  double *z = Calloc(nprobes*cols,double);
+  double *z = R_Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < nprobes; i++){
@@ -92,7 +92,7 @@ void LogMedian(double *data, size_t rows, size_t cols, int *cur_rows, double *re
     results[j] = log_median(&z[j*nprobes],nprobes);
     resultsSE[j] = R_NaReal;
   }
-  Free(z);
+  R_Free(z);
 }
 
 
@@ -100,7 +100,7 @@ void LogMedian(double *data, size_t rows, size_t cols, int *cur_rows, double *re
 void LogMedian_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
 
   size_t i,j;
-  double *z = Calloc(nprobes*cols,double);
+  double *z = R_Calloc(nprobes*cols,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < nprobes; i++){
@@ -111,7 +111,7 @@ void LogMedian_noSE(double *data, size_t rows, size_t cols, int *cur_rows, doubl
   for (j=0; j < cols; j++){
     results[j] = log_median(&z[j*nprobes],nprobes);
   }
-  Free(z);
+  R_Free(z);
 }
 
 
@@ -123,7 +123,7 @@ void LogMedian_noSE(double *data, size_t rows, size_t cols, int *cur_rows, doubl
 void logmedian(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
   size_t i,j;
-  double *buffer = Calloc(rows, double);
+  double *buffer = R_Calloc(rows, double);
   
   for (j=0; j < cols; j++){
     for (i = 0; i < rows; i++){
@@ -133,7 +133,7 @@ void logmedian(double *data, size_t rows, size_t cols, double *results, double *
     resultsSE[j] = R_NaReal;
   }
 
-  Free(buffer);
+  R_Free(buffer);
 
 }
 
@@ -147,6 +147,6 @@ void logmedian_no_copy(double *data, size_t rows, size_t cols, double *results, 
     resultsSE[j] = R_NaReal;
   }
 
-  //  Free(buffer);
+  //  R_Free(buffer);
 
 }

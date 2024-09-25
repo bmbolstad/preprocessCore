@@ -103,7 +103,7 @@ double Tukey_Biweight(double *x, size_t length){
   
   double median;
   size_t i;
-  double *buffer = (double *)Calloc(length,double);
+  double *buffer = (double *)R_Calloc(length,double);
   double c = 5.0;
   double epsilon = 0.0001;
   double S;
@@ -144,7 +144,7 @@ double Tukey_Biweight(double *x, size_t length){
     sum+= weight_bisquare(buffer[i])*x[i];
     sumw += weight_bisquare(buffer[i]);
   }
-  Free(buffer);
+  R_Free(buffer);
   return(sum/sumw);
 }
 
@@ -166,7 +166,7 @@ static double Tukey_Biweight_SE(double *x,double BW, size_t length){
   
   double median;
   size_t i;
-  double *buffer = (double *)Calloc(length,double);
+  double *buffer = (double *)R_Calloc(length,double);
   double c = 5.0;
   double epsilon = 0.0001;
   double S;
@@ -209,7 +209,7 @@ static double Tukey_Biweight_SE(double *x,double BW, size_t length){
       sumw += (1.0-buffer[i]*buffer[i])*(1.0 - 5.0*buffer[i]*buffer[i]);
     }
   }
-  Free(buffer);
+  R_Free(buffer);
   return(sqrt(sum)/fabs(sumw));
 }
 
@@ -233,7 +233,7 @@ static double Tukey_Biweight_SE(double *x,double BW, size_t length){
 void tukeybiweight(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
   size_t i,j;
-  double *z = Calloc(rows,double);
+  double *z = R_Calloc(rows,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < rows; i++){
@@ -242,7 +242,7 @@ void tukeybiweight(double *data, size_t rows, size_t cols, double *results, doub
     results[j] = Tukey_Biweight(z,rows);
     resultsSE[j] = Tukey_Biweight_SE(z,results[j],rows);
   }
-  Free(z);
+  R_Free(z);
 
 
 
@@ -269,7 +269,7 @@ void tukeybiweight(double *data, size_t rows, size_t cols, double *results, doub
 void tukeybiweight_no_log(double *data, size_t rows, size_t cols, double *results, double *resultsSE){
 
   size_t i,j;
-  double *z = Calloc(rows,double);
+  double *z = R_Calloc(rows,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < rows; i++){
@@ -278,7 +278,7 @@ void tukeybiweight_no_log(double *data, size_t rows, size_t cols, double *result
     results[j] = Tukey_Biweight(z,rows);
     resultsSE[j] = Tukey_Biweight_SE(z,results[j],rows);
   }
-  Free(z);
+  R_Free(z);
 }
 
 
@@ -320,7 +320,7 @@ void tukeybiweight_no_log(double *data, size_t rows, size_t cols, double *result
 void TukeyBiweight(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes, double *resultsSE){
 
   size_t i,j;
-  double *z = Calloc(nprobes,double);
+  double *z = R_Calloc(nprobes,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < nprobes; i++){
@@ -329,7 +329,7 @@ void TukeyBiweight(double *data, size_t rows, size_t cols, int *cur_rows, double
     results[j] = Tukey_Biweight(z,nprobes);
     resultsSE[j] = Tukey_Biweight_SE(z,results[j],nprobes);
   }
-  Free(z);
+  R_Free(z);
 }
 
 
@@ -353,7 +353,7 @@ void TukeyBiweight(double *data, size_t rows, size_t cols, int *cur_rows, double
 void TukeyBiweight_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
 
   size_t i,j;
-  double *z = Calloc(nprobes,double);
+  double *z = R_Calloc(nprobes,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < nprobes; i++){
@@ -361,7 +361,7 @@ void TukeyBiweight_noSE(double *data, size_t rows, size_t cols, int *cur_rows, d
     }
     results[j] = Tukey_Biweight(z,nprobes);
   }
-  Free(z);
+  R_Free(z);
 }
 
 
@@ -384,7 +384,7 @@ void TukeyBiweight_noSE(double *data, size_t rows, size_t cols, int *cur_rows, d
 void TukeyBiweight_no_log_noSE(double *data, size_t rows, size_t cols, int *cur_rows, double *results, size_t nprobes){
 
   size_t i,j;
-  double *z = Calloc(nprobes,double);
+  double *z = R_Calloc(nprobes,double);
 
   for (j = 0; j < cols; j++){
     for (i =0; i < nprobes; i++){
@@ -392,6 +392,6 @@ void TukeyBiweight_no_log_noSE(double *data, size_t rows, size_t cols, int *cur_
     }
     results[j] = Tukey_Biweight(z,nprobes);
   }
-  Free(z);
+  R_Free(z);
 }
 

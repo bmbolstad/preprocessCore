@@ -293,17 +293,17 @@ static double plmd_split_test(double *values, int length,  int ngroups, int *gro
   int i;
 
   /* Allocating space */
-  X_1 = Calloc(length, double);
-  X_2 = Calloc(ngroups*length, double);
+  X_1 = R_Calloc(length, double);
+  X_2 = R_Calloc(ngroups*length, double);
   
-  resid_1 = Calloc(length, double);
-  resid_2 = Calloc(length, double);
+  resid_1 = R_Calloc(length, double);
+  resid_2 = R_Calloc(length, double);
 
-  weights_1 = Calloc(length, double);
-  weights_2 = Calloc(length, double);
+  weights_1 = R_Calloc(length, double);
+  weights_2 = R_Calloc(length, double);
 
-  beta_1 = Calloc(1,double);
-  beta_2 = Calloc(ngroups,double);
+  beta_1 = R_Calloc(1,double);
+  beta_2 = R_Calloc(ngroups,double);
   
   /* initializing design matrices */
 
@@ -349,14 +349,14 @@ static double plmd_split_test(double *values, int length,  int ngroups, int *gro
   /*  Rprintf("%f %f %f %f\n", T1, T2, ave_deriv_psi, ave_psi_sq); */
 
   /* De-allocate space */
-  Free(X_1);
-  Free(X_2);
-  Free(resid_1);
-  Free(resid_2);
-  Free(weights_1);
-  Free(weights_2);
-  Free(beta_1);
-  Free(beta_2);
+  R_Free(X_1);
+  R_Free(X_2);
+  R_Free(resid_1);
+  R_Free(resid_2);
+  R_Free(weights_1);
+  R_Free(weights_2);
+  R_Free(beta_1);
+  R_Free(beta_2);
 
   return 2*Xi*TL;
 
@@ -394,9 +394,9 @@ void R_split_test(double *values, int *length,  int *ngroups, int *grouplabels, 
 static int plmd_detect_split_probe(double *residuals, int y_rows, int y_cols, int ngroups, int *grouplabels, int *was_split){
 
   int i,j;
-  double *split_statistic = Calloc(y_rows,double);
+  double *split_statistic = R_Calloc(y_rows,double);
 
-  double *cur_row = Calloc(y_cols, double);
+  double *cur_row = R_Calloc(y_cols, double);
 
   double chisq_q;
   double max_split_statistic;
@@ -445,8 +445,8 @@ static int plmd_detect_split_probe(double *residuals, int y_rows, int y_cols, in
     }
   }
   
-  Free(cur_row);
-  Free(split_statistic);
+  R_Free(cur_row);
+  R_Free(split_statistic);
   
   return which_max;
 
@@ -506,7 +506,7 @@ double *plmd_get_design_matrix(int y_rows, int y_cols, int ngroups, int *groupla
   *X_cols = (y_cols + y_rows - 1 + (ngroups -1)*num_splits);
 
 
-  X = Calloc((y_rows*y_cols)*(y_cols + y_rows - 1 + (ngroups -1)*num_splits),double);
+  X = R_Calloc((y_rows*y_cols)*(y_cols + y_rows - 1 + (ngroups -1)*num_splits),double);
 
 
 
@@ -572,8 +572,8 @@ void R_test_get_design_matrix(int *yrows, int *ycols){
   int i, j;
 
   int ngroups = 1;
-  int *grouplabels = Calloc(*ycols, int);
-  int *was_split = Calloc(*yrows, int);
+  int *grouplabels = R_Calloc(*ycols, int);
+  int *was_split = R_Calloc(*yrows, int);
   
   int num_splits;
   int y_rows = *yrows;
@@ -597,7 +597,7 @@ void R_test_get_design_matrix(int *yrows, int *ycols){
   }
 
 
-  Free(X);
+  R_Free(X);
 
 
   Rprintf("\n");
@@ -622,7 +622,7 @@ void R_test_get_design_matrix(int *yrows, int *ycols){
   }
 
 
-  Free(X);
+  R_Free(X);
 
 
   Rprintf("\n");
@@ -647,7 +647,7 @@ void R_test_get_design_matrix(int *yrows, int *ycols){
     Rprintf("\n");
   }
   
-  Free(grouplabels);
+  R_Free(grouplabels);
 }
 
   
@@ -727,7 +727,7 @@ void plmd_fit(double *y, int y_rows, int y_cols, int ngroups, int *grouplabels, 
       rlm_fit(X,y, X_rows, X_cols, out_beta, out_resids, out_weights,
                 PsiFn, psi_k, max_iter, initialized);
     
-      Free(X);
+      R_Free(X);
     }
   } while (split_probe != -1);
   
@@ -740,14 +740,14 @@ void plmd_fit(double *y, int y_rows, int y_cols, int ngroups, int *grouplabels, 
 
 void plmd_fit_R(double *y, int *rows, int *cols, int *ngroups, int *grouplabels, double *out_beta, double *out_resids, double *out_weights){
 
-  int *was_split = Calloc(*rows,int);
+  int *was_split = R_Calloc(*rows,int);
       
   plmd_fit(y, *rows, *cols, *ngroups, grouplabels, was_split, 
 	   out_beta, out_resids,out_weights,
 	   psi_huber,1.345, 20);
 
 
-  Free(was_split);
+  R_Free(was_split);
   
 }
 

@@ -118,13 +118,13 @@ static double max_density(double *z, size_t rows, size_t cols, size_t column){
    
   int npts = 16384;
 
-  dens_x = Calloc(npts,double);
-  dens_y = Calloc(npts,double);
+  dens_x = R_Calloc(npts,double);
+  dens_y = R_Calloc(npts,double);
 
 
   //  KernelDensity(double *x, int *nxxx, double *weights, double *output, double *xords, int *nout)
     
-  x = Calloc(rows,double);
+  x = R_Calloc(rows,double);
 
   for (i=0; i< rows; i++){
     x[i] = z[column*rows +i];
@@ -145,9 +145,9 @@ static double max_density(double *z, size_t rows, size_t cols, size_t column){
    
   max_x = dens_x[i];
 
-  Free(dens_x);
-  Free(dens_y);
-  Free(x);
+  R_Free(dens_x);
+  R_Free(dens_y);
+  R_Free(x);
 
   return max_x;
  
@@ -232,8 +232,8 @@ void rma_bg_parameters(double *PM, double *param, size_t rows, size_t cols, size
 
   double sd,alpha;
   int n_less=0,n_more=0;
-  double *tmp_less = (double *)Calloc(rows,double);
-  double *tmp_more = (double *)Calloc(rows,double);
+  double *tmp_less = (double *)R_Calloc(rows,double);
+  double *tmp_more = (double *)R_Calloc(rows,double);
   
   
   PMmax = max_density(PM,rows, cols, column);
@@ -264,8 +264,8 @@ void rma_bg_parameters(double *PM, double *param, size_t rows, size_t cols, size
   param[2] = sd;
 
 
-  Free(tmp_less);
-  Free(tmp_more);
+  R_Free(tmp_less);
+  R_Free(tmp_more);
 }
 
 
@@ -385,7 +385,7 @@ void rma_bg_correct(double *PM, size_t rows, size_t cols){
       error("The number of threads (enviroment variable %s) must be a positive integer, but the specified value was %s", THREADS_ENV_VAR, nthreads);
     }
   }
-  threads = (pthread_t *) Calloc(num_threads, pthread_t);
+  threads = (pthread_t *) R_Calloc(num_threads, pthread_t);
 
   /* Set thread detached attribute */
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -407,7 +407,7 @@ void rma_bg_correct(double *PM, size_t rows, size_t cols){
   if(chunk_size == 0){
     chunk_size = 1;
   }
-  args = (struct loop_data *) Calloc((cols < num_threads ? cols : num_threads), struct loop_data);
+  args = (struct loop_data *) R_Calloc((cols < num_threads ? cols : num_threads), struct loop_data);
 
   args[0].data = PM;
   args[0].rows = rows;  
@@ -455,8 +455,8 @@ void rma_bg_correct(double *PM, size_t rows, size_t cols){
 
   pthread_attr_destroy(&attr);  
   pthread_mutex_destroy(&mutex_R);
-  Free(threads);
-  Free(args);  
+  R_Free(threads);
+  R_Free(args);  
 #else
   for (j=0; j < cols; j++){
     rma_bg_parameters(PM, param,rows,cols,j);
