@@ -55,6 +55,37 @@ if test "x$use_pthread_stack_min" = xno; then
 fi
 
 
+AC_MSG_CHECKING([if __pthread_get_minstack can be used])
+AC_RUN_IFELSE([AC_LANG_SOURCE([
+	#include <pthread.h>
+	#include <limits.h> 
+	#include <dlfcn.h>
+
+
+	typedef size_t (*GetMinStack)(const pthread_attr_t *attr);
+
+	GetMinStack _get_minstack_func = NULL;
+
+	static void get_minstack_init() {
+  		_get_minstack_func =
+        (GetMinStack)dlsym(RTLD_DEFAULT, "__pthread_get_minstack");
+	}
+
+	
+    int main () {
+		get_minstack_init();
+		if (_get_minstack_func == NULL){
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+	
+    ])],[use_pthread_get_minstack=yes], [use_pthread_get_minstack=no])
+AC_MSG_RESULT($use_pthread_get_minstack)
+
+
+
 AC_MSG_CHECKING([if R is using flexiblas])
 BLAS_LIBS=`"${R_HOME}/bin/R" CMD config BLAS_LIBS`
 if echo "${BLAS_LIBS}" | grep flexiblas > /dev/null; then
