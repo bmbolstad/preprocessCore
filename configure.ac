@@ -31,7 +31,15 @@ AC_SEARCH_LIBS([pthread_create], [pthread],
   [use_pthreads=yes])
 
 # Checks for header files.
-AC_HEADER_STDC
+m4_warn([obsolete],
+[The preprocessor macro 'STDC_HEADERS' is obsolete.
+  Except in unusual embedded environments, you can safely include all
+  C89 headers unconditionally.])dnl
+# Autoupdate added the next two lines to ensure that your configure
+# script's behavior did not change.  They are probably safe to remove.
+AC_CHECK_INCLUDES_DEFAULT
+AC_PROG_EGREP
+
 AC_CHECK_HEADERS([stdlib.h])
 
 if test "x${have_pthreads}" = xyes; then
@@ -86,21 +94,21 @@ AC_MSG_RESULT($use_pthread_get_minstack)
 
 
 
-# AC_MSG_CHECKING([if R is using flexiblas])
-# BLAS_LIBS=`"${R_HOME}/bin/R" CMD config BLAS_LIBS`
-# if echo "${BLAS_LIBS}" | grep flexiblas > /dev/null; then
-#    AC_MSG_RESULT([flexiblas found. preprocessCore specific threading will be disabled])
-#    use_pthreads=no
-# else
-#     AC_MSG_RESULT([flexiblas not found. preprocessCore threading will not be disabled])
-# fi
+dnl AC_MSG_CHECKING([if R is using flexiblas])
+dnl BLAS_LIBS=`"${R_HOME}/bin/R" CMD config BLAS_LIBS`
+dnl if echo "${BLAS_LIBS}" | grep flexiblas > /dev/null; then
+dnl   AC_MSG_RESULT([flexiblas found. preprocessCore specific threading will be disabled])
+dnl   use_pthreads=no
+dnl else
+dnl    AC_MSG_RESULT([flexiblas not found. preprocessCore threading will not be disabled])
+dnl fi
 
 
 dnl AC_MSG_CHECKING([if R is using openblasp])
 dnl BLAS_LIBS=`"${R_HOME}/bin/R" CMD config BLAS_LIBS`
 dnl if echo "${BLAS_LIBS}" | grep openblasp > /dev/null; then
 dnl     AC_MSG_RESULT([openblasp found. preprocessCore specific threading will be disabled])
-dnl     use_pthreads=yes
+dnl     use_pthreads=no
 dnl else
 dnl     AC_MSG_RESULT([openblasp not found. preprocessCore threading will not be disabled])
 dnl fi
@@ -126,8 +134,9 @@ AS_IF([test "x$enable_threading" != "xno" ],[
   	       AC_MSG_NOTICE(Enabling threading for preprocessCore)
   	       AC_DEFINE(USE_PTHREADS, 1)
 		   if test "x${use_pthread_get_minstack}" = "xyes"; then
-		   	AC_MSG_NOTICE(Using __pthread_get_minstack)
-			AC_DEFINE(INFER_MIN_STACKSIZE,1)
+		    	AC_MSG_NOTICE(Using __pthread_get_minstack)
+			    AC_DEFINE(INFER_MIN_STACKSIZE,1)
+		   fi
 
 	    fi
 	    ],

@@ -3571,6 +3571,8 @@ fi
 
 
 # Checks for header files.
+# Autoupdate added the next two lines to ensure that your configure
+# script's behavior did not change.  They are probably safe to remove.
 ac_header= ac_cache=
 for ac_item in $ac_header_c_list
 do
@@ -3670,9 +3672,6 @@ fi
 printf "%s\n" "$ac_cv_path_GREP" >&6; }
  GREP="$ac_cv_path_GREP"
 
-
-# Autoupdate added the next two lines to ensure that your configure
-# script's behavior did not change.  They are probably safe to remove.
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for egrep" >&5
 printf %s "checking for egrep... " >&6; }
@@ -3860,30 +3859,8 @@ printf "%s\n" "$use_pthread_get_minstack" >&6; }
 
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if R is using flexiblas" >&5
-printf %s "checking if R is using flexiblas... " >&6; }
-BLAS_LIBS=`"${R_HOME}/bin/R" CMD config BLAS_LIBS`
-if echo "${BLAS_LIBS}" | grep flexiblas > /dev/null; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: flexiblas found. preprocessCore specific threading will be disabled" >&5
-printf "%s\n" "flexiblas found. preprocessCore specific threading will be disabled" >&6; }
-    use_pthreads=no
-else
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: flexiblas not found. preprocessCore threading will not be disabled" >&5
-printf "%s\n" "flexiblas not found. preprocessCore threading will not be disabled" >&6; }
-fi
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if R is using openblasp" >&5
-printf %s "checking if R is using openblasp... " >&6; }
-BLAS_LIBS=`"${R_HOME}/bin/R" CMD config BLAS_LIBS`
-if echo "${BLAS_LIBS}" | grep openblasp > /dev/null; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: openblasp found. preprocessCore specific threading will be disabled" >&5
-printf "%s\n" "openblasp found. preprocessCore specific threading will be disabled" >&6; }
-    use_pthreads=no
-else
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: openblasp not found. preprocessCore threading will not be disabled" >&5
-printf "%s\n" "openblasp not found. preprocessCore threading will not be disabled" >&6; }
-fi
 
 
 
@@ -3916,6 +3893,13 @@ printf "%s\n" "$as_me: ------------------------------------------" >&6;}
   	       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Enabling threading for preprocessCore" >&5
 printf "%s\n" "$as_me: Enabling threading for preprocessCore" >&6;}
   	       printf "%s\n" "#define USE_PTHREADS 1" >>confdefs.h
+
+		   if test "x${use_pthread_get_minstack}" = "xyes"; then
+		    	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: Using __pthread_get_minstack" >&5
+printf "%s\n" "$as_me: Using __pthread_get_minstack" >&6;}
+			    printf "%s\n" "#define INFER_MIN_STACKSIZE 1" >>confdefs.h
+
+		   fi
 
 	    fi
 
