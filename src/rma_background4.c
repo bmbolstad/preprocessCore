@@ -72,6 +72,21 @@ struct loop_data{
 
 #endif
 
+#ifdef INFER_MIN_STACKSIZE
+	#include <dlfcn.h>
+	typedef size_t (*GetMinStack)(const pthread_attr_t *attr);
+
+	static GetMinStack _get_minstack_func = NULL;
+
+	static void get_minstack_init() {
+  		_get_minstack_func =
+        (GetMinStack)dlsym(RTLD_DEFAULT, "__pthread_get_minstack");
+	}
+
+#endif
+
+
+
 
 /***********************************************************
  **
@@ -366,7 +381,10 @@ void rma_bg_correct(double *PM, size_t rows, size_t cols){
   void *status;
 #ifdef PTHREAD_STACK_MIN
 #ifdef INFER_MIN_STACKSIZE
-  size_t stacksize = __pthread_get_minstack(&attr) + sysconf(_SC_PAGE_SIZE);
+  if (_get_minstack_func == NULL){
+    get_minstack_init();
+  }
+  size_t stacksize = _get_minstack_func(&attr) + sysconf(_SC_PAGE_SIZE);
 #else
   size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
 #endif
