@@ -523,7 +523,7 @@ SEXP R_sub_rcModelSummarize_plm(SEXP RMatrix, SEXP R_rowIndexList, SEXP PsiCode,
   if (_get_minstack_func == NULL){
     get_minstack_init();
   }
-  size_t stacksize = _get_minstack_func(&attr) + sysconf(_SC_PAGE_SIZE);
+  size_t stacksize = _get_minstack_func(&attr) + sysconf(_SC_PAGE_SIZE)+ PTHREAD_STACK_MIN;
 #else
   size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
 #endif
