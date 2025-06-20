@@ -198,7 +198,7 @@ SEXP R_sub_rcModelSummarize_medianpolish(SEXP RMatrix, SEXP R_rowIndexList){
   if (_get_minstack_func == NULL){
     get_minstack_init();
   }
-  size_t stacksize = _get_minstack_func(&attr) + sysconf(_SC_PAGE_SIZE);
+  size_t stacksize = _get_minstack_func(&attr) + sysconf(_SC_PAGE_SIZE) + PTHREAD_STACK_MIN;
 #else
   size_t stacksize = PTHREAD_STACK_MIN + sysconf(_SC_PAGE_SIZE);
 #endif
@@ -469,12 +469,14 @@ static void *sub_rcModelSummarize_plm_group(void *data){
         for (i =0; i < ncur_rows; i++){
      	    Ymat[k*ncur_rows + i] = args->matrix[k*args->rows + cur_rows[i]];  
         }
-    } 
-
+    }
+    
+    
     rlm_fit_anova_scale(Ymat, ncur_rows, cols, scaleptr, beta, residuals, weights, PsiFunc(asInteger(*args->PsiCode)),asReal(*args->PsiK), 20, 0);
-  
+       
     rlm_compute_se_anova(Ymat, ncur_rows, cols, beta, residuals, weights,se, (double *)NULL, &residSE, 4, PsiFunc(asInteger(*args->PsiCode)),asReal(*args->PsiK));
-
+    
+    
     beta[ncur_rows+cols -1] = 0.0;
 
     for (i = cols; i < ncur_rows + cols -1; i++)
