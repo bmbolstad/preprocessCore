@@ -32,6 +32,6 @@ Bolstad, BM (2004) \emph{Low Level Analysis of High-density
 
   }
 
-\author{Ben Bolstad, \email{bmbolstad.com}}
+\author{Ben Bolstad, \email{bmb@bmbolstad.com}}
 
 \keyword{manip}

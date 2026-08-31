@@ -45,27 +45,26 @@ colSummarizeMedianpolishLog(y)
   matrix. Note that \code{colSummarizeLogMedian} and \code{colSummarizeMedianLog} 
   return \code{NA} for standard errors, as SE is not computed for these methods.
 
-  \itemize{
-    \item{\code{colSummarizeAvg}}{Take means in column-wise manner}
-    \item{\code{colSummarizeAvgLog}}{\code{log2} transform the data and
-      then take means in column-wise manner}
-    \item{\code{colSummarizeBiweight}}{Summarize each column using a one
-      step Tukey Biweight procedure}
-    \item{\code{colSummarizeBiweightLog}}{\code{log2} transform the data
-      and then summarize each column using a one step Tukey Biweight
-      procedure}
-    \item{\code{colSummarizeLogAvg}}{Compute the mean of each column and
-      then \code{log2} transform it}
-    \item{\code{colSummarizeLogMedian}}{Compute the median of each
-      column and then \code{log2} transform it}
-    \item{\code{colSummarizeMedian}}{Compute the median of each column}
-    \item{\code{colSummarizeMedianLog}}{\code{log2} transform the data
-      and then summarize each column using the median}
-    \item{\code{colSummarizeMedianpolish}}{Use the median polish to
-      summarize each column, by also using a row effect (not returned)}
-    \item{\code{colSummarizeMedianpolishLog}}{\code{log2} transform the
-      data and then use the median polish to summarize each column, by
-      also using a row effect (not returned)}
+  \describe{
+    \item{\code{colSummarizeAvg}}{Take means in a column-wise manner.}
+    \item{\code{colSummarizeAvgLog}}{\code{log2} transform the data and then
+      take means in a column-wise manner.}
+    \item{\code{colSummarizeBiweight}}{Summarize each column using a one-step
+      Tukey Biweight procedure.}
+    \item{\code{colSummarizeBiweightLog}}{\code{log2} transform the data and
+      then summarize each column using a one-step Tukey Biweight procedure.}
+    \item{\code{colSummarizeLogAvg}}{Compute the mean of each column and then
+      \code{log2} transform it.}
+    \item{\code{colSummarizeLogMedian}}{Compute the median of each column and
+      then \code{log2} transform it.}
+    \item{\code{colSummarizeMedian}}{Compute the median of each column.}
+    \item{\code{colSummarizeMedianLog}}{\code{log2} transform the data and then
+      summarize each column using the median.}
+    \item{\code{colSummarizeMedianpolish}}{Use median polish to summarize each
+      column while also accounting for a row effect (not returned).}
+    \item{\code{colSummarizeMedianpolishLog}}{\code{log2} transform the data
+      and then use median polish to summarize each column while also accounting
+      for a row effect (not returned).}
   }
 }
 \section{Choosing a Summarization Method}{
@@ -135,7 +134,9 @@ head(result$Estimates)    # Column summaries
 head(result$StdErrors)    # Standard errors
 }
 \seealso{
-  \code{\link{subColSummarize}} for summarizing subsets of columns
+  \code{subColSummarize} for summarizing subsets of columns; see also
+  \code{\link{subColSummarizeAvg}} and \code{\link{subColSummarizeMedian}} for
+  grouped analogues of the main summarization functions.
 }
 \author{B. M. Bolstad   \email{bmb@bmbolstad.com}}
 \keyword{univar}

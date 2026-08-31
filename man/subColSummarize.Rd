@@ -1,3 +1,4 @@
+\encoding{UTF-8}
 \name{subColSummarize}
 \alias{subColSummarizeAvg}
 \alias{subColSummarizeAvgLog}
@@ -13,7 +14,7 @@
 \title{Summarize matrix columns by row groups}
 \description{These functions partition the rows of a matrix into groups 
   (specified via \code{group.labels}) and then summarize each column independently 
-  within each group. They use the same summarization methods as \code{\link{colSummarize}} 
+  within each group. They use the same summarization methods as \code{colSummarize} 
   (mean, median, Tukey Biweight, median polish, and log-transformed variants) but apply 
   them to subsets of rows. The result is a matrix where each row represents the summarized 
   values for one group across all columns.
@@ -49,27 +50,26 @@
   These functions are designed to summarize the columns of a matrix
   where the rows of the matrix are assigned to groups. The summarization
   is by column across all rows in each group.
-  \itemize{
-    \item{subColSummarizeAvg}{Summarize by taking mean}
-    \item{subColSummarizeAvgLog}{\code{log2} transform the data and
-      then take means in column-wise manner}
-    \item{subColSummarizeBiweight}{Use a one-step Tukey Biweight to
-      summarize columns}
-    \item{subColSummarizeBiweightLog}{\code{log2} transform the data and
-      then use a one-step Tukey Biweight to
-      summarize columns}
-    \item{subColSummarizeLogAvg}{Summarize by taking mean and then
-      taking \code{log2}}
-    \item{subColSummarizeLogMedian}{Summarize by taking median and then
-      taking \code{log2}}
-    \item{subColSummarizeMedian}{Summarize by taking median}
-    \item{subColSummarizeMedianLog}{\code{log2} transform the data and
-      then summarize by taking median}
-    \item{subColSummarizeMedianpolish}{Use the median polish to
-      summarize each column, by also using a row effect (not returned)}
-    \item{subColSummarizeMedianpolishLog}{\code{log2} transform the
-      data and then use the median polish to summarize each column, by
-      also using a row effect (not returned)}
+  \describe{
+    \item{\code{subColSummarizeAvg}}{Summarize by taking the mean.}
+    \item{\code{subColSummarizeAvgLog}}{\code{log2} transform the data and then
+      take the mean in a column-wise manner.}
+    \item{\code{subColSummarizeBiweight}}{Use a one-step Tukey Biweight to
+      summarize columns.}
+    \item{\code{subColSummarizeBiweightLog}}{\code{log2} transform the data and
+      then use a one-step Tukey Biweight to summarize columns.}
+    \item{\code{subColSummarizeLogAvg}}{Summarize by taking the mean and then
+      applying \code{log2}.}
+    \item{\code{subColSummarizeLogMedian}}{Summarize by taking the median and then
+      applying \code{log2}.}
+    \item{\code{subColSummarizeMedian}}{Summarize by taking the median.}
+    \item{\code{subColSummarizeMedianLog}}{\code{log2} transform the data and then
+      summarize by taking the median.}
+    \item{\code{subColSummarizeMedianpolish}}{Use median polish to summarize each
+      column while also accounting for a row effect (not returned).}
+    \item{\code{subColSummarizeMedianpolishLog}}{\code{log2} transform the data
+      and then use median polish to summarize each column while also accounting
+      for a row effect (not returned).}
   }
   
 }
@@ -136,7 +136,9 @@ dim(result)           # 2 groups × 5 columns
 rownames(result)      # Group names
 }
 \seealso{
-  \code{\link{colSummarize}} for summarizing entire columns without grouping
+  \code{colSummarize} for summarizing entire columns without grouping;
+  see also \code{\link{colSummarizeAvg}} and \code{\link{colSummarizeMedian}} for
+  the ungrouped versions of the same summary statistics.
 }
 \author{B. M. Bolstad <bmb@bmbolstad.com>}
 \keyword{univar}

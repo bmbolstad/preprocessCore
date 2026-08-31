@@ -25,8 +25,8 @@ rcModelWPLMrc(y, w)
 }
 \arguments{
   \item{y}{A numeric matrix with rows representing features or probes and columns
-    representing arrays or samples. The model is \\deqn{y_{ij} = r_i + c_j +
-    \\epsilon_{ij}}{y_ij = r_i + c_j + e_ij}, where \eqn{r_i} denotes the
+    representing arrays or samples. The model is \deqn{y_{ij} = r_i + c_j +
+    \epsilon_{ij}}{y_ij = r_i + c_j + e_ij}, where \eqn{r_i} denotes the
     row effect and \eqn{c_j} the column effect.}
 
   \item{w}{For the weighted variants \code{rcModelWPLMr}, \code{rcModelWPLMrr},

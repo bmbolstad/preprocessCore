@@ -44,7 +44,7 @@
    Bioinformatics 19(2) ,pp 185-193. \url{http://bmbolstad.com/misc/normalize/normalize.html}
   }
 
-\author{Ben Bolstad, \email{bmbolstad.com}}
+\author{Ben Bolstad, \email{bmb@bmbolstad.com}}
 
 \seealso{\code{\link{normalize.quantiles.robust}}}
 
