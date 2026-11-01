@@ -64,8 +64,7 @@ void plmr_wfit(double *y, int y_rows, int y_cols, double *w, double *out_beta, d
  *
  */
 
-void plmrr_fit(double *y, int y_rows, int y_cols,double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int ini
-tialized);
+void plmrr_fit(double *y, int y_rows, int y_cols,double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized);
 
 /*! \brief robust linear regression fit row-colum model using PLM-rc
  *
@@ -85,8 +84,7 @@ tialized);
  *
  */
 
-void plmrc_fit(double *y, int y_rows, int y_cols,double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int ini
-tialized);
+void plmrc_fit(double *y, int y_rows, int y_cols,double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized);
 
 /*! \brief robust linear regression fit row-colum model using PLM-rr
  *
@@ -107,8 +105,7 @@ tialized);
  *
  */
 
-void plmrr_wfit(double *y, int y_rows, int y_cols, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_
-iter, int initialized);
+void plmrr_wfit(double *y, int y_rows, int y_cols, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized);
 
 /*! \brief robust linear regression fit row-colum model using PLM-rc
  *
@@ -129,8 +126,7 @@ iter, int initialized);
  *
  */
 
-void plmrc_wfit(double *y, int y_rows, int y_cols, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_
-iter, int initialized);
+void plmrc_wfit(double *y, int y_rows, int y_cols, double *w, double *out_beta, double *out_resids, double *out_weights,double (* PsiFn)(double, double, int), double psi_k,int max_iter, int initialized);
 
 
 
